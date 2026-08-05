@@ -3,6 +3,7 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const { execFile } = require('child_process');
+const db = require('./db');
 
 const app = express();
 const PORT = 3000;
@@ -267,9 +268,9 @@ app.get('/', (req, res) => {
 });
 
 // API: Get merged problems
-app.get('/api/problems', (req, res) => {
+app.get('/api/problems', async (req, res) => {
     const tracker = readJsonFile(TRACKER_FILE, []);
-    const progress = readJsonFile(PROGRESS_FILE, { user_rating: 1200, spaced_repetition: {}, history: [] });
+    const progress = await db.getProgress(PROGRESS_FILE);
     const descriptions = readJsonFile(DESCRIPTIONS_FILE, {});
     
     const userRating = progress.user_rating || 1200;
@@ -388,7 +389,7 @@ app.post('/api/run', (req, res) => {
 });
 
 // API: Submit quality rating
-app.post('/api/submit', (req, res) => {
+app.post('/api/submit', async (req, res) => {
     const { problem_id, quality } = req.body;
     if (!problem_id || quality === undefined) {
         return res.status(400).send("Missing problem_id or quality parameters");
@@ -400,7 +401,7 @@ app.post('/api/submit', (req, res) => {
     }
     
     const tracker = readJsonFile(TRACKER_FILE, []);
-    const progress = readJsonFile(PROGRESS_FILE, { user_rating: 1200, spaced_repetition: {}, history: [] });
+    const progress = await db.getProgress(PROGRESS_FILE);
     
     const problem = tracker.find(p => p.id === problem_id);
     if (!problem) return res.status(404).send("Problem not found");
@@ -454,7 +455,7 @@ app.post('/api/submit', (req, res) => {
         elo_change: eloChange
     });
     
-    writeJsonFile(PROGRESS_FILE, progress);
+    await db.saveProgress(PROGRESS_FILE, progress, problem_id);
     
     res.json({
         user_rating: newRating,
