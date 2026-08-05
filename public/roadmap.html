@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AlgoDeck | Curriculum Roadmap</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Manrope:wght@200;300;400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/global.css?v=3.0">
+  <script src="/js/global.js?v=3.0" defer></script>
+  <script src="/js/tracker.js?v=3.0"></script>
+  <style>
+    :root {
+      --bg-dark: #050505;
+      --card-bg: rgba(255, 255, 255, 0.02);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --accent-blue: #ffffff;
+      --accent-purple: #888888;
+      --accent-green: #10b981;
+      --accent-orange: #ffb020;
+      --accent-red: #ff5252;
+      --text-main: #e5e5e5;
+      --text-muted: #888888;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Manrope', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding-bottom: 4rem;
+    }
+
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 2.5rem 2rem;
+    }
+
+    header.roadmap-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    header.roadmap-header h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ffffff, #aaaaaa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    header.roadmap-header p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+
+    /* Roadmap Split Preview Card */
+    .roadmap-split-card {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 2rem;
+      align-items: center;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 2rem;
+      backdrop-filter: blur(12px);
+      margin-bottom: 2.5rem;
+    }
+
+    @media (max-width: 960px) {
+      .roadmap-split-card {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .split-info h2 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 0.8rem;
+      color: #ffffff;
+    }
+
+    .split-info p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 1.25rem;
+    }
+
+    .split-stats {
+      display: flex;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    .stat-pill {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+    }
+
+    .stat-pill strong {
+      color: #ffffff;
+      font-size: 1.1rem;
+      display: block;
+    }
+
+    .roadmap-thumb-box {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      cursor: pointer;
+      background: #000000;
+      transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .roadmap-thumb-box:hover {
+      transform: translateY(-3px);
+      border-color: rgba(255, 255, 255, 0.35);
+      box-shadow: 0 0 24px rgba(255, 255, 255, 0.12);
+    }
+
+    .roadmap-thumb-img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      display: block;
+      filter: brightness(0.85) contrast(1.1);
+      transition: filter 0.25s ease;
+    }
+
+    .roadmap-thumb-box:hover .roadmap-thumb-img {
+      filter: brightness(1) contrast(1.15);
+    }
+
+    .thumb-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 0.85rem;
+      gap: 8px;
+      backdrop-filter: blur(2px);
+    }
+
+    .roadmap-thumb-box:hover .thumb-overlay {
+      opacity: 1;
+    }
+
+    /* Lightbox Modal */
+    .lightbox-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.92);
+      backdrop-filter: blur(16px);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    .lightbox-modal.active {
+      display: flex;
+    }
+
+    .lightbox-content {
+      position: relative;
+      max-width: 92vw;
+      max-height: 90vh;
+      border-radius: 12px;
+      overflow: auto;
+      background: #000;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 0 50px rgba(0,0,0,0.9);
+    }
+
+    .lightbox-img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 20px;
+      right: 25px;
+      font-size: 1.5rem;
+      color: #ffffff;
+      cursor: pointer;
+      z-index: 10000;
+      background: rgba(255, 255, 255, 0.15);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .lightbox-close:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Big-O Cheatsheet Styles */
+    .section-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 2rem;
+      margin-bottom: 2.5rem;
+      backdrop-filter: blur(12px);
+    }
+
+    .section-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #ffffff;
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      padding: 12px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    th {
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+    }
+
+    td code {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+      display: inline-block;
+    }
+
+    td code.o-1 { color: #10b981; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); }
+    td code.o-log { color: #38bdf8; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.2); }
+    td code.o-n { color: #fbbf24; background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.2); }
+    td code.o-n2 { color: #f87171; background: rgba(248, 113, 113, 0.1); border: 1px solid rgba(248, 113, 113, 0.2); }
+
+    /* 5-Level Accordion */
+    .level-accordion {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .accordion-item {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .accordion-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.35rem 1.75rem;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.015);
+      font-weight: 700;
+      font-size: 1.1rem;
+      transition: background-color 0.2s;
+    }
+
+    .accordion-header:hover {
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .accordion-icon {
+      transition: transform 0.25s ease;
+      color: var(--text-muted);
+    }
+
+    .accordion-item.active {
+      border-color: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.03);
+    }
+
+    .accordion-item.active .accordion-icon {
+      transform: rotate(180deg);
+      color: #ffffff;
+    }
+
+    .accordion-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s cubic-bezier(0, 1, 0, 1);
+      padding: 0 1.75rem;
+    }
+
+    .accordion-item.active .accordion-content {
+      max-height: 2500px;
+      padding: 1.75rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      transition: max-height 0.35s ease-in-out;
+    }
+
+    .pattern-block {
+      margin-bottom: 1.75rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .pattern-block:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .pattern-name {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .problem-tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    .prob-tag {
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-main);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .prob-tag:hover {
+      transform: translateY(-1px);
+      border-color: rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .prob-tag.easy { color: var(--accent-green); border-color: rgba(16, 185, 129, 0.2); }
+    .prob-tag.medium { color: var(--accent-orange); border-color: rgba(255, 176, 32, 0.2); }
+    .prob-tag.hard { color: var(--accent-red); border-color: rgba(255, 82, 82, 0.2); }
+
+    .tag-level {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      margin-left: 10px;
+    }
+
+    .level-badge-1 { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+    .level-badge-2 { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+    .level-badge-3 { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .level-badge-4 { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .level-badge-5 { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+  </style>
+</head>
+<body>
+
+  <div id="app-header"></div>
+
+  <div class="container">
+    <header class="roadmap-header">
+      <h1>AlgoDeck Roadmap</h1>
+      <p>Master curriculum progression path and complexity matrix across 75 problems</p>
+    </header>
+
+    <!-- Side-by-Side Roadmap Graph Preview Card -->
+    <div class="roadmap-split-card">
+      <div class="split-info">
+        <h2><i class="fa-solid fa-map-location-dot" style="margin-right: 8px; color: var(--accent-green);"></i> Visual Curriculum Graph</h2>
+        <p>Interactive graph outlining topic dependencies from linear foundations to graph theory and dynamic programming.</p>
+        <div class="split-stats">
+          <div class="stat-pill">
+            <span>Total Problems</span>
+            <strong>75 Problems</strong>
+          </div>
+          <div class="stat-pill">
+            <span>Topic Patterns</span>
+            <strong>19 Patterns</strong>
+          </div>
+          <div class="stat-pill">
+            <span>Curriculum Levels</span>
+            <strong>5 Levels</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="roadmap-thumb-box" onclick="openLightbox()">
+        <img src="dsa-roadmap.png" alt="DSA Roadmap Diagram" class="roadmap-thumb-img">
+        <div class="thumb-overlay">
+          <i class="fa-solid fa-magnifying-glass-plus"></i> Click to Zoom Diagram
+        </div>
+      </div>
+    </div>
+
+    <!-- Data Structure Complexity Cheatsheet -->
+    <div class="section-card">
+      <div class="section-title">
+        <i class="fa-solid fa-gauge-high" style="color: #fbbf24;"></i> Data Structure & Algorithm Complexity Cheatsheet
+      </div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Data Structure</th>
+              <th>Access</th>
+              <th>Search</th>
+              <th>Insertion</th>
+              <th>Deletion</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Array / Vector</td>
+              <td><code class="o-1">O(1)</code></td>
+              <td><code class="o-n">O(N)</code></td>
+              <td><code class="o-n">O(N)</code></td>
+              <td><code class="o-n">O(N)</code></td>
+            </tr>
+            <tr>
+              <td>Singly Linked List</td>
+              <td><code class="o-n">O(N)</code></td>
+              <td><code class="o-n">O(N)</code></td>
+              <td><code class="o-1">O(1)</code></td>
+              <td><code class="o-1">O(1)</code></td>
+            </tr>
+            <tr>
+              <td>Stack / Queue</td>
+              <td><code class="o-n">O(N)</code></td>
+              <td><code class="o-n">O(N)</code></td>
+              <td><code class="o-1">O(1)</code></td>
+              <td><code class="o-1">O(1)</code></td>
+            </tr>
+            <tr>
+              <td>Hash Table</td>
+              <td><code class="o-1">N/A</code></td>
+              <td><code class="o-1">O(1) avg</code></td>
+              <td><code class="o-1">O(1) avg</code></td>
+              <td><code class="o-1">O(1) avg</code></td>
+            </tr>
+            <tr>
+              <td>Binary Search Tree (Balanced)</td>
+              <td><code class="o-log">O(log N)</code></td>
+              <td><code class="o-log">O(log N)</code></td>
+              <td><code class="o-log">O(log N)</code></td>
+              <td><code class="o-log">O(log N)</code></td>
+            </tr>
+            <tr>
+              <td>Heap / Priority Queue</td>
+              <td><code class="o-1">O(1) peek</code></td>
+              <td><code class="o-n">O(N)</code></td>
+              <td><code class="o-log">O(log N)</code></td>
+              <td><code class="o-log">O(log N) pop</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 5 Levels Accordion Section -->
+    <div style="margin-bottom: 1.25rem; font-size: 1.35rem; font-weight: 700; color: #ffffff; display: flex; align-items: center; gap: 10px;">
+      <i class="fa-solid fa-layer-group" style="color: #38bdf8;"></i> Curriculum Level Breakdown (75 Problems)
+    </div>
+
+    <div class="level-accordion" id="level-accordion-container">
+      <!-- Level items rendered via JS -->
+    </div>
+  </div>
+
+  <!-- Lightbox Zoom Modal -->
+  <div class="lightbox-modal" id="lightbox-modal" onclick="closeLightbox(event)">
+    <div class="lightbox-close" onclick="closeLightbox()">&times;</div>
+    <div class="lightbox-content" onclick="event.stopPropagation()">
+      <img src="dsa-roadmap.png" alt="DSA Roadmap Diagram Full Resolution" class="lightbox-img">
+    </div>
+  </div>
+
+  <script>
+    function renderHeader() {
+        const isFile = window.location.protocol === 'file:';
+        const dashUrl = isFile ? './index.html' : '/';
+        const editUrl = isFile ? './editor.html' : '/editor.html';
+        const roadmapUrl = isFile ? './roadmap.html' : '/roadmap.html';
+        
+        const isDashActive = window.location.pathname === '/' || window.location.pathname.includes('index') || window.location.pathname.includes('dashboard');
+        
+        const headerHtml = `
+          <header class="main-header">
+            <a href="${dashUrl}" class="header-brand">
+              <i class="fa-solid fa-layer-group brand-logo" style="color: #ffffff; font-size: 1.7rem;"></i>
+              <span class="brand-name serif italic" style="font-weight: 600; font-size: 1.65rem; font-family: 'Cormorant Garamond', serif; font-style: italic;">AlgoDeck</span>
+            </a>
+            <nav class="header-nav">
+              <a href="${dashUrl}" class="nav-item ${isDashActive ? 'active' : ''}">
+                <i class="fa-solid fa-chart-simple"></i> Dashboard
+              </a>
+              <a href="${editUrl}" class="nav-item ${window.location.pathname.includes('editor') ? 'active' : ''}">
+                <i class="fa-solid fa-terminal"></i> Editor Playground
+              </a>
+              <a href="${roadmapUrl}" class="nav-item ${window.location.pathname.includes('roadmap') ? 'active' : ''}">
+                <i class="fa-solid fa-map-location-dot"></i> Curriculum Roadmap
+              </a>
+            </nav>
+          </header>
+        `;
+        
+        const container = document.getElementById("app-header");
+        if (container) {
+            container.innerHTML = headerHtml;
+        }
+    }
+
+    function openLightbox() {
+      document.getElementById('lightbox-modal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox(e) {
+      if (!e || e.target.id === 'lightbox-modal' || e.target.classList.contains('lightbox-close')) {
+        document.getElementById('lightbox-modal').classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeLightbox();
+      }
+    });
+
+    function toggleAccordion(header) {
+      const item = header.parentElement;
+      const content = item.querySelector('.accordion-content');
+      
+      if (item.classList.contains('active')) {
+        item.classList.remove('active');
+        content.style.maxHeight = null;
+      } else {
+        document.querySelectorAll('.accordion-item').forEach(el => {
+          el.classList.remove('active');
+          el.querySelector('.accordion-content').style.maxHeight = null;
+        });
+        
+        item.classList.add('active');
+        content.style.maxHeight = content.scrollHeight + "px";
+      }
+    }
+
+    // Dynamic 5 Level Accordion Renderer from window.problemsData
+    function renderLevelAccordion() {
+      const container = document.getElementById('level-accordion-container');
+      if (!container || !window.problemsData) return;
+
+      const levels = [
+        { id: 1, title: 'Level 1: Linear Data Structures', badge: 'level-badge-1', icon: 'fa-grip-lines' },
+        { id: 2, title: 'Level 2: Search, Trees & Heaps', badge: 'level-badge-2', icon: 'fa-sitemap' },
+        { id: 3, title: 'Level 3: Graphs, Tries & Backtracking', badge: 'level-badge-3', icon: 'fa-diagram-project' },
+        { id: 4, title: 'Level 4: Dynamic Programming & Greedy', badge: 'level-badge-4', icon: 'fa-brain' },
+        { id: 5, title: 'Level 5: Competitive Programming & Math', badge: 'level-badge-5', icon: 'fa-medal' }
+      ];
+
+      let html = '';
+      levels.forEach(lvl => {
+        const lvlProbs = window.problemsData.filter(p => p.level === lvl.id);
+        
+        const patterns = {};
+        lvlProbs.forEach(p => {
+          const pat = p.pattern || 'General';
+          patterns[pat] = patterns[pat] || [];
+          patterns[pat].push(p);
+        });
+
+        let patternsHtml = '';
+        Object.keys(patterns).forEach(patName => {
+          const probs = patterns[patName];
+          let tagsHtml = probs.map(p => `
+            <a href="/editor.html?id=${p.id}" class="prob-tag ${p.difficulty.toLowerCase()}" title="Click to solve ${p.title}">
+              <i class="fa-solid fa-code" style="font-size: 0.7rem;"></i> ${p.title}
+            </a>
+          `).join('');
+
+          patternsHtml += `
+            <div class="pattern-block">
+              <div class="pattern-name"><i class="fa-solid fa-circle-dot" style="font-size: 0.75rem;"></i> ${patName} (${probs.length})</div>
+              <div class="problem-tags-container">
+                ${tagsHtml}
+              </div>
+            </div>
+          `;
+        });
+
+        html += `
+          <div class="accordion-item ${lvl.id === 1 ? 'active' : ''}">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+              <div>
+                <i class="fa-solid ${lvl.icon}" style="margin-right: 8px;"></i> ${lvl.title}
+                <span class="tag-level ${lvl.badge}">L${lvl.id}</span>
+                <span style="font-size: 0.8rem; font-weight: 500; color: var(--text-muted); margin-left: 12px;">(${lvlProbs.length} Problems)</span>
+              </div>
+              <i class="fa-solid fa-chevron-down accordion-icon"></i>
+            </div>
+            <div class="accordion-content" style="${lvl.id === 1 ? 'max-height: 2500px; padding: 1.75rem;' : ''}">
+              ${patternsHtml}
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    renderHeader();
+    document.addEventListener('DOMContentLoaded', renderLevelAccordion);
+  </script>
+</body>
+</html>
