@@ -280,6 +280,14 @@ body {
     -webkit-text-fill-color: transparent !important;
 }
 
+[data-theme="light"] header h1,
+[data-theme="light"] header.roadmap-header h1 {
+    background: none !important;
+    -webkit-background-clip: unset !important;
+    -webkit-text-fill-color: #0f172a !important;
+    color: #0f172a !important;
+}
+
 [data-theme="light"] .btn-primary {
     background: #0f172a !important;
     color: #ffffff !important;
