@@ -978,9 +978,6 @@ Terminal logs and assertion output will display here after you run code.
             // Sync Wrap Button Active UI state
             const wrapBtn = document.getElementById('btn-word-wrap');
             if (wrapBtn) wrapBtn.classList.toggle('active', isWordWrapOn);
-
-            // Load problems catalog
-            fetchProblems();
         });
 
         // Trigger problem catalog fetch immediately on DOM load
@@ -1142,6 +1139,7 @@ Terminal logs and assertion output will display here after you run code.
         const resetToBoilerplate = resetBoilerplateCode;
 
         // Fetch problems list from server with resilient static fallbacks
+        let hasFetchedProblems = false;
         async function fetchProblems() {
             renderHeader();
             let loadedData = null;
@@ -1197,7 +1195,13 @@ Terminal logs and assertion output will display here after you run code.
                     switchLanguage(targetLang);
                 }
                 if (targetId && problemList.length > 0) {
-                    const targetProb = problemList.find(p => p.id === targetId);
+                    const normTarget = targetId.toLowerCase().replace(/[^a-z0-9]/g, '');
+                    const targetProb = problemList.find(p => 
+                        p.id === targetId || 
+                        p.id.toLowerCase().replace(/[^a-z0-9]/g, '') === normTarget ||
+                        (p.pythonPath && p.pythonPath.toLowerCase().includes(normTarget)) ||
+                        (p.title && p.title.toLowerCase().replace(/[^a-z0-9]/g, '') === normTarget)
+                    );
                     if (targetProb) {
                         selectProblem(targetProb);
                     } else {
