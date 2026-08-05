@@ -1,8 +1,8 @@
 /* Global Design System variables matching Anmol's premium design language */
 :root {
     --bg-base: #050505;
-    --bg-surface: #0a0a0a;
-    --bg-element: #121212;
+    --bg-surface: #0a0a0c;
+    --bg-element: #141418;
     --border: rgba(255, 255, 255, 0.08);
     --border-hover: rgba(255, 255, 255, 0.25);
     --text-main: #e5e5e5;
@@ -20,6 +20,8 @@
     --nav-text: #ffffff;
     --nav-border: rgba(255, 255, 255, 0.08);
     --card-bg: rgba(255, 255, 255, 0.02);
+    --terminal-bg: #0a0a0c;
+    --terminal-text: #34d399;
 
     /* Spotlight coordinates */
     --cursor-x: 50%;
@@ -33,7 +35,7 @@
     --bg-element: #f1f5f9;
     --border: #e2e8f0;
     --border-hover: #cbd5e1;
-    --text-main: #0f172a;
+    --text-main: #1e293b;
     --text-muted: #64748b;
     --primary: #0f172a;
     --primary-glow: rgba(15, 23, 42, 0.1);
@@ -48,6 +50,8 @@
     --nav-text: #0f172a;
     --nav-border: rgba(0, 0, 0, 0.08);
     --card-bg: #ffffff;
+    --terminal-bg: #0f172a;
+    --terminal-text: #4ade80;
     --spotlight-color: rgba(37, 99, 235, 0.05);
 }
 
@@ -209,24 +213,86 @@ body {
     display: flex;
 }
 
-/* Light Mode Overrides for Specific Components */
-[data-theme="light"] input,
-[data-theme="light"] select,
-[data-theme="light"] textarea {
-    background-color: #ffffff !important;
+/* Comprehensive Light Mode System Overrides */
+[data-theme="light"] body {
+    background-color: var(--bg-base) !important;
+    color: var(--text-main) !important;
+}
+
+[data-theme="light"] h1,
+[data-theme="light"] h2,
+[data-theme="light"] h3,
+[data-theme="light"] h4,
+[data-theme="light"] h5,
+[data-theme="light"] h6,
+[data-theme="light"] .section-header h2,
+[data-theme="light"] .stat-number,
+[data-theme="light"] .doc-title,
+[data-theme="light"] .feature-card h3,
+[data-theme="light"] .dev-info h3,
+[data-theme="light"] .topic-title,
+[data-theme="light"] .sidebar-header {
+    color: var(--primary) !important;
+}
+
+[data-theme="light"] .hero-title {
+    background: linear-gradient(135deg, #0f172a 30%, #64748b 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+}
+
+[data-theme="light"] .btn-primary {
+    background: #0f172a !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.15) !important;
+}
+
+[data-theme="light"] .btn-secondary {
+    background: #ffffff !important;
     color: #0f172a !important;
     border-color: #cbd5e1 !important;
 }
 
+[data-theme="light"] .sidebar,
 [data-theme="light"] .problem-catalog-pane,
 [data-theme="light"] .doc-description-pane,
-[data-theme="light"] .editor-terminal-pane {
+[data-theme="light"] .editor-terminal-pane,
+[data-theme="light"] .tab-header,
+[data-theme="light"] .editor-header,
+[data-theme="light"] .editor-footer {
     background-color: #ffffff !important;
     border-color: #e2e8f0 !important;
 }
 
+[data-theme="light"] .tab-btn {
+    color: #64748b !important;
+}
+
+[data-theme="light"] .tab-btn:hover {
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .tab-btn.active {
+    color: #0f172a !important;
+    border-bottom-color: #0f172a !important;
+    background: #f1f5f9 !important;
+}
+
+[data-theme="light"] .lang-btn {
+    background: #f1f5f9 !important;
+    color: #475569 !important;
+    border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] .lang-btn.active {
+    background: #0f172a !important;
+    color: #ffffff !important;
+    border-color: #0f172a !important;
+}
+
 [data-theme="light"] .problem-item {
-    border-bottom-color: #f1f5f9 !important;
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
 }
 
 [data-theme="light"] .problem-item:hover {
@@ -235,7 +301,16 @@ body {
 
 [data-theme="light"] .problem-item.active {
     background-color: #eff6ff !important;
-    border-left: 3px solid #2563eb !important;
+    border-color: #93c5fd !important;
+}
+
+[data-theme="light"] .problem-search {
+    background: #f1f5f9 !important;
+    border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] .problem-search input {
+    color: #0f172a !important;
 }
 
 [data-theme="light"] .pattern-group-header {
@@ -248,9 +323,19 @@ body {
 [data-theme="light"] .auth-box,
 [data-theme="light"] .stat-card,
 [data-theme="light"] .feature-card,
-[data-theme="light"] .dev-card {
+[data-theme="light"] .dev-card,
+[data-theme="light"] .roadmap-card,
+[data-theme="light"] .cheatsheet-card {
     background-color: #ffffff !important;
     color: #0f172a !important;
     border-color: #e2e8f0 !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+}
+
+[data-theme="light"] input,
+[data-theme="light"] select,
+[data-theme="light"] textarea {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    border-color: #cbd5e1 !important;
 }
