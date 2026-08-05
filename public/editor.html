@@ -1144,30 +1144,45 @@ Terminal logs and assertion output will display here after you run code.
         // Reset Starter Code Boilerplate (clears draft cache and reloads server template)
         async function resetBoilerplateCode() {
             if (!activeProblem) {
-                alert("Select a problem from the catalog first.");
+                alert("Select a problem from the Problem Catalog on the left first.");
                 return;
             }
-            if (confirm("Reset code to starter boilerplate? Any unsaved changes in this draft will be lost.")) {
+            
+            if (confirm(`Reset code for "${activeProblem.title}" to its clean starter boilerplate? Your unsaved draft will be lost.`)) {
                 const draftKey = `draft_${activeProblem.id}_${activeLanguage}`;
                 localStorage.removeItem(draftKey);
                 
-                const filePath = activeLanguage === "python" ? activeProblem.pythonPath : activeProblem.jsPath;
+                const filePath = (activeLanguage === "python" ? activeProblem.pythonPath : activeProblem.jsPath) || "";
+                if (!filePath) {
+                    console.error("No file path found for problem", activeProblem);
+                    return;
+                }
+                
                 try {
                     const response = await fetch(`${API_BASE}/api/boilerplate?path=${encodeURIComponent(filePath)}`);
-                    const code = await response.text();
-                    if (monacoEditor) {
-                        monacoEditor.setValue(code);
-                    }
-                    const terminal = document.getElementById("terminal-body");
-                    if (terminal) {
-                        terminal.className = "terminal-body";
-                        terminal.innerText = "Code reset to starter boilerplate.";
+                    if (response.ok) {
+                        const code = await response.text();
+                        if (monacoEditor) {
+                            monacoEditor.setValue(code);
+                        }
+                        const terminal = document.getElementById("terminal-body");
+                        if (terminal) {
+                            terminal.className = "terminal-body";
+                            terminal.innerText = `[${new Date().toLocaleTimeString()}] Starter code reset successfully for ${activeProblem.title} (${activeLanguage}).`;
+                            document.getElementById("term-status").innerText = "Ready";
+                        }
+                    } else {
+                        alert("Failed to load starter boilerplate from server.");
                     }
                 } catch (err) {
-                    console.error("Failed to reset boilerplate:", err);
+                    console.error("Error resetting boilerplate:", err);
+                    alert("Error connecting to server to reset code.");
                 }
             }
         }
+
+        // Alias for secondary reset button
+        const resetToBoilerplate = resetBoilerplateCode;
 
         // Fetch problems list from server with resilient static fallbacks
         async function fetchProblems() {
