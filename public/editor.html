@@ -1028,6 +1028,10 @@ Terminal logs and assertion output will display here after you run code.
             if (!activeProblem) {
                 const urlParams = new URLSearchParams(window.location.search);
                 const targetId = urlParams.get('id');
+                const targetLang = urlParams.get('lang');
+                if (targetLang && (targetLang === 'python' || targetLang === 'javascript')) {
+                    setLanguage(targetLang);
+                }
                 if (targetId && problemList.length > 0) {
                     const targetProb = problemList.find(p => p.id === targetId);
                     if (targetProb) {

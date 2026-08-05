@@ -472,8 +472,10 @@ app.use((req, res, next) => {
     next();
 });
 
-// Serve static assets from public folder
+// Serve static assets from public & content folders
 app.use(express.static(PUBLIC_DIR));
+app.use(express.static(CONTENT_DIR));
+app.use('/content', express.static(CONTENT_DIR));
 app.use('/playground', express.static(PUBLIC_DIR));
 app.use('/roadmap', express.static(PUBLIC_DIR));
 
