@@ -1,4 +1,0 @@
-# AlgoDeck Reverse Proxy Routing
-http://localhost, http://algodeck.local {
-    reverse_proxy app:3000
-}
