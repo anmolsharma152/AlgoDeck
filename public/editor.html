@@ -1264,10 +1264,10 @@ Terminal logs and assertion output will display here after you run code.
                 collapsedGroups[activeProblem.pattern] = false;
             }
 
-            // Render each pattern group (EXPANDED by default unless explicitly collapsed)
+            // Render each pattern group (COLLAPSED by default unless active or expanded)
             Object.keys(groups).forEach(pattern => {
                 const probs = groups[pattern];
-                const isGroupCollapsed = collapsedGroups[pattern] === true;
+                const isGroupCollapsed = collapsedGroups[pattern] !== false;
 
                 // Group Header
                 const groupHeader = document.createElement("div");
