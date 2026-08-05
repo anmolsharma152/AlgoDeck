@@ -1035,17 +1035,98 @@ Terminal logs and assertion output will display here after you run code.
 
         // Font Size Zoom Controls (A+ / A-)
         function zoomEditor(delta) {
-            currentFontSize = Math.min(26, Math.max(11, currentFontSize + delta));
+            currentFontSize = Math.min(28, Math.max(10, currentFontSize + (delta * 2)));
             localStorage.setItem('algodeck_fontsize', currentFontSize);
             if (monacoEditor) monacoEditor.updateOptions({ fontSize: currentFontSize });
             if (solutionEditor) solutionEditor.updateOptions({ fontSize: currentFontSize });
         }
 
-        // Format Document Action
+        // Format Document Action (Python + JavaScript)
         function formatCode() {
-            if (monacoEditor) {
-                monacoEditor.getAction('editor.action.formatDocument')?.run();
+            if (!monacoEditor) return;
+            try {
+                if (activeLanguage === "javascript") {
+                    const action = monacoEditor.getAction('editor.action.formatDocument');
+                    if (action) {
+                        action.run();
+                    } else {
+                        const val = monacoEditor.getValue();
+                        monacoEditor.setValue(formatJsCode(val));
+                    }
+                } else {
+                    const val = monacoEditor.getValue();
+                    const formatted = formatPythonCode(val);
+                    monacoEditor.setValue(formatted);
+                }
+            } catch (err) {
+                console.warn("Formatting failed:", err);
             }
+        }
+
+        // Clean Python Auto-Formatter
+        function formatPythonCode(code) {
+            const lines = code.split("\n");
+            const formatted = [];
+            let indentLevel = 0;
+            
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i].trim();
+                if (!line) {
+                    if (formatted.length > 0 && formatted[formatted.length - 1] !== "") {
+                        formatted.push("");
+                    }
+                    continue;
+                }
+                
+                if (line.startsWith("else:") || line.startsWith("elif ") || line.startsWith("except:") || line.startsWith("except ") || line.startsWith("finally:")) {
+                    const currentIndent = Math.max(0, indentLevel - 1);
+                    formatted.push("    ".repeat(currentIndent) + line);
+                } else {
+                    formatted.push("    ".repeat(indentLevel) + line);
+                }
+
+                if (line.endsWith(":") && !line.startsWith("#")) {
+                    indentLevel++;
+                }
+                
+                if (line === "pass" || line === "break" || line.startsWith("return ")) {
+                    if (i + 1 < lines.length && lines[i+1].trim() !== "" && !lines[i+1].trim().startsWith("#")) {
+                        const nextLine = lines[i+1].trim();
+                        if (nextLine.startsWith("def ") || nextLine.startsWith("class ")) {
+                            indentLevel = 0;
+                        }
+                    }
+                }
+            }
+            return formatted.join("\n");
+        }
+
+        // Basic JS Formatter Fallback
+        function formatJsCode(code) {
+            const lines = code.split("\n");
+            const formatted = [];
+            let indent = 0;
+            
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i].trim();
+                if (!line) {
+                    if (formatted.length > 0 && formatted[formatted.length - 1] !== "") {
+                        formatted.push("");
+                    }
+                    continue;
+                }
+                
+                if (line.startsWith("}") || line.startsWith("]")) {
+                    indent = Math.max(0, indent - 1);
+                }
+                
+                formatted.push("    ".repeat(indent) + line);
+                
+                if (line.endsWith("{") || line.endsWith("[")) {
+                    indent++;
+                }
+            }
+            return formatted.join("\n");
         }
 
         // Toggle Word Wrap
@@ -1060,8 +1141,8 @@ Terminal logs and assertion output will display here after you run code.
             if (wrapBtn) wrapBtn.classList.toggle('active', isWordWrapOn);
         }
 
-        // Reset Starter Code Boilerplate
-        function resetBoilerplateCode() {
+        // Reset Starter Code Boilerplate (clears draft cache and reloads server template)
+        async function resetBoilerplateCode() {
             if (!activeProblem) {
                 alert("Select a problem from the catalog first.");
                 return;
@@ -1069,7 +1150,22 @@ Terminal logs and assertion output will display here after you run code.
             if (confirm("Reset code to starter boilerplate? Any unsaved changes in this draft will be lost.")) {
                 const draftKey = `draft_${activeProblem.id}_${activeLanguage}`;
                 localStorage.removeItem(draftKey);
-                selectProblem(activeProblem);
+                
+                const filePath = activeLanguage === "python" ? activeProblem.pythonPath : activeProblem.jsPath;
+                try {
+                    const response = await fetch(`${API_BASE}/api/boilerplate?path=${encodeURIComponent(filePath)}`);
+                    const code = await response.text();
+                    if (monacoEditor) {
+                        monacoEditor.setValue(code);
+                    }
+                    const terminal = document.getElementById("terminal-body");
+                    if (terminal) {
+                        terminal.className = "terminal-body";
+                        terminal.innerText = "Code reset to starter boilerplate.";
+                    }
+                } catch (err) {
+                    console.error("Failed to reset boilerplate:", err);
+                }
             }
         }
 
