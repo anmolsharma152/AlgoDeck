@@ -34,11 +34,104 @@
         applyTheme(newTheme);
     }
 
-    // Expose globally
+    // Expose theme functions globally
     window.applyTheme = applyTheme;
     window.toggleTheme = toggleTheme;
 
-    // 2. Inject fonts and stylesheets dynamically
+    // 2. Global Auth / Guest Session Modal Management
+    function injectGlobalAuthModal() {
+        if (document.getElementById('auth-modal')) return;
+
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.id = 'auth-modal';
+        modal.onclick = (e) => {
+            if (e.target === modal) window.closeAuthModal();
+        };
+
+        const userType = localStorage.getItem('algodeck_user_type') || 'guest';
+        const username = localStorage.getItem('algodeck_username') || '';
+        let guestId = localStorage.getItem('algodeck_guest_id');
+        if (!guestId) {
+            guestId = 'guest_' + Math.random().toString(36).substring(2, 8);
+            localStorage.setItem('algodeck_guest_id', guestId);
+        }
+
+        modal.innerHTML = `
+            <div class="modal-content" style="background: var(--bg-surface); border: 1px solid var(--border); border-radius: 16px; width: 90%; max-width: 440px; padding: 32px; color: var(--text-main); position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+                <button onclick="window.closeAuthModal()" style="position: absolute; top: 16px; right: 16px; background: transparent; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer;">&times;</button>
+                <div style="text-align: center; margin-bottom: 24px;">
+                    <i class="fa-solid fa-user-shield" style="font-size: 2.2rem; color: var(--primary); margin-bottom: 12px;"></i>
+                    <h2 style="font-size: 1.4rem; font-weight: 800; margin: 0 0 6px 0; color: var(--text-main);">AlgoDeck Session Management</h2>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Local-first isolate session & cloud authentication</p>
+                </div>
+                <div style="background: var(--bg-element); border: 1px solid var(--border); padding: 14px; border-radius: 10px; margin-bottom: 20px; font-size: 0.85rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                        <span style="color: var(--text-muted);">Current Mode:</span>
+                        <strong style="color: var(--text-main); text-transform: uppercase;">${userType}</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-muted);">Session Identifier:</span>
+                        <code style="color: var(--success); font-weight: 700;">${userType === 'user' ? username : guestId}</code>
+                    </div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <input type="text" id="modal-username-input" placeholder="Enter Username (e.g. Anmol)" value="${username}" style="padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-element); color: var(--text-main); font-size: 0.9rem;">
+                    <button onclick="window.saveAuthSession('user')" style="background: linear-gradient(135deg, #ffffff, #aaaaaa); color: #000000; font-weight: 800; padding: 12px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.9rem;">Sign In / Switch User</button>
+                    <button onclick="window.saveAuthSession('guest')" style="background: transparent; color: var(--text-muted); font-weight: 600; padding: 10px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; font-size: 0.85rem;">Continue as Guest</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+    }
+
+    function openAuthModal() {
+        let modal = document.getElementById('auth-modal');
+        if (!modal) {
+            injectGlobalAuthModal();
+            modal = document.getElementById('auth-modal');
+        }
+        if (modal) {
+            modal.style.display = 'flex';
+            modal.classList.add('active');
+        }
+    }
+
+    function closeAuthModal(e) {
+        if (e && e.target !== e.currentTarget && !e.target.matches('button')) return;
+        const modal = document.getElementById('auth-modal');
+        if (modal) {
+            modal.style.display = 'none';
+            modal.classList.remove('active');
+        }
+    }
+
+    function saveAuthSession(type) {
+        if (type === 'user') {
+            const input = document.getElementById('modal-username-input');
+            const val = input ? input.value.trim() : '';
+            if (!val) {
+                alert("Please enter a username.");
+                return;
+            }
+            localStorage.setItem('algodeck_user_type', 'user');
+            localStorage.setItem('algodeck_username', val);
+        } else {
+            localStorage.setItem('algodeck_user_type', 'guest');
+        }
+        closeAuthModal();
+        if (window.renderGlobalNavbar) {
+            window.renderGlobalNavbar();
+        }
+    }
+
+    // Expose auth functions globally
+    window.openAuthModal = openAuthModal;
+    window.closeAuthModal = closeAuthModal;
+    window.saveAuthSession = saveAuthSession;
+
+    // 3. Inject fonts and stylesheets dynamically
     function injectHeadElements() {
         if (!document.querySelector('link[href*="global.css"]')) {
             const link = document.createElement('link');
@@ -54,7 +147,7 @@
         }
     }
 
-    // 3. Inject spotlight and noise overlay DOM elements
+    // 4. Inject spotlight and noise overlay DOM elements
     function injectBackgroundFX() {
         if (!document.querySelector('.spotlight-bg')) {
             const spotlight = document.createElement('div');
@@ -68,7 +161,7 @@
         }
     }
 
-    // 4. Track spotlight coordinates
+    // 5. Track spotlight coordinates
     function setupSpotlightTracking() {
         document.addEventListener('mousemove', (e) => {
             document.documentElement.style.setProperty('--cursor-x', e.clientX + 'px');
@@ -76,7 +169,7 @@
         });
     }
 
-    // 5. Render unified global navbar across all AlgoDeck pages
+    // 6. Render unified global navbar across all AlgoDeck pages
     function renderGlobalNavbar() {
         const headerContainer = document.getElementById('app-header');
         if (!headerContainer) return;
@@ -119,7 +212,7 @@
                     <button id="btn-theme-toggle" onclick="window.toggleTheme()" title="Toggle Light/Dark Theme" style="background: var(--bg-element); color: var(--nav-text); border: 1px solid var(--border); width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;">
                         ${themeIcon}
                     </button>
-                    <button class="btn-auth" onclick="if(typeof openAuthModal==='function'){openAuthModal()}else{location.href='/index.html'}" style="background: var(--bg-element); color: var(--nav-text); border: 1px solid var(--border); padding: 7px 16px; border-radius: 9999px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
+                    <button class="btn-auth" onclick="window.openAuthModal()" style="background: var(--bg-element); color: var(--nav-text); border: 1px solid var(--border); padding: 7px 16px; border-radius: 9999px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
                         <i class="fa-solid fa-user-check"></i> <span id="nav-user-label">${userLabel}</span>
                     </button>
                 </nav>
@@ -136,6 +229,7 @@
         injectBackgroundFX();
         setupSpotlightTracking();
         applyTheme(getStoredTheme());
+        injectGlobalAuthModal();
         renderGlobalNavbar();
     }
 
