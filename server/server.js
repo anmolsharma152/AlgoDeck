@@ -296,14 +296,45 @@ app.get('/api/problems', async (req, res) => {
     });
 });
 
+// Path normalization and traversal prevention
+function safeResolveContentPath(filePath) {
+    if (!filePath || typeof filePath !== 'string') return null;
+    const normalized = path.normalize(filePath).replace(/^(\.\.[\/\\])+/, '');
+    const resolvedPath = path.resolve(CONTENT_DIR, normalized);
+    if (!resolvedPath.startsWith(CONTENT_DIR)) return null;
+    return resolvedPath;
+}
+
+// In-memory rate limiting middleware
+const requestCounts = new Map();
+function rateLimiter(maxRequestsPerMin = 30) {
+    return (req, res, next) => {
+        const ip = req.ip || req.socket.remoteAddress || '127.0.0.1';
+        const now = Date.now();
+        const windowMs = 60000;
+        
+        let record = requestCounts.get(ip) || { count: 0, resetTime: now + windowMs };
+        if (now > record.resetTime) {
+            record = { count: 0, resetTime: now + windowMs };
+        }
+        record.count++;
+        requestCounts.set(ip, record);
+        
+        if (record.count > maxRequestsPerMin) {
+            return res.status(429).json({ error: "Too many requests. Please wait a minute." });
+        }
+        next();
+    };
+}
+
 // API: Get Boilerplate
 app.get('/api/boilerplate', (req, res) => {
     const filePath = req.query.path;
     if (!filePath) return res.status(400).send("Missing path parameter");
     
-    const fullPath = path.join(CONTENT_DIR, filePath);
-    if (!fs.existsSync(fullPath) || !fullPath.startsWith(CONTENT_DIR)) {
-        return res.status(404).send("File not found");
+    const fullPath = safeResolveContentPath(filePath);
+    if (!fullPath || !fs.existsSync(fullPath)) {
+        return res.status(404).send("File not found or invalid path");
     }
     
     try {
@@ -325,9 +356,9 @@ app.get('/api/solution', (req, res) => {
     const filePath = req.query.path;
     if (!filePath) return res.status(400).send("Missing path parameter");
     
-    const fullPath = path.join(CONTENT_DIR, filePath);
-    if (!fs.existsSync(fullPath) || !fullPath.startsWith(CONTENT_DIR)) {
-        return res.status(404).send("File not found");
+    const fullPath = safeResolveContentPath(filePath);
+    if (!fullPath || !fs.existsSync(fullPath)) {
+        return res.status(404).send("File not found or invalid path");
     }
     
     try {
@@ -338,8 +369,8 @@ app.get('/api/solution', (req, res) => {
     }
 });
 
-// API: Run submission stubs in subprocesses
-app.post('/api/run', (req, res) => {
+// API: Run submission stubs in subprocesses with rate limiting
+app.post('/api/run', rateLimiter(30), (req, res) => {
     const { code, language } = req.body;
     if (!code || !language) return res.status(400).send("Missing code or language parameter");
     
@@ -347,16 +378,19 @@ app.post('/api/run', (req, res) => {
     if (!fs.existsSync(scratchDir)) fs.mkdirSync(scratchDir, { recursive: true });
     
     const ext = language === 'python' ? '.py' : '.js';
-    const tempFile = path.join(scratchDir, `_temp_run${ext}`);
+    const tempFile = path.join(scratchDir, `_temp_run_${Date.now()}_${Math.random().toString(36).substring(7)}${ext}`);
     
     try {
         fs.writeFileSync(tempFile, code, 'utf-8');
         
         let runnerBin = language === 'python' ? 'python3' : 'node';
         
-        // Execute inside subprocess with a 5 second timeout limit
-        const child = execFile(runnerBin, [tempFile], { timeout: 5000, maxBuffer: 1024 * 1024 }, (error, stdout, stderr) => {
-            // Check assertion errors for JS
+        // Execute inside subprocess with a 5 second timeout limit and max 512KB buffer
+        const child = execFile(runnerBin, [tempFile], { 
+            timeout: 5000, 
+            maxBuffer: 512 * 1024,
+            env: { PATH: process.env.PATH, HOME: process.env.HOME || '/tmp' }
+        }, (error, stdout, stderr) => {
             let isAssertionError = false;
             if (language === 'javascript' && stderr.includes('Assertion failed')) {
                 isAssertionError = true;

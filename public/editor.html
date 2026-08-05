@@ -647,6 +647,32 @@
             background: var(--bg-element);
         }
 
+        .tool-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-family: 'Manrope', sans-serif;
+        }
+        .tool-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-main);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        .tool-btn.active {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
         /* Resizer Splitting Divider */
         .resizer {
             width: 5px;
@@ -798,9 +824,18 @@
             <!-- Right Pane: Code Editor + Terminal Console -->
             <div class="editor-container-pane">
                 <div class="editor-header-bar">
-                    <div class="lang-select-group">
-                        <button class="lang-btn active" id="btn-lang-python" onclick="switchLanguage('python')">Python</button>
-                        <button class="lang-btn" id="btn-lang-js" onclick="switchLanguage('javascript')">JavaScript</button>
+                    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                        <div class="lang-select-group">
+                            <button class="lang-btn active" id="btn-lang-python" onclick="switchLanguage('python')">Python</button>
+                            <button class="lang-btn" id="btn-lang-js" onclick="switchLanguage('javascript')">JavaScript</button>
+                        </div>
+                        <div class="editor-action-tools" style="display: flex; gap: 6px; align-items: center;">
+                            <button class="tool-btn" onclick="zoomEditor(-1)" title="Zoom Out Font (A-)">A-</button>
+                            <button class="tool-btn" onclick="zoomEditor(1)" title="Zoom In Font (A+)">A+</button>
+                            <button class="tool-btn" onclick="formatCode()" title="Format Document"><i class="fa-solid fa-align-left"></i> Format</button>
+                            <button class="tool-btn" id="btn-word-wrap" onclick="toggleWordWrap()" title="Toggle Word Wrap"><i class="fa-solid fa-align-justify"></i> Wrap</button>
+                            <button class="tool-btn" onclick="resetBoilerplateCode()" title="Reset Starter Code"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+                        </div>
                     </div>
                     <div style="font-size:0.85rem; color:var(--text-muted); font-weight:500;">
                         Auto-Saving Draft
