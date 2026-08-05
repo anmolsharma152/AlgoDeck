@@ -263,10 +263,7 @@ function extractJsBoilerplate(codeContent) {
     return output.join("\n");
 }
 
-// Redirect root to dashboard.html
-app.get('/', (req, res) => {
-    res.redirect('/dashboard.html');
-});
+
 
 // API: Get merged problems
 app.get('/api/problems', async (req, res) => {
