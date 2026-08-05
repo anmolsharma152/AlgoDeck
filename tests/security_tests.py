@@ -3,8 +3,8 @@ import urllib.parse
 import json
 import time
 import sys
-
-BASE_URL = "http://localhost:3000"
+import os
+BASE_URL = os.getenv("TEST_BASE_URL", "http://localhost:3095")
 
 print("🔒 Running Security & Vulnerability Test Suite for AlgoDeck...\n")
 
