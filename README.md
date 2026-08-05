@@ -125,10 +125,10 @@ AlgoDeck/
 
 ## 📚 Technical Documentation
 
-- 🏛️ **[System Architecture Guide (`architecture.md`)](file:///home/anmol/Projects/AlgoDeck/architecture.md)** — Deep dive into SM-2 math equations, ELO rating logistic functions, Monaco AST parsing, and security layers.
-- 🚀 **[Cloud Deployment Blueprint (`deployment_plan.md`)](file:///home/anmol/Projects/AlgoDeck/deployment_plan.md)** — Step-by-step production hosting guide for Render, AWS EC2/ECS, Supabase PostgreSQL, and Caddy reverse proxies.
-- 🌐 **[Distribution & SaaS Strategy (`distribution_plan.md`)](file:///home/anmol/Projects/AlgoDeck/distribution_plan.md)** — Strategy for online SaaS vs local offline desktop workstation, and feature roadmap for LeetCode/NeetCode parity.
-- 🏗️ **[System Design Implementation Plan (`implementation_plan.md`)](file:///home/anmol/Projects/AlgoDeck/implementation_plan.md)** — Actionable roadmap for multi-tenant auth, gVisor sandboxing, and CI/CD pipelines.
+- 🏛️ **[System Architecture Guide (`docs/architecture.md`)](file:///home/anmol/Projects/AlgoDeck/docs/architecture.md)** — Deep dive into SM-2 math equations, ELO rating logistic functions, Monaco AST parsing, and security layers.
+- 🚀 **[Cloud Deployment Blueprint (`docs/deployment_plan.md`)](file:///home/anmol/Projects/AlgoDeck/docs/deployment_plan.md)** — Step-by-step production hosting guide for Render, AWS EC2/ECS, Supabase PostgreSQL, and Caddy reverse proxies.
+- 🌐 **[Distribution & SaaS Strategy (`docs/distribution_plan.md`)](file:///home/anmol/Projects/AlgoDeck/docs/distribution_plan.md)** — Strategy for online SaaS vs local offline desktop workstation, and feature roadmap for LeetCode/NeetCode parity.
+- 🏗️ **[System Design Implementation Plan (`docs/implementation_plan.md`)](file:///home/anmol/Projects/AlgoDeck/docs/implementation_plan.md)** — Actionable roadmap for multi-tenant auth, gVisor sandboxing, and CI/CD pipelines.
 
 ---
 

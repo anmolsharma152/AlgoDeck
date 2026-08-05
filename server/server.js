@@ -15,6 +15,7 @@ const CONTENT_DIR = path.join(PROJECT_ROOT, 'content');
 const PROGRESS_FILE = path.join(WORKSPACE_DIR, 'progress.json');
 const TRACKER_FILE = path.join(PUBLIC_DIR, 'tracker.json');
 const DESCRIPTIONS_FILE = path.join(WORKSPACE_DIR, 'descriptions.json');
+const DOCS_DIR = path.join(PROJECT_ROOT, 'docs');
 
 app.use(cors());
 app.use(express.json());
@@ -520,10 +521,11 @@ app.use((req, res, next) => {
     next();
 });
 
-// Serve static assets from public & content folders
+// Serve static assets from public, content, & docs folders
 app.use(express.static(PUBLIC_DIR));
 app.use(express.static(CONTENT_DIR));
 app.use('/content', express.static(CONTENT_DIR));
+app.use('/docs', express.static(DOCS_DIR));
 app.use('/playground', express.static(PUBLIC_DIR));
 app.use('/roadmap', express.static(PUBLIC_DIR));
 
