@@ -13,6 +13,7 @@ RUN npm ci --only=production
 COPY public/ ./public/
 COPY server/ ./server/
 COPY content/ ./content/
+COPY docs/ ./docs/
 
 EXPOSE 3000
 

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoDeck — Technical Documentation & Architecture</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Manrope:wght@300;400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/global.css?v=3.0">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="/js/global.js?v=3.0" defer></script>
+
+    <style>
+        :root {
+            --bg-dark: #0a0a0c;
+            --card-bg: rgba(18, 18, 24, 0.75);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --accent-green: #10b981;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 40px;
+            background: rgba(10, 10, 12, 0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--card-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #ffffff;
+        }
+
+        .brand-logo { font-size: 1.6rem; color: #ffffff; }
+        .brand-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-weight: 600;
+            font-size: 1.7rem;
+        }
+
+        .nav-links { display: flex; align-items: center; gap: 24px; }
+        .nav-item {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        .nav-item:hover, .nav-item.active { color: #ffffff; }
+
+        .docs-layout {
+            display: flex;
+            max-width: 1400px;
+            margin: 0 auto;
+            min-height: calc(100vh - 70px);
+        }
+
+        .docs-sidebar {
+            width: 280px;
+            border-right: 1px solid var(--card-border);
+            padding: 32px 20px;
+            background: rgba(12, 12, 16, 0.5);
+            backdrop-filter: blur(12px);
+            flex-shrink: 0;
+        }
+
+        .sidebar-title {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+            padding-left: 12px;
+        }
+
+        .doc-nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 8px;
+            color: var(--text-muted);
+            background: transparent;
+            border: 1px solid transparent;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s ease;
+            margin-bottom: 6px;
+        }
+
+        .doc-nav-btn:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .doc-nav-btn.active {
+            color: #ffffff;
+            background: rgba(59, 130, 246, 0.15);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .docs-content {
+            flex: 1;
+            padding: 40px 60px;
+            max-width: 900px;
+            line-height: 1.7;
+        }
+
+        /* Markdown Styling inside Documentation Viewer */
+        .markdown-body { color: #e5e7eb; font-size: 0.95rem; }
+        .markdown-body h1 { font-size: 2.2rem; border-bottom: 1px solid var(--card-border); padding-bottom: 12px; margin-top: 0; color: #ffffff; }
+        .markdown-body h2 { font-size: 1.5rem; margin-top: 36px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; color: #ffffff; }
+        .markdown-body h3 { font-size: 1.2rem; margin-top: 24px; color: #f3f4f6; }
+        .markdown-body p { margin-bottom: 16px; color: #d1d5db; }
+        .markdown-body code { font-family: 'Fira Code', monospace; background: rgba(255,255,255,0.08); padding: 2px 6px; border-radius: 4px; font-size: 0.85em; color: #f472b6; }
+        .markdown-body pre { background: rgba(0,0,0,0.5); padding: 16px; border-radius: 8px; border: 1px solid var(--card-border); overflow-x: auto; }
+        .markdown-body pre code { background: transparent; padding: 0; color: #e5e7eb; }
+        .markdown-body table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .markdown-body th, .markdown-body td { border: 1px solid var(--card-border); padding: 10px 14px; text-align: left; }
+        .markdown-body th { background: rgba(255,255,255,0.05); font-weight: 700; }
+        .markdown-body blockquote { border-left: 4px solid var(--accent-blue); margin: 0; padding-left: 16px; color: var(--text-muted); }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Header -->
+    <nav class="navbar">
+        <a href="/index.html" class="brand-container">
+            <i class="fa-solid fa-layer-group brand-logo"></i>
+            <span class="brand-name">AlgoDeck</span>
+        </a>
+        <div class="nav-links">
+            <a href="/index.html" class="nav-item">Home</a>
+            <a href="/dashboard.html" class="nav-item">Dashboard</a>
+            <a href="/editor.html" class="nav-item">Playground</a>
+            <a href="/roadmap.html" class="nav-item">Roadmap</a>
+            <a href="/docs.html" class="nav-item active">Docs</a>
+        </div>
+    </nav>
+
+    <!-- Main Documentation Layout -->
+    <div class="docs-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="docs-sidebar">
+            <div class="sidebar-title">Documentation</div>
+            <button class="doc-nav-btn active" onclick="loadDoc('architecture.md', this)">
+                <i class="fa-solid fa-sitemap"></i> System Architecture
+            </button>
+            <button class="doc-nav-btn" onclick="loadDoc('deployment_plan.md', this)">
+                <i class="fa-solid fa-cloud-arrow-up"></i> Cloud Deployment
+            </button>
+            <button class="doc-nav-btn" onclick="loadDoc('distribution_plan.md', this)">
+                <i class="fa-solid fa-globe"></i> Distribution Strategy
+            </button>
+            <button class="doc-nav-btn" onclick="loadDoc('implementation_plan.md', this)">
+                <i class="fa-solid fa-list-check"></i> System Implementation
+            </button>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="docs-content">
+            <div id="doc-render-area" class="markdown-body">
+                <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+                    <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 12px;"></i>
+                    <div>Loading documentation...</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        async function loadDoc(fileName, btnEl) {
+            if (btnEl) {
+                document.querySelectorAll('.doc-nav-btn').forEach(b => b.classList.remove('active'));
+                btnEl.classList.add('active');
+            }
+
+            const renderArea = document.getElementById('doc-render-area');
+            try {
+                const response = await fetch('/docs/' + fileName);
+                if (!response.ok) throw new Error('File not found');
+                const markdownText = await response.text();
+                renderArea.innerHTML = marked.parse(markdownText);
+            } catch (err) {
+                renderArea.innerHTML = `<div style="color: #ff5252; padding: 20px;">Failed to load documentation file: ${fileName}</div>`;
+            }
+        }
+
+        // Auto-load document on startup (check query param or default to architecture.md)
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const docParam = params.get('doc') || 'architecture.md';
+            const targetBtn = Array.from(document.querySelectorAll('.doc-nav-btn')).find(b => b.getAttribute('onclick').includes(docParam));
+            loadDoc(docParam, targetBtn);
+        });
+    </script>
+</body>
+</html>
