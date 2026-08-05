@@ -1,0 +1,1654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoDeck | Practice Playground</title>
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Manrope:wght@200;300;400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/global.css?v=3.0">
+    <script src="/js/global.js?v=3.0" defer></script>
+    <script src="/js/tracker.js"></script>
+    <!-- Monaco Editor Loader -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.39.0/min/vs/loader.min.js"></script>
+
+    <style>
+        :root {
+            --bg-base: #050505;
+            --bg-surface: rgba(10, 10, 10, 0.75);
+            --bg-element: rgba(18, 18, 18, 0.85);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(255, 255, 255, 0.25);
+            --text-main: #e5e5e5;
+            --text-muted: #888888;
+            --primary: #ffffff;
+            --primary-glow: rgba(255, 255, 255, 0.15);
+            --secondary: #cccccc;
+            --success: #10b981;
+            --warning: #ffb020;
+            --danger: #ff5252;
+            --easy: #34d399;
+            --medium: #f59e0b;
+            --hard: #ef4444;
+
+            /* Spotlight coordinates */
+            --cursor-x: 50%;
+            --cursor-y: 50%;
+            --spotlight-color: rgba(255, 255, 255, 0.06);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .serif {
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        /* Workspace Layout */
+
+        /* Workspace Grid Split Layout */
+        .workspace {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Sidebar: Problem Selector */
+        .sidebar {
+            width: 320px;
+            background: rgba(8, 8, 8, 0.75);
+            backdrop-filter: blur(12px);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--text-main);
+        }
+
+        .problem-search {
+            margin: 12px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: border-color 0.2s ease;
+        }
+
+        .problem-search:focus-within {
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .problem-search input {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            width: 100%;
+            outline: none;
+            font-size: 0.85rem;
+        }
+
+        .problem-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .problem-item {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .problem-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateX(2px);
+        }
+
+        .problem-item.active {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #ffffff;
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.05);
+        }
+
+        .prob-details {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            max-width: 75%;
+        }
+
+        .prob-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-main);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .prob-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .diff-tag {
+            text-transform: capitalize;
+        }
+        .diff-tag.easy { color: var(--easy); }
+        .diff-tag.medium { color: var(--medium); }
+        .diff-tag.hard { color: var(--hard); }
+
+        .sr-badge {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .sr-badge.due {
+            background: rgba(255, 82, 82, 0.2);
+            color: var(--danger);
+            border: 1px solid rgba(255, 82, 82, 0.3);
+        }
+        .sr-badge.learning {
+            background: rgba(138, 63, 252, 0.2);
+            color: #d1b3ff;
+            border: 1px solid rgba(138, 63, 252, 0.3);
+        }
+
+        .problem-status-icons {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        .status-dot.solved { background-color: var(--success); }
+        .status-dot.review { background-color: var(--warning); }
+        .status-dot.unsolved { background-color: var(--border); }
+
+        /* Left Pane: Code & Problem Details Split */
+        .main-workspace {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .problem-description-pane {
+            width: 40%;
+            background: var(--bg-surface);
+            backdrop-filter: blur(12px);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .tabs-header {
+            display: flex;
+            background: rgba(5, 5, 5, 0.75);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 14px 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn:hover {
+            color: #ffffff;
+        }
+
+        .tab-btn.active {
+            color: #ffffff;
+            border-bottom-color: #ffffff;
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .tab-content-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Markdown Styling inside description */
+        .doc-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-main);
+        }
+
+        .doc-stats {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .doc-desc {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text-main);
+            white-space: normal;
+            font-family: inherit;
+        }
+        .doc-desc p {
+            margin-bottom: 0.8rem;
+        }
+        .doc-desc ul, .doc-desc ol {
+            margin-left: 1.5rem;
+            margin-bottom: 0.8rem;
+        }
+        .doc-desc code {
+            font-family: 'Fira Code', monospace;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--accent-green);
+            font-size: 0.85rem;
+        }
+        .doc-desc pre {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 0.8rem;
+            overflow-x: auto;
+        }
+        .doc-desc .example-block {
+            background: rgba(255, 255, 255, 0.02);
+            border-left: 3px solid var(--accent-blue);
+            padding: 10px 15px;
+            margin-bottom: 0.8rem;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .sr-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .sr-card-title {
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Right Pane: Code Editor and Console Terminal Split */
+        .editor-container-pane {
+            flex: 1;
+            width: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: var(--bg-surface);
+        }
+
+        .editor-header-bar {
+            height: 48px;
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 16px;
+        }
+
+        .lang-select-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-muted);
+            padding: 5px 14px;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .lang-btn:hover {
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .lang-btn.active {
+            background: #ffffff !important;
+            color: #050505 !important;
+            border-color: #ffffff !important;
+            font-weight: 700 !important;
+        }
+
+        /* Monaco Editor Box */
+        .code-editor-box {
+            flex: 1;
+            position: relative;
+            background: #1e1e1e;
+        }
+
+        /* Terminal Console */
+        .terminal-panel {
+            height: 250px;
+            background: #050505;
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .terminal-header {
+            height: 40px;
+            background: #0a0a0a;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 16px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .terminal-body {
+            flex: 1;
+            padding: 16px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            overflow-y: auto;
+            color: var(--success);
+            white-space: pre-wrap;
+            background: #050505;
+        }
+
+        .terminal-body.error {
+            color: var(--danger);
+        }
+
+        /* Footer Toolbar */
+        .editor-footer {
+            height: 60px;
+            border-top: 1px solid var(--border);
+            background: var(--bg-surface);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .editor-btn {
+            padding: 10px 20px;
+            border-radius: 9999px;
+            font-weight: 500;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            border: 1px solid transparent;
+            font-family: 'Manrope', sans-serif;
+        }
+
+        .editor-btn.run {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #e5e5e5;
+        }
+        .editor-btn.run:hover {
+            background: #e5e5e5;
+            color: #050505;
+            border-color: #e5e5e5;
+        }
+
+        .editor-btn.submit {
+            background: #e5e5e5;
+            color: #050505;
+            border: 1px solid #e5e5e5;
+        }
+        .editor-btn.submit:hover {
+            background: transparent;
+            color: #e5e5e5;
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        /* Submit Self-Rating Popover Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(6, 7, 12, 0.8);
+            backdrop-filter: blur(8px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .rating-modal {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            width: 480px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .rating-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .rating-btn {
+            background: var(--bg-element);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 12px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .rating-btn:hover {
+            border-color: var(--primary);
+            background: rgba(138, 63, 252, 0.1);
+        }
+
+        .rating-num {
+            background: var(--primary);
+            color: #fff;
+            width: 24px;
+            height: 24px;
+            border-radius: 60%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        .rating-text {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .rating-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-left: auto;
+        }
+
+        .modal-cancel {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 8px;
+            transition: color 0.2s ease;
+        }
+        .modal-cancel:hover {
+            color: var(--text-main);
+        }
+
+        /* Sidebar collapse / toggle styling */
+        .sidebar.collapsed {
+            width: 0px !important;
+            border-right-color: transparent;
+        }
+        .sidebar-toggle-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.95rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .sidebar-toggle-btn:hover {
+            color: var(--primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .sidebar-expand-trigger {
+            position: fixed;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 60px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-left: none;
+            border-radius: 0 8px 8px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 100;
+            color: var(--text-muted);
+            transition: all 0.2s;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+        }
+        .sidebar-expand-trigger:hover {
+            color: var(--primary);
+            width: 24px;
+            background: var(--bg-element);
+        }
+
+        /* Resizer Splitting Divider */
+        .resizer {
+            width: 5px;
+            cursor: col-resize;
+            background: var(--border);
+            transition: background 0.2s;
+            position: relative;
+            z-index: 10;
+            flex-shrink: 0;
+        }
+        .resizer:hover, .resizer.dragging {
+            background: var(--primary);
+        }
+
+        /* Collapsible Pattern Grouping CSS */
+        .pattern-group-header {
+            background: rgba(255, 255, 255, 0.02);
+            border-left: 3px solid var(--primary);
+            padding: 10px 14px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            margin-top: 10px;
+            border-radius: 0 6px 6px 0;
+            transition: all 0.2s;
+            font-family: 'Manrope', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .pattern-group-header:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--primary);
+        }
+        .pattern-group-content {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 6px;
+            margin-bottom: 6px;
+            padding-left: 4px;
+            flex-shrink: 0;
+        }
+        .pattern-group-content.collapsed {
+            display: none !important;
+        }
+        .problem-item {
+            flex-shrink: 0;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <div id="app-header"></div>
+
+    <!-- Floating Sidebar Expand Button (visible only when collapsed) -->
+    <div id="sidebar-expand-trigger" class="sidebar-expand-trigger" onclick="toggleSidebar()" style="display:none;" title="Expand Sidebar">
+        <i class="fa-solid fa-chevron-right"></i>
+    </div>
+
+    <!-- Split Screen Workspace -->
+    <div class="workspace">
+        <!-- Sidebar Problem Selector -->
+        <div class="sidebar" id="app-sidebar">
+            <div style="width: 320px; display: flex; flex-direction: column; height: 100%; overflow: hidden; flex-shrink: 0;">
+                <div class="sidebar-header">
+                    <span>Problem Catalog</span>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <span class="sr-badge due" style="font-size: 0.72rem; padding: 3px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;" title="User ELO Rating"><i class="fa-solid fa-trophy" style="color:#ffb020;"></i> <span id="user-rating-val">1200</span></span>
+                        <button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="Collapse Sidebar">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="problem-search">
+                    <i class="fa-solid fa-magnifying-glass text-muted"></i>
+                    <input type="text" id="search-input" placeholder="Search problems or patterns..." oninput="filterProblems()">
+                </div>
+                <div class="problem-list" id="problem-list-container">
+                    <!-- Injected dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Editor & Description split workspace -->
+        <div class="main-workspace">
+            <!-- Left Pane: Problem Details / Solutions -->
+            <div class="problem-description-pane">
+                <div class="tabs-header">
+                    <button class="tab-btn active" onclick="switchTab('description')">Description</button>
+                    <button class="tab-btn" id="solution-tab-header" onclick="switchTab('solution')">Reference Solution</button>
+                </div>
+                
+                <div class="tab-content-container">
+                    <!-- Description Tab -->
+                    <div class="tab-content active" id="tab-description">
+                        <h1 class="doc-title" id="doc-title">Select a problem</h1>
+                        <div class="doc-stats" id="doc-stats">
+                            <!-- Injected -->
+                        </div>
+                        <div class="doc-desc" id="doc-desc">Choose a problem from the left sidebar to start coding.</div>
+                        
+                        <!-- Spaced Repetition card -->
+                        <div class="sr-card" id="sr-card" style="display:none;">
+                            <div class="sr-card-title">
+                                <i class="fa-solid fa-brain"></i>
+                                <span>Spaced Repetition Review Profile</span>
+                            </div>
+                            <div style="font-size:0.85rem; color:var(--text-muted); display:flex; flex-direction:column; gap:4px;">
+                                <div>Interval: <span id="sr-interval" style="color:var(--text-main); font-weight:600;">-</span> days</div>
+                                <div>Next Review Date: <span id="sr-next-review" style="color:var(--text-main); font-weight:600;">-</span></div>
+                                <div>Consecutive reviews: <span id="sr-reps" style="color:var(--text-main); font-weight:600;">-</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Solution Tab -->
+                    <div class="tab-content" id="tab-solution" style="height:100%; position: relative;">
+                        <!-- Lock Overlay -->
+                        <div id="solution-lock-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(19, 21, 40, 0.95); backdrop-filter: blur(8px); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; border-radius: 8px; border: 1px solid var(--border); padding: 2rem; text-align: center;">
+                            <div style="font-size: 2.5rem; margin-bottom: 1rem; color: #ffb020; text-shadow: 0 0 10px rgba(255, 176, 32, 0.3);">
+                                <i class="fa-solid fa-lock"></i>
+                            </div>
+                            <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-main); font-family: 'Outfit';">Reference Solution Locked</h3>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); max-width: 280px; margin-bottom: 1.5rem; line-height: 1.5; font-family: 'Outfit';">
+                                Try to solve the challenge first! If you are stuck or want to compare implementations, reveal the reference solution.
+                            </p>
+                            <button onclick="revealSolution()" style="background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue)); color: #fff; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 15px rgba(0, 242, 254, 0.2); font-family: 'Outfit'; display: flex; align-items: center; gap: 8px;">
+                                <i class="fa-solid fa-eye"></i> Reveal Solution
+                            </button>
+                        </div>
+                        <div id="solution-editor-container" style="height:100%; border:1px solid var(--border); border-radius:8px; overflow:hidden;">
+                            <!-- Injected solution editor -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Draggable Splitter Resizer -->
+            <div class="resizer" id="workspace-resizer"></div>
+
+            <!-- Right Pane: Code Editor + Terminal Console -->
+            <div class="editor-container-pane">
+                <div class="editor-header-bar">
+                    <div class="lang-select-group">
+                        <button class="lang-btn active" id="btn-lang-python" onclick="switchLanguage('python')">Python</button>
+                        <button class="lang-btn" id="btn-lang-js" onclick="switchLanguage('javascript')">JavaScript</button>
+                    </div>
+                    <div style="font-size:0.85rem; color:var(--text-muted); font-weight:500;">
+                        Auto-Saving Draft
+                    </div>
+                </div>
+
+                <!-- Monaco Code Container -->
+                <div class="code-editor-box" id="code-editor-container"></div>
+
+                <!-- Terminal -->
+                <div class="terminal-panel">
+                    <div class="terminal-header">
+                        <span>Terminal Output Console</span>
+                        <span id="term-status" style="font-size:0.8rem;">Ready</span>
+                    </div>
+                    <div class="terminal-body" id="terminal-body">
+Terminal logs and assertion output will display here after you run code.
+                    </div>
+                </div>
+
+                <!-- Footer Toolbar -->
+                <div class="editor-footer">
+                    <div class="footer-left" style="display: flex; gap: 10px;">
+                        <button class="editor-btn run" onclick="runTests()">
+                            <i class="fa-solid fa-play"></i>
+                            <span>Run Tests</span>
+                        </button>
+                        <button class="editor-btn" onclick="resetToBoilerplate()" style="background: rgba(255, 82, 82, 0.1); color: #ff5252; border: 1px solid rgba(255, 82, 82, 0.2); display: flex; align-items: center; gap: 6px; padding: 10px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'Outfit';">
+                            <i class="fa-solid fa-rotate-left"></i>
+                            <span>Reset Code</span>
+                        </button>
+                    </div>
+                    <button class="editor-btn submit" onclick="openSubmitModal()">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span>Submit Code</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rating Popover Modal -->
+    <div class="modal-overlay" id="rating-modal-overlay">
+        <div class="rating-modal">
+            <h2 class="modal-title">Self-Evaluation Review Quality</h2>
+            <p style="font-size:0.85rem; color:var(--text-muted); text-align:center;">
+                Assign a score from 0 to 5 based on how successfully you recalled and coded the algorithm. This directly adjusts your Chess-style ELO and schedules the next review date!
+            </p>
+            <div class="rating-options">
+                <button class="rating-btn" onclick="submitPerformance(5)">
+                    <span class="rating-num">5</span>
+                    <span class="rating-text">Perfect Response</span>
+                    <span class="rating-desc">No hesitation</span>
+                </button>
+                <button class="rating-btn" onclick="submitPerformance(4)">
+                    <span class="rating-num">4</span>
+                    <span class="rating-text">Correct Response</span>
+                    <span class="rating-desc">Hesitated slightly</span>
+                </button>
+                <button class="rating-btn" onclick="submitPerformance(3)">
+                    <span class="rating-num">3</span>
+                    <span class="rating-text">Correct Response</span>
+                    <span class="rating-desc">With serious difficulty</span>
+                </button>
+                <button class="rating-btn" onclick="submitPerformance(2)">
+                    <span class="rating-num">2</span>
+                    <span class="rating-text">Incorrect Response</span>
+                    <span class="rating-desc">Remembered the concept</span>
+                </button>
+                <button class="rating-btn" onclick="submitPerformance(1)">
+                    <span class="rating-num">1</span>
+                    <span class="rating-text">Incorrect Response</span>
+                    <span class="rating-desc">Required solution cues</span>
+                </button>
+                <button class="rating-btn" onclick="submitPerformance(0)">
+                    <span class="rating-num">0</span>
+                    <span class="rating-text">Complete Blackout</span>
+                    <span class="rating-desc">Struggled completely</span>
+                </button>
+            </div>
+            <button class="modal-cancel" onclick="closeSubmitModal()">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin.startsWith('http') ? window.location.origin : "http://localhost:3000";
+        
+        function renderHeader() {
+            const isFile = window.location.protocol === 'file:';
+            const dashUrl = isFile ? './index.html' : '/';
+            const editUrl = isFile ? './editor.html' : '/editor.html';
+            const roadmapUrl = isFile ? './roadmap.html' : '/roadmap.html';
+            
+            const isDashActive = window.location.pathname === '/' || window.location.pathname.includes('index') || window.location.pathname.includes('dashboard');
+            
+            const headerHtml = `
+              <header class="main-header">
+                <a href="${dashUrl}" class="header-brand">
+                  <i class="fa-solid fa-layer-group brand-logo" style="color: #ffffff; font-size: 1.7rem;"></i>
+                  <span class="brand-name serif italic" style="font-weight: 600; font-size: 1.65rem; font-family: 'Cormorant Garamond', serif; font-style: italic;">AlgoDeck</span>
+                </a>
+                <nav class="header-nav">
+                  <a href="${dashUrl}" class="nav-item ${isDashActive ? 'active' : ''}">
+                    <i class="fa-solid fa-chart-simple"></i> Dashboard
+                  </a>
+                  <a href="${editUrl}" class="nav-item ${window.location.pathname.includes('editor') ? 'active' : ''}">
+                    <i class="fa-solid fa-terminal"></i> Editor Playground
+                  </a>
+                  <a href="${roadmapUrl}" class="nav-item ${window.location.pathname.includes('roadmap') ? 'active' : ''}">
+                    <i class="fa-solid fa-map-location-dot"></i> Curriculum Roadmap
+                  </a>
+                </nav>
+              </header>
+            `;
+            
+            const container = document.getElementById("app-header");
+            if (container) {
+                container.innerHTML = headerHtml;
+            }
+        }
+        renderHeader();
+        document.addEventListener("DOMContentLoaded", renderHeader);
+        let activeProblem = null;
+        let activeLanguage = "python";
+        let monacoEditor = null;
+        let solutionEditor = null;
+        let problemList = [];
+        let draftSavingTimeout = null;
+
+        // Monaco Editor Config
+        require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.39.0/min/vs' } });
+        require(['vs/editor/editor.main'], function () {
+            // Setup main coding editor
+            monacoEditor = monaco.editor.create(document.getElementById('code-editor-container'), {
+                value: "# Select a problem from the catalog.",
+                language: 'python',
+                theme: 'vs-dark',
+                fontSize: 14,
+                fontFamily: 'Fira Code',
+                automaticLayout: true,
+                minimap: { enabled: false },
+                cursorBlinking: 'smooth',
+                lineHeight: 22,
+                tabSize: 4,
+                padding: { top: 16 }
+            });
+
+            // Set auto-save draft behavior
+            monacoEditor.onDidChangeModelContent(() => {
+                if (activeProblem) {
+                    clearTimeout(draftSavingTimeout);
+                    draftSavingTimeout = setTimeout(saveCodeDraft, 1000);
+                }
+            });
+
+            // Setup solution display editor (read-only)
+            solutionEditor = monaco.editor.create(document.getElementById('solution-editor-container'), {
+                value: "// Solution will load here.",
+                language: 'python',
+                theme: 'vs-dark',
+                readOnly: true,
+                fontSize: 14,
+                fontFamily: 'Fira Code',
+                automaticLayout: true,
+                minimap: { enabled: false }
+            });
+
+            // Self-healing migration to clear old corrupted drafts
+            if (localStorage.getItem('algodeck_version') !== '3.0') {
+                localStorage.clear();
+                localStorage.setItem('algodeck_version', '3.0');
+                console.log("AlgoDeck: Cleared legacy drafts cache.");
+            }
+
+            // Load problems catalog
+            fetchProblems();
+        });
+
+        // Fetch problems list from server with resilient static fallbacks
+        async function fetchProblems() {
+            renderHeader();
+            let loadedData = null;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/problems`);
+                if (response.ok) {
+                    loadedData = await response.json();
+                }
+            } catch (err) {
+                console.warn("Backend API fetch failed, falling back to static problem data:", err);
+            }
+
+            if (loadedData && loadedData.problems) {
+                const ratingEl = document.getElementById("user-rating-val");
+                if (ratingEl) ratingEl.innerText = loadedData.user_rating || 1200;
+                problemList = loadedData.problems;
+            } else if (window.problemsData) {
+                problemList = window.problemsData;
+            } else {
+                try {
+                    const fallbackRes = await fetch('/tracker.json');
+                    const fallbackData = await fallbackRes.json();
+                    problemList = fallbackData;
+                } catch (e) {
+                    console.error("Failed to load problem catalog from any source:", e);
+                }
+            }
+
+            // Sort problems so "Due" reviews are on top, then alphabetical
+            if (problemList && problemList.length > 0) {
+                problemList.sort((a, b) => {
+                    if (a.is_due && !b.is_due) return -1;
+                    if (!a.is_due && b.is_due) return 1;
+                    return a.id.localeCompare(b.id);
+                });
+            }
+
+            // Guaranteed rendering of problem cards
+            renderProblems();
+
+            // Compute due count
+            const dueCount = problemList.filter(p => p.is_due).length;
+            const dueEl = document.getElementById("due-count-val");
+            if (dueEl) dueEl.innerText = dueCount;
+            
+            // Select requested problem ONLY if target ID is passed in URL query, otherwise render clean empty placeholder
+            if (!activeProblem) {
+                const urlParams = new URLSearchParams(window.location.search);
+                const targetId = urlParams.get('id');
+                if (targetId && problemList.length > 0) {
+                    const targetProb = problemList.find(p => p.id === targetId);
+                    if (targetProb) {
+                        selectProblem(targetProb);
+                    } else {
+                        renderEmptyState();
+                    }
+                } else {
+                    renderEmptyState();
+                }
+            }
+        }
+
+        // Render clean empty placeholder state when no problem is selected
+        function renderEmptyState() {
+            activeProblem = null;
+            document.getElementById("doc-title").innerText = "AlgoDeck Playground";
+            document.getElementById("doc-stats").innerHTML = `<span class="text-muted">Select a problem from the catalog on the left</span>`;
+            const srCard = document.getElementById("sr-card");
+            if (srCard) srCard.style.display = "none";
+
+            document.getElementById("doc-desc").innerHTML = `
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; text-align: center; color: var(--text-muted);">
+                    <i class="fa-solid fa-code" style="font-size: 2.5rem; margin-bottom: 16px; color: rgba(255,255,255,0.2);"></i>
+                    <h3 style="font-size: 1.1rem; font-weight: 700; color: #ffffff; margin-bottom: 8px;">No Problem Selected</h3>
+                    <p style="font-size: 0.85rem; max-width: 320px; line-height: 1.5; color: var(--text-muted);">Choose any problem from the Problem Catalog on the left to load its description, starter code, and reference solution.</p>
+                </div>
+            `;
+
+            if (monacoEditor) {
+                const comment = activeLanguage === "python" ? "# Select a problem from the Problem Catalog on the left to start coding." : "// Select a problem from the Problem Catalog on the left to start coding.";
+                monacoEditor.setValue(comment);
+            }
+            if (solutionEditor) {
+                solutionEditor.setValue("// Select a problem to view solution.");
+            }
+        }
+
+        // Track collapsed states of groups globally to persist them across selections
+        const collapsedGroups = {};
+
+        // Render Sidebar Problem Selector grouped by pattern
+        function renderProblems() {
+            const container = document.getElementById("problem-list-container");
+            container.innerHTML = "";
+
+            if (!problemList || problemList.length === 0) {
+                container.innerHTML = `<div style="padding: 20px; color: var(--text-muted); font-size: 0.85rem;">No problems found.</div>`;
+                return;
+            }
+
+            // Group problems by pattern
+            const groups = {};
+            problemList.forEach(p => {
+                const pat = p.pattern || "General";
+                if (!groups[pat]) {
+                    groups[pat] = [];
+                }
+                groups[pat].push(p);
+            });
+
+            // If an active problem exists, ensure its pattern group is expanded
+            if (activeProblem && activeProblem.pattern) {
+                collapsedGroups[activeProblem.pattern] = false;
+            }
+
+            // Render each pattern group (COLLAPSED by default unless active or toggled open)
+            Object.keys(groups).forEach(pattern => {
+                const probs = groups[pattern];
+                const isGroupCollapsed = collapsedGroups[pattern] !== false;
+
+                // Group Header
+                const groupHeader = document.createElement("div");
+                groupHeader.className = "pattern-group-header";
+                groupHeader.setAttribute("data-pattern", pattern);
+
+                const hasActive = activeProblem && probs.some(p => p.id === activeProblem.id);
+                if (hasActive) {
+                    groupHeader.style.borderLeftColor = "var(--accent-green)";
+                }
+
+                groupHeader.innerHTML = `
+                    <span>${pattern} (${probs.length})</span>
+                    <i class="fa-solid ${isGroupCollapsed ? 'fa-chevron-right' : 'fa-chevron-down'}" style="font-size:0.75rem; color:var(--text-muted); transition: transform 0.2s;"></i>
+                `;
+
+                // Group Content Container
+                const groupContent = document.createElement("div");
+                groupContent.className = `pattern-group-content ${isGroupCollapsed ? 'collapsed' : ''}`;
+
+                // Toggle click on Group Header
+                groupHeader.onclick = (e) => {
+                    e.stopPropagation();
+                    const nowCollapsed = !groupContent.classList.contains("collapsed");
+                    collapsedGroups[pattern] = nowCollapsed;
+                    groupContent.classList.toggle("collapsed", nowCollapsed);
+                    const icon = groupHeader.querySelector("i");
+                    if (icon) {
+                        icon.className = `fa-solid ${nowCollapsed ? 'fa-chevron-right' : 'fa-chevron-down'}`;
+                    }
+                };
+
+                // Render problem cards inside this group
+                probs.forEach(p => {
+                    const isSelected = activeProblem && activeProblem.id === p.id;
+                    const statusDot = p.repetitions > 0 ? "solved" : "unsolved";
+
+                    const item = document.createElement("div");
+                    item.className = `problem-item ${isSelected ? 'active' : ''}`;
+                    item.setAttribute("data-problem-id", p.id);
+
+                    item.onclick = (e) => {
+                        e.stopPropagation();
+                        selectProblem(p);
+                    };
+
+                    let badgeHtml = "";
+                    if (p.is_due) {
+                        badgeHtml = `<span class="sr-badge due">Due Today</span>`;
+                    } else if (p.repetitions > 0) {
+                        badgeHtml = `<span class="sr-badge learning">Reviewing</span>`;
+                    }
+
+                    item.innerHTML = `
+                        <div class="prob-details">
+                            <div class="prob-title" title="${p.title}">${p.title}</div>
+                            <div class="prob-meta">
+                                <span class="diff-tag ${p.difficulty.toLowerCase()}">${p.difficulty}</span>
+                                ${badgeHtml}
+                            </div>
+                        </div>
+                        <div class="problem-status-icons">
+                            <span class="status-dot ${statusDot}"></span>
+                        </div>
+                    `;
+                    groupContent.appendChild(item);
+                });
+
+                container.appendChild(groupHeader);
+                container.appendChild(groupContent);
+            });
+        }
+
+        // Filter search input
+        function filterProblems() {
+            const query = document.getElementById("search-input").value.trim().toLowerCase();
+            
+            // If query is empty, restore normal list
+            if (!query) {
+                renderProblems();
+                return;
+            }
+
+            const container = document.getElementById("problem-list-container");
+            container.innerHTML = "";
+
+            // Group matching problems
+            const groups = {};
+            problemList.forEach(p => {
+                const matches = p.title.toLowerCase().includes(query) || 
+                                p.pattern.toLowerCase().includes(query) || 
+                                p.difficulty.toLowerCase().includes(query);
+                if (matches) {
+                    const pat = p.pattern || "General";
+                    if (!groups[pat]) {
+                        groups[pat] = [];
+                    }
+                    groups[pat].push(p);
+                }
+            });
+
+            if (Object.keys(groups).length === 0) {
+                container.innerHTML = `<div style="padding: 20px; color: var(--text-muted); font-size: 0.85rem;">No matching problems found.</div>`;
+                return;
+            }
+
+            // Render matching groups (all expanded)
+            Object.keys(groups).forEach(pattern => {
+                const probs = groups[pattern];
+
+                const groupHeader = document.createElement("div");
+                groupHeader.className = "pattern-group-header";
+                groupHeader.innerHTML = `
+                    <span>${pattern} (${probs.length})</span>
+                    <i class="fa-solid fa-chevron-down" style="font-size:0.75rem; color:var(--text-muted); transition: transform 0.2s;"></i>
+                `;
+
+                const groupContent = document.createElement("div");
+                groupContent.className = "pattern-group-content";
+
+                groupHeader.onclick = (e) => {
+                    e.stopPropagation();
+                    const nowCollapsed = groupContent.classList.toggle("collapsed");
+                    const icon = groupHeader.querySelector("i");
+                    if (icon) {
+                        icon.className = `fa-solid ${nowCollapsed ? 'fa-chevron-right' : 'fa-chevron-down'}`;
+                    }
+                };
+
+                probs.forEach(p => {
+                    const isSelected = activeProblem && activeProblem.id === p.id;
+                    const statusDot = p.repetitions > 0 ? "solved" : "unsolved";
+                    
+                    const item = document.createElement("div");
+                    item.className = `problem-item ${isSelected ? 'active' : ''}`;
+                    item.onclick = (e) => {
+                        e.stopPropagation();
+                        selectProblem(p);
+                    };
+
+                    let badgeHtml = "";
+                    if (p.is_due) {
+                        badgeHtml = `<span class="sr-badge due">Due Today</span>`;
+                    } else if (p.repetitions > 0) {
+                        badgeHtml = `<span class="sr-badge learning">Reviewing</span>`;
+                    }
+
+                    item.innerHTML = `
+                        <div class="prob-details">
+                            <div class="prob-title" title="${p.title}">${p.title}</div>
+                            <div class="prob-meta">
+                                <span class="diff-tag ${p.difficulty.toLowerCase()}">${p.difficulty}</span>
+                                ${badgeHtml}
+                            </div>
+                        </div>
+                        <div class="problem-status-icons">
+                            <span class="status-dot ${statusDot}"></span>
+                        </div>
+                    `;
+                    groupContent.appendChild(item);
+                });
+
+                container.appendChild(groupContent);
+            });
+        }
+
+        // Select active problem and pull boilerplate from server
+        async function selectProblem(problem) {
+            if (!problem) return;
+            activeProblem = problem;
+            if (problem.pattern) {
+                collapsedGroups[problem.pattern] = false; // ensure pattern group stays expanded
+            }
+            
+            // Update active state selection in UI without re-rendering
+            document.querySelectorAll('.pattern-group-header').forEach(header => {
+                header.style.borderLeftColor = "transparent";
+            });
+            document.querySelectorAll('.problem-item').forEach(el => {
+                el.classList.remove('active');
+                if (el.getAttribute('data-problem-id') === problem.id) {
+                    el.classList.add('active');
+                    const content = el.closest('.pattern-group-content');
+                    if (content) {
+                        content.classList.remove('collapsed');
+                    }
+                    const header = content?.previousElementSibling;
+                    if (header && header.classList.contains('pattern-group-header')) {
+                        header.style.borderLeftColor = "var(--accent-green)";
+                        const icon = header.querySelector('i');
+                        if (icon) icon.className = "fa-solid fa-chevron-down";
+                    }
+                }
+            });
+            
+            // Set basic details
+            document.getElementById("doc-title").innerText = problem.title;
+            document.getElementById("doc-stats").innerHTML = `
+                <span class="diff-tag ${problem.difficulty.toLowerCase()}" style="font-weight:700;">${problem.difficulty}</span>
+                <span class="text-muted">|</span>
+                <span class="text-muted">Pattern:</span> <span style="font-weight:600;">${problem.pattern}</span>
+            `;
+
+            // Display problem description
+            if (problem.description) {
+                document.getElementById("doc-desc").innerHTML = problem.description;
+            }
+
+            // Display spaced repetition review specs
+            const srCard = document.getElementById("sr-card");
+            if (problem.next_review > 0) {
+                srCard.style.display = "flex";
+                document.getElementById("sr-interval").innerText = problem.interval;
+                document.getElementById("sr-reps").innerText = problem.repetitions;
+                const nextDate = new Date(problem.next_review * 1000);
+                document.getElementById("sr-next-review").innerText = nextDate.toLocaleDateString();
+            } else {
+                srCard.style.display = "none";
+            }
+
+            // Fetch boilerplate starter code
+            const filePath = activeLanguage === "python" ? problem.pythonPath : problem.jsPath;
+            try {
+                // Read from LocalStorage draft if exists
+                const draftKey = `draft_${problem.id}_${activeLanguage}`;
+                let savedDraft = localStorage.getItem(draftKey);
+
+                // Discard invalid drafts (like 404 HTML error pages or server error strings cached from previous bugs)
+                if (savedDraft && (savedDraft.includes("<!DOCTYPE") || savedDraft.includes("Error response") || savedDraft.includes("Error code: 404") || savedDraft.includes("Error processing file") || savedDraft.includes("is not a function"))) {
+                    localStorage.removeItem(draftKey);
+                    savedDraft = null;
+                }
+
+                if (savedDraft) {
+                    monacoEditor.setValue(savedDraft);
+                    // Extract docstring dynamically from boilerplate to display on left
+                    fetchBoilerplateDocstring(filePath);
+                } else {
+                    const response = await fetch(`${API_BASE}/api/boilerplate?path=${encodeURIComponent(filePath)}`);
+                    const code = await response.text();
+                    monacoEditor.setValue(code);
+                    
+                    // Parse and display docstring/comment in left pane
+                    if (problem.description) {
+                        document.getElementById("doc-desc").innerHTML = problem.description;
+                    } else {
+                        extractDescriptionFromBoilerplate(code);
+                    }
+                }
+
+                // Fetch reference solution for side-tab
+                fetchReferenceSolution(filePath);
+                
+                // Hide solution by default (reset lock)
+                const overlay = document.getElementById("solution-lock-overlay");
+                if (overlay) {
+                    overlay.style.display = "flex";
+                }
+                
+                // Clear console
+                const terminal = document.getElementById("terminal-body");
+                terminal.className = "terminal-body";
+                terminal.innerText = "Console cleared. Code loaded successfully.";
+                document.getElementById("term-status").innerText = "Ready";
+
+                // Ensure Monaco highlights correctly
+                monaco.editor.setModelLanguage(monacoEditor.getModel(), activeLanguage);
+            } catch (err) {
+                console.error("Failed to load boilerplate:", err);
+            }
+        }
+
+        // Fetch docstring separately if reading draft
+        async function fetchBoilerplateDocstring(filePath) {
+            if (activeProblem && activeProblem.description) {
+                document.getElementById("doc-desc").innerHTML = activeProblem.description;
+                return;
+            }
+            try {
+                const response = await fetch(`${API_BASE}/api/boilerplate?path=${encodeURIComponent(filePath)}`);
+                const code = await response.text();
+                extractDescriptionFromBoilerplate(code);
+            } catch (err) {}
+        }
+
+        // Helper to extract top comments and show them as description
+        function extractDescriptionFromBoilerplate(code) {
+            let desc = "";
+            if (activeLanguage === "python") {
+                const match = code.match(/\"\"\"([\s\S]*?)\"\"\"/);
+                if (match) desc = match[1].trim();
+            } else {
+                const match = code.match(/\/\*\*([\s\S]*?)\*\//) || code.match(/\/\*([\s\S]*?)\*\//);
+                if (match) {
+                    desc = match[1].split("\n").map(line => line.replace(/^\s*\*\s?/, "")).join("\n").trim();
+                }
+            }
+            document.getElementById("doc-desc").innerHTML = desc ? desc.replace(/\n/g, '<br>') : "No description found in boilerplate.";
+        }
+
+        // Reset code to starter boilerplate (clears draft cache)
+        function resetToBoilerplate() {
+            if (!activeProblem) return;
+            if (confirm("Are you sure you want to discard your current work and reset to the starter boilerplate?")) {
+                const draftKey = `draft_${activeProblem.id}_${activeLanguage}`;
+                localStorage.removeItem(draftKey);
+                selectProblem(activeProblem);
+            }
+        }
+
+        // Reveal Solution
+        function revealSolution() {
+            if (confirm("Reveal reference solution? Try to solve the problem yourself first!")) {
+                const overlay = document.getElementById("solution-lock-overlay");
+                if (overlay) {
+                    overlay.style.display = "none";
+                }
+                if (solutionEditor) {
+                    solutionEditor.layout();
+                }
+            }
+        }
+
+        // Fetch Reference Solution
+        async function fetchReferenceSolution(filePath) {
+            try {
+                const response = await fetch(`${API_BASE}/api/solution?path=${encodeURIComponent(filePath)}`);
+                const code = await response.text();
+                solutionEditor.setValue(code);
+                monaco.editor.setModelLanguage(solutionEditor.getModel(), activeLanguage);
+            } catch (err) {
+                solutionEditor.setValue("// Solution not found.");
+            }
+        }
+
+        // Switch Python / JavaScript languages
+        function switchLanguage(lang) {
+            if (activeLanguage === lang) return;
+            activeLanguage = lang;
+            
+            document.getElementById("btn-lang-python").classList.toggle("active", lang === "python");
+            document.getElementById("btn-lang-js").classList.toggle("active", lang === "javascript");
+
+            if (activeProblem) {
+                selectProblem(activeProblem);
+            }
+        }
+
+        // Tabs switching (Description vs Solution)
+        function switchTab(tab) {
+            document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+            document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+
+            if (tab === 'description') {
+                document.querySelector(".tab-btn[onclick*='description']").classList.add("active");
+                document.getElementById("tab-description").classList.add("active");
+            } else {
+                document.getElementById("solution-tab-header").classList.add("active");
+                document.getElementById("tab-solution").classList.add("active");
+                // Trigger Monaco layout update in tab
+                setTimeout(() => solutionEditor.layout(), 10);
+            }
+        }
+
+        // Auto-save user code draft to local storage
+        function saveCodeDraft() {
+            if (!activeProblem) return;
+            const draftKey = `draft_${activeProblem.id}_${activeLanguage}`;
+            localStorage.setItem(draftKey, monacoEditor.getValue());
+        }
+
+        // Compile and Run Tests
+        async function runTests() {
+            if (!activeProblem) return;
+            saveCodeDraft();
+            
+            const terminal = document.getElementById("terminal-body");
+            document.getElementById("term-status").innerText = "Executing...";
+            terminal.className = "terminal-body";
+            terminal.innerText = "Running test scripts locally...";
+
+            try {
+                const response = await fetch(`${API_BASE}/api/run`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        code: monacoEditor.getValue(),
+                        language: activeLanguage,
+                        path: activeLanguage === "python" ? activeProblem.pythonPath : activeProblem.jsPath
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.exit_code === 0) {
+                    terminal.className = "terminal-body";
+                    terminal.innerText = data.stdout || "Success! All unit test assertions passed successfully.";
+                    document.getElementById("term-status").innerText = "Success (Pass)";
+                } else {
+                    terminal.className = "terminal-body error";
+                    terminal.innerText = `${data.stderr}\n\n${data.stdout}`;
+                    document.getElementById("term-status").innerText = "Failed";
+                }
+            } catch (err) {
+                terminal.className = "terminal-body error";
+                terminal.innerText = `Internal test connection error: ${err}`;
+                document.getElementById("term-status").innerText = "Error";
+            }
+        }
+
+        // Submitting self-rated performance
+        function openSubmitModal() {
+            if (!activeProblem) return;
+            document.getElementById("rating-modal-overlay").style.display = "flex";
+        }
+
+        function closeSubmitModal() {
+            document.getElementById("rating-modal-overlay").style.display = "none";
+        }
+
+        async function submitPerformance(quality) {
+            closeSubmitModal();
+            try {
+                const response = await fetch(`${API_BASE}/api/submit`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        problem_id: activeProblem.id,
+                        quality: quality
+                    })
+                });
+
+                const data = await response.json();
+
+                // Clear current draft upon successful complete rating >= 4
+                if (quality >= 4) {
+                    const draftKey = `draft_${activeProblem.id}_${activeLanguage}`;
+                    localStorage.removeItem(draftKey);
+                }
+
+                // Show submission result in terminal
+                const terminal = document.getElementById("terminal-body");
+                terminal.className = "terminal-body";
+                
+                const nextDateStr = new Date(data.next_review * 1000).toLocaleDateString();
+                const sign = data.elo_change >= 0 ? "+" : "";
+                
+                terminal.innerText = `
+Submission Logged Successfully!
+------------------------------------
+Spaced Repetition: Scheduled next review in ${data.interval} days (${nextDateStr}).
+ELO Rating Change: ${sign}${data.elo_change} ELO.
+New ELO Rating:    ${data.user_rating} ELO.
+                `.trim();
+
+                // Refresh ELO counts and lists
+                fetchProblems();
+            } catch (err) {
+                alert(`Submission error: ${err}`);
+            }
+        }
+
+        // Toggle Sidebar display
+        function toggleSidebar() {
+            const sidebar = document.getElementById("app-sidebar");
+            const expandTrigger = document.getElementById("sidebar-expand-trigger");
+            const isCollapsed = sidebar.classList.toggle("collapsed");
+            
+            if (isCollapsed) {
+                expandTrigger.style.display = "flex";
+            } else {
+                expandTrigger.style.display = "none";
+            }
+            
+            // Trigger Monaco layouts to adapt smoothly
+            setTimeout(() => {
+                if (monacoEditor) monacoEditor.layout();
+                if (solutionEditor) solutionEditor.layout();
+            }, 260);
+        }
+
+        // Spotlight cursor tracking
+        document.addEventListener('mousemove', (e) => {
+            document.documentElement.style.setProperty('--cursor-x', e.clientX + 'px');
+            document.documentElement.style.setProperty('--cursor-y', e.clientY + 'px');
+        });
+
+        // Workspace split resizer dragging events
+        document.addEventListener("DOMContentLoaded", () => {
+            const resizer = document.getElementById("workspace-resizer");
+            const leftPane = document.querySelector(".problem-description-pane");
+            const mainWorkspace = document.querySelector(".main-workspace");
+            
+            if (!resizer || !leftPane || !mainWorkspace) return;
+            
+            let isDragging = false;
+            
+            resizer.addEventListener("mousedown", (e) => {
+                isDragging = true;
+                resizer.classList.add("dragging");
+                
+                // Add temporary class to body or direct styles to disable text selection and pointer events
+                document.body.style.userSelect = "none";
+                document.body.style.cursor = "col-resize";
+                
+                const editorBox = document.getElementById("code-editor-container");
+                if (editorBox) editorBox.style.pointerEvents = "none";
+                
+                const solBox = document.getElementById("solution-editor-container");
+                if (solBox) solBox.style.pointerEvents = "none";
+                
+                e.preventDefault();
+            });
+            
+            document.addEventListener("mousemove", (e) => {
+                if (!isDragging) return;
+                
+                const rect = mainWorkspace.getBoundingClientRect();
+                const offsetLeft = e.clientX - rect.left;
+                let percentage = (offsetLeft / rect.width) * 100;
+                
+                // Keep splitting boundary within reasonable limits (20% - 80%)
+                if (percentage < 20) percentage = 20;
+                if (percentage > 80) percentage = 80;
+                
+                leftPane.style.width = `${percentage}%`;
+                
+                // Trigger real-time layout resizing for Monaco Editors
+                if (monacoEditor) monacoEditor.layout();
+                if (solutionEditor) solutionEditor.layout();
+            });
+            
+            document.addEventListener("mouseup", () => {
+                if (!isDragging) return;
+                isDragging = false;
+                resizer.classList.remove("dragging");
+                
+                document.body.style.userSelect = "";
+                document.body.style.cursor = "";
+                
+                const editorBox = document.getElementById("code-editor-container");
+                if (editorBox) editorBox.style.pointerEvents = "auto";
+                
+                const solBox = document.getElementById("solution-editor-container");
+                if (solBox) solBox.style.pointerEvents = "auto";
+                
+                // Final layout adjustments
+                if (monacoEditor) monacoEditor.layout();
+                if (solutionEditor) solutionEditor.layout();
+            });
+        });
+    </script>
+</body>
+</html>
