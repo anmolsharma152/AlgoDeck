@@ -17,8 +17,10 @@
     <link rel="stylesheet" href="/css/global.css?v=3.0">
     <script src="/js/global.js?v=3.0" defer></script>
     <script src="/js/tracker.js"></script>
-    <!-- Monaco Editor Loader -->
+    <!-- Monaco Editor Loader & Modules -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.39.0/min/vs/loader.min.js"></script>
+    <script src="/js/monaco-setup.js?v=3.0"></script>
+    <script src="/js/editor-ui.js?v=3.0"></script>
 
     <style>
         :root {
@@ -970,54 +972,8 @@ Terminal logs and assertion output will display here after you run code.
         let problemList = [];
         let draftSavingTimeout = null;
 
-        // Monaco Editor Config
-        require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.39.0/min/vs' } });
-        require(['vs/editor/editor.main'], function () {
-            // Setup main coding editor
-            monacoEditor = monaco.editor.create(document.getElementById('code-editor-container'), {
-                value: "# Select a problem from the catalog.",
-                language: 'python',
-                theme: 'vs-dark',
-                fontSize: 14,
-                fontFamily: 'Fira Code',
-                automaticLayout: true,
-                minimap: { enabled: false },
-                cursorBlinking: 'smooth',
-                lineHeight: 22,
-                tabSize: 4,
-                padding: { top: 16 }
-            });
-
-            // Set auto-save draft behavior
-            monacoEditor.onDidChangeModelContent(() => {
-                if (activeProblem) {
-                    clearTimeout(draftSavingTimeout);
-                    draftSavingTimeout = setTimeout(saveCodeDraft, 1000);
-                }
-            });
-
-            // Setup solution display editor (read-only)
-            solutionEditor = monaco.editor.create(document.getElementById('solution-editor-container'), {
-                value: "// Solution will load here.",
-                language: 'python',
-                theme: 'vs-dark',
-                readOnly: true,
-                fontSize: 14,
-                fontFamily: 'Fira Code',
-                automaticLayout: true,
-                minimap: { enabled: false }
-            });
-
-            // Self-healing migration to clear old corrupted drafts
-            if (localStorage.getItem('algodeck_version') !== '3.0') {
-                localStorage.clear();
-                localStorage.setItem('algodeck_version', '3.0');
-                console.log("AlgoDeck: Cleared legacy drafts cache.");
-            }
-
-            // Load problems catalog
-            fetchProblems();
-        });
+        // Initialize Monaco Editors from monaco-setup.js
+        initMonacoEditors();
 
         // Fetch problems list from server with resilient static fallbacks
         async function fetchProblems() {

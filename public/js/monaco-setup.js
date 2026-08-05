@@ -6,8 +6,8 @@ function initMonacoEditors() {
     require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.39.0/min/vs' } });
     require(['vs/editor/editor.main'], function () {
         // Main coding editor
-        monacoEditor = monaco.editor.create(document.getElementById('code-editor-container'), {
-            value: "# Select a problem from the catalog.",
+        window.monacoEditor = monaco.editor.create(document.getElementById('code-editor-container'), {
+            value: "# Select a problem from the catalog on the left.",
             language: 'python',
             theme: 'vs-dark',
             fontSize: currentFontSize,
@@ -27,7 +27,7 @@ function initMonacoEditors() {
         });
 
         // Solution display editor (read-only)
-        solutionEditor = monaco.editor.create(document.getElementById('solution-editor-container'), {
+        window.solutionEditor = monaco.editor.create(document.getElementById('solution-editor-container'), {
             value: "// Solution will load here.",
             language: 'python',
             theme: 'vs-dark',
@@ -41,10 +41,10 @@ function initMonacoEditors() {
         });
 
         // Set auto-save draft behavior
-        monacoEditor.onDidChangeModelContent(() => {
-            if (activeProblem) {
-                clearTimeout(draftSavingTimeout);
-                draftSavingTimeout = setTimeout(saveCodeDraft, 1000);
+        window.monacoEditor.onDidChangeModelContent(() => {
+            if (window.activeProblem) {
+                clearTimeout(window.draftSavingTimeout);
+                window.draftSavingTimeout = setTimeout(saveCodeDraft, 1000);
             }
         });
 
@@ -55,23 +55,29 @@ function initMonacoEditors() {
             console.log("AlgoDeck: Cleared legacy drafts cache.");
         }
 
+        // Apply wrap button state on init
+        const wrapBtn = document.getElementById('btn-word-wrap');
+        if (wrapBtn) wrapBtn.classList.toggle('active', isWordWrapOn);
+
         // Load problems catalog
-        fetchProblems();
+        if (typeof fetchProblems === 'function') {
+            fetchProblems();
+        }
     });
 }
 
-// Font Size Zoom Controls
+// Font Size Zoom Controls (A+ / A-)
 function zoomEditor(delta) {
-    currentFontSize = Math.min(24, Math.max(11, currentFontSize + delta));
+    currentFontSize = Math.min(26, Math.max(11, currentFontSize + delta));
     localStorage.setItem('algodeck_fontsize', currentFontSize);
-    if (monacoEditor) monacoEditor.updateOptions({ fontSize: currentFontSize });
-    if (solutionEditor) solutionEditor.updateOptions({ fontSize: currentFontSize });
+    if (window.monacoEditor) window.monacoEditor.updateOptions({ fontSize: currentFontSize });
+    if (window.solutionEditor) window.solutionEditor.updateOptions({ fontSize: currentFontSize });
 }
 
 // Format Document Action
 function formatCode() {
-    if (monacoEditor) {
-        monacoEditor.getAction('editor.action.formatDocument')?.run();
+    if (window.monacoEditor) {
+        window.monacoEditor.getAction('editor.action.formatDocument')?.run();
     }
 }
 
@@ -80,8 +86,8 @@ function toggleWordWrap() {
     isWordWrapOn = !isWordWrapOn;
     localStorage.setItem('algodeck_wordwrap', isWordWrapOn ? 'on' : 'off');
     const wrapState = isWordWrapOn ? 'on' : 'off';
-    if (monacoEditor) monacoEditor.updateOptions({ wordWrap: wrapState });
-    if (solutionEditor) solutionEditor.updateOptions({ wordWrap: wrapState });
+    if (window.monacoEditor) window.monacoEditor.updateOptions({ wordWrap: wrapState });
+    if (window.solutionEditor) window.solutionEditor.updateOptions({ wordWrap: wrapState });
     
     const wrapBtn = document.getElementById('btn-word-wrap');
     if (wrapBtn) wrapBtn.classList.toggle('active', isWordWrapOn);
@@ -89,10 +95,15 @@ function toggleWordWrap() {
 
 // Reset Starter Code Boilerplate
 function resetBoilerplateCode() {
-    if (!activeProblem) return;
+    if (!window.activeProblem) {
+        alert("Select a problem first to reset code.");
+        return;
+    }
     if (confirm("Reset code to starter boilerplate? Any unsaved changes in this draft will be lost.")) {
-        const draftKey = `draft_${activeProblem.id}_${activeLanguage}`;
+        const draftKey = `draft_${window.activeProblem.id}_${window.activeLanguage}`;
         localStorage.removeItem(draftKey);
-        selectProblem(activeProblem);
+        if (typeof selectProblem === 'function') {
+            selectProblem(window.activeProblem);
+        }
     }
 }
