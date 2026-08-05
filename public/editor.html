@@ -219,8 +219,7 @@
 
         .tabs-header {
             display: flex;
-            background: rgba(5, 5, 5, 0.75);
-            backdrop-filter: blur(12px);
+            background: var(--bg-element);
             border-bottom: 1px solid var(--border);
         }
 
@@ -239,13 +238,13 @@
         }
 
         .tab-btn:hover {
-            color: #ffffff;
+            color: var(--primary);
         }
 
         .tab-btn.active {
-            color: #ffffff;
-            border-bottom-color: #ffffff;
-            background: rgba(255, 255, 255, 0.04);
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            background: var(--bg-surface);
         }
 
         .tab-content-container {
@@ -782,7 +781,7 @@
                     <!-- Solution Tab -->
                     <div class="tab-content" id="tab-solution" style="height:100%; position: relative;">
                         <!-- Lock Overlay -->
-                        <div id="solution-lock-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(19, 21, 40, 0.95); backdrop-filter: blur(8px); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; border-radius: 8px; border: 1px solid var(--border); padding: 2rem; text-align: center;">
+                        <div id="solution-lock-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-surface); backdrop-filter: blur(8px); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; border-radius: 8px; border: 1px solid var(--border); padding: 2rem; text-align: center;">
                             <div style="font-size: 2.5rem; margin-bottom: 1rem; color: #ffb020; text-shadow: 0 0 10px rgba(255, 176, 32, 0.3);">
                                 <i class="fa-solid fa-lock"></i>
                             </div>
