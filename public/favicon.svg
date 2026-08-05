@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="112" fill="#090a0f"/>
+  <rect width="512" height="512" rx="112" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="16"/>
+  <g transform="translate(64, 64) scale(0.75)">
+    <!-- Layer 1 Top -->
+    <path fill="url(#whiteGrad)" d="M12.41 148.02l232.94 105.67a32.06 32.06 0 0021.3 0l232.94-105.67a16 16 0 000-29.04L266.65 13.31a32.06 32.06 0 00-21.3 0L12.41 118.98a16 16 0 000 29.04z"/>
+    <!-- Layer 2 Middle -->
+    <path fill="#ffffff" fill-opacity="0.75" d="M486.2 249.77l-56.76 25.74L256 354.08l-173.44-78.57-56.76-25.74a16 16 0 00-13.4 29.04l232.94 105.67a32.06 32.06 0 0021.3 0l232.94-105.67a16 16 0 00-13.38-29.04z"/>
+    <!-- Layer 3 Bottom -->
+    <path fill="#ffffff" fill-opacity="0.4" d="M486.2 369.77l-56.76 25.74L256 474.08l-173.44-78.57-56.76-25.74a16 16 0 00-13.4 29.04l232.94 105.67a32.06 32.06 0 0021.3 0l232.94-105.67a16 16 0 00-13.38-29.04z"/>
+  </g>
+  <defs>
+    <linearGradient id="whiteGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#aaaaaa"/>
+    </linearGradient>
+  </defs>
+</svg>
