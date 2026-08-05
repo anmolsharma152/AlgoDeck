@@ -5,7 +5,8 @@
   "main": "server/server.js",
   "scripts": {
     "start": "node server/server.js",
-    "dev": "node server/server.js"
+    "dev": "node server/server.js",
+    "test": "python3 tests/run_all_tests.py"
   },
   "dependencies": {
     "cors": "^2.8.5",
