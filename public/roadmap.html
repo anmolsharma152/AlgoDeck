@@ -539,38 +539,11 @@
 
   <script>
     function renderHeader() {
-        const isFile = window.location.protocol === 'file:';
-        const dashUrl = isFile ? './index.html' : '/';
-        const editUrl = isFile ? './editor.html' : '/editor.html';
-        const roadmapUrl = isFile ? './roadmap.html' : '/roadmap.html';
-        
-        const isDashActive = window.location.pathname === '/' || window.location.pathname.includes('index') || window.location.pathname.includes('dashboard');
-        
-        const headerHtml = `
-          <header class="main-header">
-            <a href="${dashUrl}" class="header-brand">
-              <i class="fa-solid fa-layer-group brand-logo" style="color: #ffffff; font-size: 1.7rem;"></i>
-              <span class="brand-name serif italic" style="font-weight: 600; font-size: 1.65rem; font-family: 'Cormorant Garamond', serif; font-style: italic;">AlgoDeck</span>
-            </a>
-            <nav class="header-nav">
-              <a href="${dashUrl}" class="nav-item ${isDashActive ? 'active' : ''}">
-                <i class="fa-solid fa-chart-simple"></i> Dashboard
-              </a>
-              <a href="${editUrl}" class="nav-item ${window.location.pathname.includes('editor') ? 'active' : ''}">
-                <i class="fa-solid fa-terminal"></i> Editor Playground
-              </a>
-              <a href="${roadmapUrl}" class="nav-item ${window.location.pathname.includes('roadmap') ? 'active' : ''}">
-                <i class="fa-solid fa-map-location-dot"></i> Curriculum Roadmap
-              </a>
-            </nav>
-          </header>
-        `;
-        
-        const container = document.getElementById("app-header");
-        if (container) {
-            container.innerHTML = headerHtml;
+        if (window.renderGlobalNavbar) {
+            window.renderGlobalNavbar();
         }
     }
+    renderHeader();
 
     function openLightbox() {
       document.getElementById('lightbox-modal').classList.add('active');

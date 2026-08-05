@@ -43,7 +43,7 @@
         if (!headerContainer) return;
 
         const path = window.location.pathname;
-        const isHome = path === '/' || path.includes('index.html');
+        const isHome = path === '/' || path.endsWith('/index.html') || path === '';
         const isDash = path.includes('dashboard');
         const isEdit = path.includes('editor');
         const isRoadmap = path.includes('roadmap');
@@ -61,7 +61,7 @@
         }
 
         headerContainer.innerHTML = `
-            <nav class="main-header" style="display: flex; justify-content: space-between; align-items: center; padding: 1.1rem 2.5rem; background: rgba(10, 10, 12, 0.85); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(255, 255, 255, 0.08); position: sticky; top: 0; z-index: 100;">
+            <nav class="main-header" style="display: flex; justify-content: space-between; align-items: center; padding: 1.1rem 2.5rem; background: rgba(10, 10, 12, 0.85); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(255, 255, 255, 0.08); position: sticky; top: 0; z-index: 1000;">
                 <a href="/index.html" class="header-brand" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
                     <i class="fa-solid fa-layer-group brand-logo" style="color: #ffffff; font-size: 1.6rem;"></i>
                     <span class="brand-name serif italic" style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 600; font-size: 1.65rem; color: #ffffff;">AlgoDeck</span>
@@ -79,6 +79,10 @@
             </nav>
         `;
     }
+
+    // Expose globally
+    window.renderGlobalNavbar = renderGlobalNavbar;
+    window.renderHeader = renderGlobalNavbar;
 
     function init() {
         injectHeadElements();
