@@ -1,564 +1,766 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AlgoDeck — DSA Practice & Spaced Repetition</title>
-  <link rel="icon" type="image/x-icon" href="/favicon.ico">
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Manrope:wght@200;300;400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="/css/global.css?v=3.0">
-  <script src="/js/global.js?v=3.0" defer></script>
-  <style>
-    :root {
-      --bg-dark: #050505;
-      --card-bg: rgba(255, 255, 255, 0.02);
-      --card-border: rgba(255, 255, 255, 0.08);
-      --accent-blue: #ffffff;
-      --accent-purple: #888888;
-      --accent-green: #10b981;
-      --accent-orange: #ffb020;
-      --accent-red: #ff5252;
-      --text-main: #e5e5e5;
-      --text-muted: #888888;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoDeck — Visual DSA Practice & Spaced Repetition Workstation</title>
+    <meta name="description" content="Master Data Structures & Algorithms with SuperMemo-2 spaced repetition, ELO problem ratings, and VS Code Monaco IDE. Local-first and cloud SaaS workstation.">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Manrope:wght@300;400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/global.css?v=3.0">
+    <script src="/js/global.js?v=3.0" defer></script>
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Manrope', sans-serif;
-    }
+    <style>
+        :root {
+            --bg-dark: #0a0a0c;
+            --card-bg: rgba(18, 18, 24, 0.7);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --accent-green: #10b981;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
 
-    body {
-      background-color: var(--bg-dark);
-      color: var(--text-main);
-      min-height: 100vh;
-      padding-bottom: 3rem;
-    }
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
 
-    .container {
-      max-width: 1240px;
-      margin: 0 auto;
-      padding: 2.5rem 2rem;
-    }
+        /* Navigation Header */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 40px;
+            background: rgba(10, 10, 12, 0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--card-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
 
-    header {
-      text-align: center;
-      margin-bottom: 2.5rem;
-    }
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #ffffff;
+        }
 
-    header h1 {
-      font-size: 2.5rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, #ffffff, #aaaaaa);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 0.5rem;
-    }
+        .brand-logo {
+            font-size: 1.6rem;
+            color: #ffffff;
+        }
 
-    header p {
-      color: var(--text-muted);
-      font-size: 1.1rem;
-    }
+        .brand-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-weight: 600;
+            font-size: 1.7rem;
+            letter-spacing: -0.5px;
+        }
 
-    .stats-card {
-      background: var(--card-bg);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--card-border);
-      border-radius: 1rem;
-      padding: 1.5rem;
-      margin-bottom: 2rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
 
-    .progress-info {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-weight: 600;
-    }
+        .nav-item {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
 
-    .progress-bar-bg {
-      width: 100%;
-      height: 12px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 6px;
-      overflow: hidden;
-    }
+        .nav-item:hover, .nav-item.active {
+            color: #ffffff;
+        }
 
-    .progress-bar-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, var(--accent-blue), var(--accent-green));
-      transition: width 0.4s ease;
-    }
+        .btn-auth {
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.03));
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 18px;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
 
-    .filters-section {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      margin-bottom: 2rem;
-      align-items: center;
-    }
+        .btn-auth:hover {
+            border-color: #ffffff;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
 
-    .search-input {
-      flex: 1;
-      min-width: 250px;
-      padding: 0.75rem 1.25rem;
-      border-radius: 0.75rem;
-      border: 1px solid var(--card-border);
-      background: rgba(15, 23, 42, 0.6);
-      color: var(--text-main);
-      font-size: 0.95rem;
-      outline: none;
-    }
+        /* Hero Section */
+        .hero-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 90px 24px 60px 24px;
+            text-align: center;
+        }
 
-    .search-input:focus {
-      border-color: var(--accent-blue);
-    }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            border-radius: 9999px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--accent-green);
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 24px;
+        }
 
-    .filter-group {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-    }
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.15;
+            margin: 0 auto 20px auto;
+            max-width: 900px;
+            background: linear-gradient(135deg, #ffffff 30%, var(--text-muted) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+        }
 
-    .btn {
-      padding: 0.5rem 1rem;
-      border-radius: 0.5rem;
-      border: 1px solid var(--card-border);
-      background: rgba(30, 41, 59, 0.8);
-      color: var(--text-muted);
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
+        .hero-subtitle {
+            font-size: 1.15rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+            max-width: 760px;
+            margin: 0 auto 36px auto;
+            font-weight: 400;
+        }
 
-    .btn:hover, .btn.active {
-      background: var(--accent-blue);
-      color: #0f172a;
-      border-color: var(--accent-blue);
-    }
+        .hero-actions {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
 
-    .problems-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-      gap: 1.25rem;
-    }
+        .btn-primary {
+            background: #ffffff;
+            color: #000000;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.15);
+        }
 
-    .problem-card {
-      background: var(--card-bg);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--card-border);
-      border-radius: 0.85rem;
-      padding: 1.25rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 1rem;
-      transition: transform 0.2s ease, border-color 0.2s ease;
-    }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            background: #e2e8f0;
+            box-shadow: 0 6px 24px rgba(255, 255, 255, 0.25);
+        }
 
-    .problem-card:hover {
-      transform: translateY(-3px);
-      border-color: rgba(56, 189, 248, 0.4);
-    }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: #ffffff;
+            border: 1px solid var(--card-border);
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.25s ease;
+        }
 
-    .problem-header {
-      display: flex;
-      align-items: flex-start;
-      gap: 0.75rem;
-    }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
 
-    .problem-checkbox {
-      width: 20px;
-      height: 20px;
-      accent-color: var(--accent-green);
-      cursor: pointer;
-      margin-top: 3px;
-    }
+        /* Stats Counter Bar */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            max-width: 1100px;
+            margin: 60px auto 0 auto;
+        }
 
-    .problem-title-area {
-      flex: 1;
-    }
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 24px;
+            text-align: center;
+            backdrop-filter: blur(12px);
+        }
 
-    .problem-title {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: var(--text-main);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
 
-    .problem-title:hover {
-      color: var(--accent-blue);
-    }
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
 
-    .problem-tags {
-      display: flex;
-      gap: 0.4rem;
-      margin-top: 0.4rem;
-      flex-wrap: wrap;
-    }
+        /* Features Section */
+        .section-container {
+            max-width: 1200px;
+            margin: 100px auto;
+            padding: 0 24px;
+        }
 
-    .tag {
-      font-size: 0.7rem;
-      font-weight: 700;
-      padding: 0.15rem 0.45rem;
-      border-radius: 0.3rem;
-      text-transform: uppercase;
-    }
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
 
-    .tag-easy { background: rgba(34, 197, 94, 0.15); color: var(--accent-green); }
-    .tag-medium { background: rgba(249, 115, 22, 0.15); color: var(--accent-orange); }
-    .tag-hard { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); }
-    .tag-pattern { background: rgba(56, 189, 248, 0.15); color: var(--accent-blue); }
+        .section-header h2 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
 
-    .problem-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-      padding-top: 0.75rem;
-    }
+        .section-header p {
+            font-size: 1rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
 
-    .code-links a {
-      color: var(--accent-purple);
-      text-decoration: none;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.8rem;
-      font-weight: 600;
-      margin-left: 0.5rem;
-    }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 24px;
+        }
 
-    .code-links a:hover {
-      text-decoration: underline;
-    }
+        .feature-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 32px;
+            backdrop-filter: blur(12px);
+            transition: all 0.3s ease;
+        }
 
-    .action-links {
-      display: flex;
-      gap: 0.75rem;
-      margin-top: 0.5rem;
-      flex-wrap: wrap;
-    }
+        .feature-card:hover {
+            border-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-4px);
+        }
 
-    .action-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      text-decoration: none;
-      padding: 6px 12px;
-      border-radius: 6px;
-      transition: all 0.2s ease;
-      border: 1px solid var(--card-border);
-    }
+        .feature-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+        }
 
-    .action-btn.practice-btn {
-      background: rgba(168, 85, 247, 0.15);
-      color: #d8b4fe;
-      border-color: rgba(168, 85, 247, 0.3);
-    }
+        .icon-green { background: rgba(16, 185, 129, 0.15); color: var(--accent-green); }
+        .icon-blue { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); }
+        .icon-purple { background: rgba(139, 92, 246, 0.15); color: var(--accent-purple); }
 
-    .action-btn.practice-btn:hover {
-      background: var(--accent-purple);
-      color: #0f172a;
-      border-color: var(--accent-purple);
-    }
+        .feature-card h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0 0 10px 0;
+        }
 
-    .action-btn.external-btn {
-      background: rgba(56, 189, 248, 0.1);
-      color: #bae6fd;
-      border-color: rgba(56, 189, 248, 0.2);
-    }
+        .feature-card p {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+            margin: 0 0 16px 0;
+        }
 
-    .action-btn.external-btn:hover {
-      background: var(--accent-blue);
-      color: #0f172a;
-      border-color: var(--accent-blue);
-    }
+        .feature-code-box {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.8rem;
+            color: #d1d5db;
+        }
 
-  </style>
+        /* Developer & About Section */
+        .developer-section {
+            background: linear-gradient(180deg, rgba(18, 18, 24, 0) 0%, rgba(18, 18, 24, 0.8) 100%);
+            border-top: 1px solid var(--card-border);
+            border-bottom: 1px solid var(--card-border);
+            padding: 90px 24px;
+        }
+
+        .dev-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 48px;
+            flex-wrap: wrap;
+        }
+
+        .dev-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: #ffffff;
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.3);
+            flex-shrink: 0;
+        }
+
+        .dev-info {
+            flex: 1;
+        }
+
+        .dev-info h3 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin: 0 0 8px 0;
+        }
+
+        .dev-role {
+            color: var(--accent-green);
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .dev-bio {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .dev-socials {
+            display: flex;
+            gap: 16px;
+        }
+
+        .social-link {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            transition: color 0.2s ease;
+            text-decoration: none;
+        }
+
+        .social-link:hover {
+            color: #ffffff;
+        }
+
+        /* Footer */
+        footer {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--card-border);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-card {
+            background: #121218;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 440px;
+            padding: 36px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .modal-close:hover { color: #ffffff; }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin: 0 0 6px 0;
+        }
+
+        .modal-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+            text-align: left;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #d1d5db;
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            color: #ffffff;
+            font-size: 0.9rem;
+            box-sizing: border-box;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: #ffffff;
+            color: #000000;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        .guest-divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        .guest-divider::before, .guest-divider::after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .guest-divider span { padding: 0 10px; }
+
+        .btn-guest {
+            width: 100%;
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-green);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-guest:hover {
+            background: var(--accent-green);
+            color: #000000;
+        }
+    </style>
 </head>
 <body>
-  <div id="app-header"></div>
 
-  <div class="container">
-    <header>
-      <h1>AlgoDeck Visualizer</h1>
-      <p>Python & JavaScript Patterns for LeetCode, NeetCode 150, CSES & USACO</p>
+    <!-- Navigation Header -->
+    <nav class="navbar">
+        <a href="/index.html" class="brand-container">
+            <i class="fa-solid fa-layer-group brand-logo"></i>
+            <span class="brand-name">AlgoDeck</span>
+        </a>
+        <div class="nav-links">
+            <a href="/index.html" class="nav-item active">Home</a>
+            <a href="/dashboard.html" class="nav-item">Dashboard</a>
+            <a href="/editor.html" class="nav-item">Playground</a>
+            <a href="/roadmap.html" class="nav-item">Roadmap</a>
+            <button class="btn-auth" onclick="openAuthModal()">
+                <i class="fa-solid fa-user-check"></i> <span id="nav-user-label">Sign In / Guest</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero-section">
+        <div class="hero-badge">
+            <i class="fa-solid fa-bolt"></i> Local-First & Cloud DSA Workstation
+        </div>
+        <h1 class="hero-title">Master Data Structures with Cognitive Spaced Repetition</h1>
+        <p class="hero-subtitle">
+            AlgoDeck replaces mindless LeetCode grinding with science. Powered by the <strong>SuperMemo-2 (SM-2) algorithm</strong>, ELO ratings, and VS Code Monaco IDE to ensure zero memory decay during technical interviews.
+        </p>
+
+        <div class="hero-actions">
+            <a href="/editor.html" class="btn-primary">
+                <i class="fa-solid fa-code"></i> Launch Playground
+            </a>
+            <a href="/dashboard.html" class="btn-secondary">
+                <i class="fa-solid fa-chart-line"></i> View Dashboard
+            </a>
+            <a href="/roadmap.html" class="btn-secondary">
+                <i class="fa-solid fa-diagram-project"></i> 19-Topic Roadmap
+            </a>
+        </div>
+
+        <!-- Metrics Bar -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">75</div>
+                <div class="stat-label">Curated DSA Problems</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">19</div>
+                <div class="stat-label">Algorithmic Patterns</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">150</div>
+                <div class="stat-label">Python & JS Reference Solutions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">Offline & Docker Ready</div>
+            </div>
+        </div>
     </header>
 
-    <div class="stats-card">
-      <div class="progress-info">
-        <span>Overall Progress</span>
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <span id="user-rating-container" style="display:none; align-items: center; gap: 8px; font-weight:700; color:var(--text-main); font-size:0.85rem; background:rgba(255, 255, 255, 0.05); border:1px solid rgba(255, 255, 255, 0.15); padding: 4px 12px; border-radius:9999px;">
-            <i class="fa-solid fa-trophy" style="color: #ffb020; margin-right: 6px;"></i> Coding ELO: <span id="user-rating-val" style="margin-left: 4px;">1200</span>
-          </span>
-          <span id="progress-text">0 / 0 Solved (0%)</span>
+    <!-- Features Section -->
+    <section class="section-container">
+        <div class="section-header">
+            <h2>Engineered for Technical Mastery</h2>
+            <p>Combining memory science, real-time code sandboxing, and modern developer experience.</p>
         </div>
-      </div>
-      <div class="progress-bar-bg">
-        <div class="progress-bar-fill" id="progress-bar"></div>
-      </div>
-    </div>
 
-    <div class="filters-section">
-      <input type="text" id="search" class="search-input" placeholder="Search problems or patterns...">
-      
-      <div class="filter-group" id="difficulty-filters">
-        <button class="btn active" data-diff="all">All Difficulties</button>
-        <button class="btn" data-diff="Easy">Easy</button>
-        <button class="btn" data-diff="Medium">Medium</button>
-        <button class="btn" data-diff="Hard">Hard</button>
-      </div>
-
-      <div class="filter-group" id="level-filters">
-        <button class="btn active" data-level="all">All Levels</button>
-        <button class="btn" data-level="1">L1: Linear</button>
-        <button class="btn" data-level="2">L2: Search/Trees</button>
-        <button class="btn" data-level="3">L3: Graphs</button>
-        <button class="btn" data-level="4">L4: DP</button>
-        <button class="btn" data-level="5">L5: CP</button>
-      </div>
-    </div>
-
-    <div class="problems-grid" id="problems-container"></div>
-  </div>
-
-  <script src="/js/tracker.js"></script>
-  <script>
-    let problemsData = [];
-    let solvedSet = new Set(JSON.parse(localStorage.getItem('dsa_solved_problems') || '[]'));
-    let activeDiff = 'all';
-    let activeLevel = 'all';
-    let searchQuery = '';
-
-    function renderHeader() {
-        const isFile = window.location.protocol === 'file:';
-        const dashUrl = isFile ? './index.html' : '/';
-        const editUrl = isFile ? './editor.html' : '/editor.html';
-        const roadmapUrl = isFile ? './roadmap.html' : '/roadmap.html';
-        
-        const isDashActive = window.location.pathname === '/' || window.location.pathname.includes('index') || window.location.pathname.includes('dashboard');
-        
-        const headerHtml = `
-          <header class="main-header">
-            <a href="${dashUrl}" class="header-brand">
-              <i class="fa-solid fa-layer-group brand-logo" style="color: #ffffff; font-size: 1.7rem;"></i>
-              <span class="brand-name serif italic" style="font-weight: 600; font-size: 1.65rem; font-family: 'Cormorant Garamond', serif; font-style: italic;">AlgoDeck</span>
-            </a>
-            <nav class="header-nav">
-              <a href="${dashUrl}" class="nav-item ${isDashActive ? 'active' : ''}">
-                <i class="fa-solid fa-chart-simple"></i> Dashboard
-              </a>
-              <a href="${editUrl}" class="nav-item ${window.location.pathname.includes('editor') ? 'active' : ''}">
-                <i class="fa-solid fa-terminal"></i> Editor Playground
-              </a>
-              <a href="${roadmapUrl}" class="nav-item ${window.location.pathname.includes('roadmap') ? 'active' : ''}">
-                <i class="fa-solid fa-map-location-dot"></i> Curriculum Roadmap
-              </a>
-            </nav>
-          </header>
-        `;
-        
-        const container = document.getElementById("app-header");
-        if (container) {
-            container.innerHTML = headerHtml;
-        }
-    }
-
-    async function loadData() {
-      renderHeader();
-      
-      // Try to load dynamic server data if accessed via http/https protocol
-      if (window.location.protocol.startsWith('http')) {
-        try {
-          const res = await fetch('/api/problems');
-          const data = await res.json();
-          problemsData = data.problems;
-          
-          // Populate solvedSet based on backend progress (repetitions > 0)
-          solvedSet = new Set(problemsData.filter(p => p.repetitions > 0).map(p => p.id));
-          localStorage.setItem('dsa_solved_problems', JSON.stringify(Array.from(solvedSet)));
-          
-          // Display ELO rating
-          if (data.user_rating) {
-            document.getElementById('user-rating-val').innerText = data.user_rating;
-            document.getElementById('user-rating-container').style.display = 'inline-flex';
-          }
-          
-          render();
-          return;
-        } catch (err) {
-          console.warn('Backend server not reachable, falling back to static/local storage.', err);
-        }
-      }
-      
-      // Fallback for file:// protocol or server failure
-      if (window.problemsData) {
-        problemsData = window.problemsData;
-        render();
-      } else {
-        try {
-          const res = await fetch('./tracker.json');
-          problemsData = await res.json();
-          render();
-        } catch (err) {
-          console.error('Failed to load tracker.json', err);
-        }
-      }
-    }
-
-    async function toggleSolved(id) {
-      const problem = problemsData.find(p => p.id === id);
-      if (!problem) return;
-      
-      if (solvedSet.has(id)) {
-        solvedSet.delete(id);
-        // Try server request to reset SM-2 / ELO
-        if (window.location.protocol.startsWith('http')) {
-          try {
-            const res = await fetch('/api/submit', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ path: problem.pythonPath, quality: 0 })
-            });
-            const data = await res.json();
-            if (data && data.user_rating) {
-              document.getElementById('user-rating-val').innerText = data.user_rating;
-            }
-          } catch (e) {
-            console.error('Failed to update backend progress:', e);
-          }
-        }
-      } else {
-        solvedSet.add(id);
-        // Try server request to mark solved (quality 5)
-        if (window.location.protocol.startsWith('http')) {
-          try {
-            const res = await fetch('/api/submit', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ path: problem.pythonPath, quality: 5 })
-            });
-            const data = await res.json();
-            if (data && data.user_rating) {
-              document.getElementById('user-rating-val').innerText = data.user_rating;
-            }
-          } catch (e) {
-            console.error('Failed to update backend progress:', e);
-          }
-        }
-      }
-      
-      localStorage.setItem('dsa_solved_problems', JSON.stringify(Array.from(solvedSet)));
-      updateProgress();
-    }
-
-    function updateProgress() {
-      const total = problemsData.length;
-      const solved = problemsData.filter(p => solvedSet.has(p.id)).length;
-      const pct = total ? Math.round((solved / total) * 100) : 0;
-      
-      document.getElementById('progress-text').innerText = `${solved} / ${total} Solved (${pct}%)`;
-      document.getElementById('progress-bar').style.width = `${pct}%`;
-    }
-
-    function render() {
-      const container = document.getElementById('problems-container');
-      container.innerHTML = '';
-
-      const filtered = problemsData.filter(p => {
-        const matchesDiff = activeDiff === 'all' || p.difficulty === activeDiff;
-        const matchesLevel = activeLevel === 'all' || p.level === parseInt(activeLevel);
-        const matchesSearch = p.title.toLowerCase().includes(searchQuery) || 
-                              p.pattern.toLowerCase().includes(searchQuery);
-        return matchesDiff && matchesLevel && matchesSearch;
-      });
-
-      filtered.forEach(p => {
-        const isSolved = solvedSet.has(p.id);
-        const editorUrl = window.location.protocol === 'file:' 
-          ? './editor.html' 
-          : '/editor.html';
-
-        const card = document.createElement('div');
-        card.className = 'problem-card';
-        card.innerHTML = `
-          <div>
-            <div class="problem-header">
-              <input type="checkbox" class="problem-checkbox" ${isSolved ? 'checked' : ''} onchange="toggleSolved('${p.id}')">
-              <div class="problem-title-area">
-                <a href="${editorUrl}?id=${p.id}" class="problem-title">${p.title}</a>
-                <div class="problem-tags">
-                  <span class="tag tag-${p.difficulty.toLowerCase()}">${p.difficulty}</span>
-                  <span class="tag tag-pattern">${p.pattern}</span>
+        <div class="features-grid">
+            <!-- Feature 1 -->
+            <div class="feature-card">
+                <div class="feature-icon icon-green">
+                    <i class="fa-solid fa-brain"></i>
                 </div>
-              </div>
+                <h3>SuperMemo-2 Spaced Repetition</h3>
+                <p>Never forget a pattern. AlgoDeck tracks your solution quality ($q \in [0..5]$) and calculates the exact date ($I_n$) you need to review each problem before memory decays.</p>
+                <div class="feature-code-box">
+                    I_n = I_{n-1} \times EF'<br>
+                    EF' = EF + (0.1 - (5-q) \times (0.08 + (5-q) \times 0.02))
+                </div>
             </div>
-            <div class="action-links">
-              <a href="${editorUrl}?id=${p.id}" class="action-btn practice-btn">
-                <i class="fa-solid fa-code"></i> Code Offline
-              </a>
-              <a href="${p.problemUrl}" target="_blank" class="action-btn external-btn">
-                <i class="fa-solid fa-arrow-up-right-from-square"></i> External Link
-              </a>
+
+            <!-- Feature 2 -->
+            <div class="feature-card">
+                <div class="feature-icon icon-blue">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                <h3>Chess-Style ELO Rating Engine</h3>
+                <p>Track your coding proficiency with real-time ELO updates. Solve harder problems (Medium/Hard) to boost your rating ($R_{user}$) using expected probability functions.</p>
+                <div class="feature-code-box">
+                    E_A = 1 / (1 + 10^((R_prob - R_user) / 400))<br>
+                    R'_user = R_user + K \times (S - E_A)
+                </div>
             </div>
-          </div>
-          <div class="problem-footer">
-            <span>Level ${p.level} • ${p.platform}</span>
-            <div class="code-links">
-              <a href="${editorUrl}?id=${p.id}&lang=python">Python</a>
-              <a href="${editorUrl}?id=${p.id}&lang=javascript">JS</a>
+
+            <!-- Feature 3 -->
+            <div class="feature-card">
+                <div class="feature-icon icon-purple">
+                    <i class="fa-solid fa-laptop-code"></i>
+                </div>
+                <h3>Monaco IDE & Subprocess Sandbox</h3>
+                <p>Full VS Code Monaco editor with Python 3 & JavaScript execution. Features process timeouts (5s limit), buffer caps, code auto-formatting, and starter code extraction.</p>
+                <div class="feature-code-box">
+                    $ node server/server.js<br>
+                    [Sandbox] Executed 01-01/contains_duplicate.py (Pass 150/150)
+                </div>
             </div>
-          </div>
-        `;
-        container.appendChild(card);
-      });
+        </div>
+    </section>
 
-      updateProgress();
-    }
+    <!-- Developer & About Section -->
+    <section class="developer-section">
+        <div class="dev-container">
+            <div class="dev-avatar">
+                <i class="fa-solid fa-terminal"></i>
+            </div>
+            <div class="dev-info">
+                <h3>About the Platform & Developer</h3>
+                <div class="dev-role">Built by Anmol Sharma — Full-Stack Systems & Algorithms Engineer</div>
+                <p class="dev-bio">
+                    AlgoDeck was created to solve a fundamental problem in software interview preparation: <em>"How do we transition from brute-force memorization to long-term algorithmic intuition?"</em><br><br>
+                    By combining spaced-repetition cognitive science with a local-first engineering workspace, AlgoDeck empowers developers to master problem-solving patterns offline or via cloud SaaS.
+                </p>
+                <div class="dev-socials">
+                    <a href="https://github.com/anmolsharma152" target="_blank" class="social-link" title="GitHub">
+                        <i class="fa-brands fa-github"></i>
+                    </a>
+                    <a href="https://linkedin.com" target="_blank" class="social-link" title="LinkedIn">
+                        <i class="fa-brands fa-linkedin"></i>
+                    </a>
+                    <a href="/architecture.md" class="social-link" title="System Architecture">
+                        <i class="fa-solid fa-book-journal-whills"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    // Event Listeners
-    document.getElementById('search').addEventListener('input', (e) => {
-      searchQuery = e.target.value.toLowerCase();
-      render();
-    });
+    <!-- Footer -->
+    <footer>
+        <div>&copy; 2026 AlgoDeck. Built with Node.js, Python, PostgreSQL, and Monaco IDE.</div>
+        <div style="display: flex; gap: 16px;">
+            <a href="/architecture.md" style="color: var(--text-muted); text-decoration: none;">Architecture</a>
+            <a href="/deployment_plan.md" style="color: var(--text-muted); text-decoration: none;">Deployment</a>
+            <a href="/distribution_plan.md" style="color: var(--text-muted); text-decoration: none;">Distribution</a>
+        </div>
+    </footer>
 
-    document.querySelectorAll('#difficulty-filters .btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('#difficulty-filters .btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        activeDiff = btn.dataset.diff;
-        render();
-      });
-    });
+    <!-- User Authentication / Welcome Modal -->
+    <div class="modal-overlay" id="auth-modal" onclick="closeAuthModal(event)">
+        <div class="modal-card" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeAuthModal()">&times;</button>
+            <h3 class="modal-title">Welcome to AlgoDeck</h3>
+            <div class="modal-subtitle">Choose how you'd like to track your DSA review schedule:</div>
 
-    document.querySelectorAll('#level-filters .btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('#level-filters .btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        activeLevel = btn.dataset.level;
-        render();
-      });
-    });
+            <form onsubmit="handleLoginSubmit(event)">
+                <div class="form-group">
+                    <label class="form-label">Username / Email</label>
+                    <input type="text" id="auth-username" class="form-input" placeholder="e.g. alex_engineer" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="auth-password" class="form-input" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn-submit">Sign In / Register</button>
+            </form>
 
-    loadData();
-  </script>
+            <div class="guest-divider">
+                <span>OR</span>
+            </div>
+
+            <button class="btn-guest" onclick="continueAsGuest()">
+                <i class="fa-solid fa-user-clock"></i> Continue as Guest (Instant Access)
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal JavaScript -->
+    <script>
+        function openAuthModal() {
+            document.getElementById('auth-modal').style.display = 'flex';
+        }
+
+        function closeAuthModal(event) {
+            document.getElementById('auth-modal').style.display = 'none';
+        }
+
+        function continueAsGuest() {
+            let guestId = localStorage.getItem('algodeck_guest_id');
+            if (!guestId) {
+                guestId = 'guest_' + Math.random().toString(36).substring(2, 10);
+                localStorage.setItem('algodeck_guest_id', guestId);
+            }
+            localStorage.setItem('algodeck_user_type', 'guest');
+            updateNavUserLabel('Guest Mode (' + guestId.substring(0, 8) + ')');
+            closeAuthModal();
+        }
+
+        function handleLoginSubmit(event) {
+            event.preventDefault();
+            const username = document.getElementById('auth-username').value;
+            if (username) {
+                localStorage.setItem('algodeck_user_type', 'user');
+                localStorage.setItem('algodeck_username', username);
+                updateNavUserLabel(username);
+                closeAuthModal();
+            }
+        }
+
+        function updateNavUserLabel(text) {
+            const el = document.getElementById('nav-user-label');
+            if (el) el.innerText = text;
+        }
+
+        // Auto-check session state on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const userType = localStorage.getItem('algodeck_user_type');
+            if (userType === 'user' && localStorage.getItem('algodeck_username')) {
+                updateNavUserLabel(localStorage.getItem('algodeck_username'));
+            } else if (userType === 'guest' && localStorage.getItem('algodeck_guest_id')) {
+                updateNavUserLabel('Guest Mode (' + localStorage.getItem('algodeck_guest_id').substring(0, 8) + ')');
+            }
+        });
+    </script>
 </body>
 </html>

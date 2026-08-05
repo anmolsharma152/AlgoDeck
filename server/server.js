@@ -529,7 +529,8 @@ app.use('/roadmap', express.static(PUBLIC_DIR));
 
 // Direct clean page route fallbacks
 app.get('/', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'index.html')));
-app.get('/dashboard.html', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'index.html')));
+app.get('/dashboard', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'dashboard.html')));
+app.get('/dashboard.html', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'dashboard.html')));
 app.get('/editor.html', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'editor.html')));
 app.get('/roadmap.html', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'roadmap.html')));
 
