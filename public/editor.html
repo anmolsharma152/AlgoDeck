@@ -912,6 +912,7 @@ Terminal logs and assertion output will display here after you run code.
             }
         }
         renderHeader();
+        const API_BASE = window.location.origin.startsWith('http') ? window.location.origin : "http://localhost:3000";
         let activeProblem = null;
         let activeLanguage = "python";
         let monacoEditor = null;
