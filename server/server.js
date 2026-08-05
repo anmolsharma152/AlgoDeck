@@ -498,7 +498,21 @@ app.post('/api/submit', async (req, res) => {
     });
 });
 
-// Disable browser disk caching for all static files & routes during development
+// Allow long-term caching for favicons so browser bookmark managers store the icon
+const faviconFiles = ['/favicon.ico', '/favicon.svg', '/favicon-32x32.png', '/favicon-16x16.png', '/apple-touch-icon.png'];
+faviconFiles.forEach(file => {
+    app.get(file, (req, res) => {
+        const targetPath = path.join(PUBLIC_DIR, file.replace('/', ''));
+        if (fs.existsSync(targetPath)) {
+            res.setHeader('Cache-Control', 'public, max-age=86400');
+            res.sendFile(targetPath);
+        } else {
+            res.status(404).send('Not found');
+        }
+    });
+});
+
+// Disable browser disk caching for dynamic HTML routes during development
 app.use((req, res, next) => {
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     res.setHeader('Pragma', 'no-cache');
