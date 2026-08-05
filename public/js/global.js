@@ -53,8 +53,9 @@
         const username = localStorage.getItem('algodeck_username') || '';
         let guestId = localStorage.getItem('algodeck_guest_id');
         if (!guestId) {
-            guestId = 'guest_' + Math.random().toString(36).substring(2, 8);
+            guestId = 'guest_' + Math.random().toString(36).substring(2, 6);
             localStorage.setItem('algodeck_guest_id', guestId);
+            localStorage.setItem('algodeck_user_type', 'guest');
         }
 
         modal.innerHTML = `
@@ -181,15 +182,19 @@
         const isRoadmap = path.includes('roadmap');
         const isDocs = path.includes('docs');
 
-        const userType = localStorage.getItem('algodeck_user_type');
+        const userType = localStorage.getItem('algodeck_user_type') || 'guest';
         const username = localStorage.getItem('algodeck_username');
-        const guestId = localStorage.getItem('algodeck_guest_id');
+        let guestId = localStorage.getItem('algodeck_guest_id');
 
-        let userLabel = 'Sign In / Guest';
+        if (!guestId) {
+            guestId = 'guest_' + Math.random().toString(36).substring(2, 6);
+            localStorage.setItem('algodeck_guest_id', guestId);
+            localStorage.setItem('algodeck_user_type', 'guest');
+        }
+
+        let userLabel = 'Guest Mode (' + (guestId.length > 10 ? guestId.substring(0, 10) : guestId) + ')';
         if (userType === 'user' && username) {
             userLabel = username;
-        } else if (userType === 'guest' && guestId) {
-            userLabel = 'Guest (' + guestId.substring(0, 6) + ')';
         }
 
         const currentTheme = getStoredTheme();
