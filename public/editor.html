@@ -946,11 +946,13 @@ Terminal logs and assertion output will display here after you run code.
         // Initialize Monaco Editors
         require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.39.0/min/vs' } });
         require(['vs/editor/editor.main'], function () {
+            const currentMonacoTheme = (localStorage.getItem('algodeck_theme') === 'light') ? 'vs' : 'vs-dark';
+            
             // Main coding editor
             monacoEditor = monaco.editor.create(document.getElementById('code-editor-container'), {
                 value: "# Select a problem from the catalog.",
                 language: 'python',
-                theme: 'vs-dark',
+                theme: currentMonacoTheme,
                 fontSize: currentFontSize,
                 fontFamily: 'Fira Code, monospace',
                 automaticLayout: true,
@@ -971,7 +973,7 @@ Terminal logs and assertion output will display here after you run code.
             solutionEditor = monaco.editor.create(document.getElementById('solution-editor-container'), {
                 value: "// Solution will load here.",
                 language: 'python',
-                theme: 'vs-dark',
+                theme: currentMonacoTheme,
                 readOnly: true,
                 fontSize: currentFontSize,
                 fontFamily: 'Fira Code, monospace',
@@ -1276,10 +1278,10 @@ Terminal logs and assertion output will display here after you run code.
                 collapsedGroups[activeProblem.pattern] = false;
             }
 
-            // Render each pattern group (COLLAPSED by default unless active or toggled open)
+            // Render each pattern group (EXPANDED by default unless explicitly collapsed)
             Object.keys(groups).forEach(pattern => {
                 const probs = groups[pattern];
-                const isGroupCollapsed = collapsedGroups[pattern] !== false;
+                const isGroupCollapsed = collapsedGroups[pattern] === true;
 
                 // Group Header
                 const groupHeader = document.createElement("div");

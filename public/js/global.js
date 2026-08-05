@@ -1,10 +1,49 @@
 (function () {
-    // 1. Inject fonts and stylesheets dynamically
+    // 1. Theme Management System (Dark / Light Mode)
+    function getStoredTheme() {
+        return localStorage.getItem('algodeck_theme') || 'dark';
+    }
+
+    function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        if (document.body) {
+            document.body.setAttribute('data-theme', theme);
+        }
+        localStorage.setItem('algodeck_theme', theme);
+
+        const themeBtn = document.getElementById('btn-theme-toggle');
+        if (themeBtn) {
+            themeBtn.innerHTML = theme === 'light'
+                ? `<i class="fa-solid fa-sun" style="color: #f59e0b; font-size: 0.95rem;"></i>`
+                : `<i class="fa-solid fa-moon" style="color: #a855f7; font-size: 0.95rem;"></i>`;
+            themeBtn.title = `Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`;
+        }
+
+        // Sync Monaco editor themes if initialized
+        if (window.monacoEditor) {
+            window.monacoEditor.updateOptions({ theme: theme === 'light' ? 'vs' : 'vs-dark' });
+        }
+        if (window.solutionEditor) {
+            window.solutionEditor.updateOptions({ theme: theme === 'light' ? 'vs' : 'vs-dark' });
+        }
+    }
+
+    function toggleTheme() {
+        const currentTheme = getStoredTheme();
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        applyTheme(newTheme);
+    }
+
+    // Expose globally
+    window.applyTheme = applyTheme;
+    window.toggleTheme = toggleTheme;
+
+    // 2. Inject fonts and stylesheets dynamically
     function injectHeadElements() {
         if (!document.querySelector('link[href*="global.css"]')) {
             const link = document.createElement('link');
             link.rel = 'stylesheet';
-            link.href = '/css/global.css?v=3.0';
+            link.href = '/css/global.css?v=3.5';
             document.head.appendChild(link);
         }
         if (!document.querySelector('link[href*="Manrope"]')) {
@@ -15,7 +54,7 @@
         }
     }
 
-    // 2. Inject spotlight and noise overlay DOM elements
+    // 3. Inject spotlight and noise overlay DOM elements
     function injectBackgroundFX() {
         if (!document.querySelector('.spotlight-bg')) {
             const spotlight = document.createElement('div');
@@ -29,7 +68,7 @@
         }
     }
 
-    // 3. Track spotlight coordinates
+    // 4. Track spotlight coordinates
     function setupSpotlightTracking() {
         document.addEventListener('mousemove', (e) => {
             document.documentElement.style.setProperty('--cursor-x', e.clientX + 'px');
@@ -37,7 +76,7 @@
         });
     }
 
-    // 4. Render unified global navbar across all AlgoDeck pages
+    // 5. Render unified global navbar across all AlgoDeck pages
     function renderGlobalNavbar() {
         const headerContainer = document.getElementById('app-header');
         if (!headerContainer) return;
@@ -60,27 +99,35 @@
             userLabel = 'Guest (' + guestId.substring(0, 6) + ')';
         }
 
+        const currentTheme = getStoredTheme();
+        const themeIcon = currentTheme === 'light'
+            ? `<i class="fa-solid fa-sun" style="color: #f59e0b; font-size: 0.95rem;"></i>`
+            : `<i class="fa-solid fa-moon" style="color: #a855f7; font-size: 0.95rem;"></i>`;
+
         headerContainer.innerHTML = `
-            <nav class="main-header" style="display: flex; justify-content: space-between; align-items: center; padding: 1.1rem 2.5rem; background: rgba(10, 10, 12, 0.85); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(255, 255, 255, 0.08); position: sticky; top: 0; z-index: 1000;">
-                <a href="/index.html" class="header-brand" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
-                    <i class="fa-solid fa-layer-group brand-logo" style="color: #ffffff; font-size: 1.6rem;"></i>
-                    <span class="brand-name serif italic" style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 600; font-size: 1.65rem; color: #ffffff;">AlgoDeck</span>
+            <header class="main-header">
+                <a href="/index.html" class="header-brand">
+                    <i class="fa-solid fa-layer-group brand-logo"></i>
+                    <span class="brand-name serif italic">AlgoDeck</span>
                 </a>
-                <div class="header-nav" style="display: flex; align-items: center; gap: 20px;">
+                <nav class="header-nav">
                     <a href="/index.html" class="nav-item ${isHome ? 'active' : ''}"><i class="fa-solid fa-house"></i> Home</a>
                     <a href="/dashboard.html" class="nav-item ${isDash ? 'active' : ''}"><i class="fa-solid fa-chart-simple"></i> Dashboard</a>
                     <a href="/editor.html" class="nav-item ${isEdit ? 'active' : ''}"><i class="fa-solid fa-terminal"></i> Playground</a>
                     <a href="/roadmap.html" class="nav-item ${isRoadmap ? 'active' : ''}"><i class="fa-solid fa-diagram-project"></i> Roadmap</a>
                     <a href="/docs.html" class="nav-item ${isDocs ? 'active' : ''}"><i class="fa-solid fa-book"></i> Docs</a>
-                    <button class="btn-auth" onclick="if(typeof openAuthModal==='function'){openAuthModal()}else{location.href='/index.html'}" style="background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.03)); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.2); padding: 6px 16px; border-radius: 9999px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    <button id="btn-theme-toggle" onclick="window.toggleTheme()" title="Toggle Light/Dark Theme" style="background: var(--bg-element); color: var(--nav-text); border: 1px solid var(--border); width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;">
+                        ${themeIcon}
+                    </button>
+                    <button class="btn-auth" onclick="if(typeof openAuthModal==='function'){openAuthModal()}else{location.href='/index.html'}" style="background: var(--bg-element); color: var(--nav-text); border: 1px solid var(--border); padding: 7px 16px; border-radius: 9999px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
                         <i class="fa-solid fa-user-check"></i> <span id="nav-user-label">${userLabel}</span>
                     </button>
-                </div>
-            </nav>
+                </nav>
+            </header>
         `;
     }
 
-    // Expose globally
+    // Expose navbar renderers
     window.renderGlobalNavbar = renderGlobalNavbar;
     window.renderHeader = renderGlobalNavbar;
 
@@ -88,6 +135,7 @@
         injectHeadElements();
         injectBackgroundFX();
         setupSpotlightTracking();
+        applyTheme(getStoredTheme());
         renderGlobalNavbar();
     }
 
