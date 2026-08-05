@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AlgoDeck | Visualizer & Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Manrope:wght@200;300;400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/global.css?v=3.0">
+  <script src="/js/global.js?v=3.0" defer></script>
+  <style>
+    :root {
+      --bg-dark: #050505;
+      --card-bg: rgba(255, 255, 255, 0.02);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --accent-blue: #ffffff;
+      --accent-purple: #888888;
+      --accent-green: #10b981;
+      --accent-orange: #ffb020;
+      --accent-red: #ff5252;
+      --text-main: #e5e5e5;
+      --text-muted: #888888;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Manrope', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding-bottom: 3rem;
+    }
+
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 2.5rem 2rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ffffff, #aaaaaa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+
+    .stats-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 12px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent-blue), var(--accent-green));
+      transition: width 0.4s ease;
+    }
+
+    .filters-section {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      align-items: center;
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 250px;
+      padding: 0.75rem 1.25rem;
+      border-radius: 0.75rem;
+      border: 1px solid var(--card-border);
+      background: rgba(15, 23, 42, 0.6);
+      color: var(--text-main);
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent-blue);
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      border: 1px solid var(--card-border);
+      background: rgba(30, 41, 59, 0.8);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover, .btn.active {
+      background: var(--accent-blue);
+      color: #0f172a;
+      border-color: var(--accent-blue);
+    }
+
+    .problems-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .problem-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: 0.85rem;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 1rem;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .problem-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(56, 189, 248, 0.4);
+    }
+
+    .problem-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+
+    .problem-checkbox {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--accent-green);
+      cursor: pointer;
+      margin-top: 3px;
+    }
+
+    .problem-title-area {
+      flex: 1;
+    }
+
+    .problem-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-main);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .problem-title:hover {
+      color: var(--accent-blue);
+    }
+
+    .problem-tags {
+      display: flex;
+      gap: 0.4rem;
+      margin-top: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.15rem 0.45rem;
+      border-radius: 0.3rem;
+      text-transform: uppercase;
+    }
+
+    .tag-easy { background: rgba(34, 197, 94, 0.15); color: var(--accent-green); }
+    .tag-medium { background: rgba(249, 115, 22, 0.15); color: var(--accent-orange); }
+    .tag-hard { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); }
+    .tag-pattern { background: rgba(56, 189, 248, 0.15); color: var(--accent-blue); }
+
+    .problem-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 0.75rem;
+    }
+
+    .code-links a {
+      color: var(--accent-purple);
+      text-decoration: none;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-left: 0.5rem;
+    }
+
+    .code-links a:hover {
+      text-decoration: underline;
+    }
+
+    .action-links {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      border: 1px solid var(--card-border);
+    }
+
+    .action-btn.practice-btn {
+      background: rgba(168, 85, 247, 0.15);
+      color: #d8b4fe;
+      border-color: rgba(168, 85, 247, 0.3);
+    }
+
+    .action-btn.practice-btn:hover {
+      background: var(--accent-purple);
+      color: #0f172a;
+      border-color: var(--accent-purple);
+    }
+
+    .action-btn.external-btn {
+      background: rgba(56, 189, 248, 0.1);
+      color: #bae6fd;
+      border-color: rgba(56, 189, 248, 0.2);
+    }
+
+    .action-btn.external-btn:hover {
+      background: var(--accent-blue);
+      color: #0f172a;
+      border-color: var(--accent-blue);
+    }
+
+  </style>
+</head>
+<body>
+  <div id="app-header"></div>
+
+  <div class="container">
+    <header>
+      <h1>AlgoDeck Visualizer</h1>
+      <p>Python & JavaScript Patterns for LeetCode, NeetCode 150, CSES & USACO</p>
+    </header>
+
+    <div class="stats-card">
+      <div class="progress-info">
+        <span>Overall Progress</span>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span id="user-rating-container" style="display:none; align-items: center; gap: 8px; font-weight:700; color:var(--text-main); font-size:0.85rem; background:rgba(255, 255, 255, 0.05); border:1px solid rgba(255, 255, 255, 0.15); padding: 4px 12px; border-radius:9999px;">
+            <i class="fa-solid fa-trophy" style="color: #ffb020; margin-right: 6px;"></i> Coding ELO: <span id="user-rating-val" style="margin-left: 4px;">1200</span>
+          </span>
+          <span id="progress-text">0 / 0 Solved (0%)</span>
+        </div>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progress-bar"></div>
+      </div>
+    </div>
+
+    <div class="filters-section">
+      <input type="text" id="search" class="search-input" placeholder="Search problems or patterns...">
+      
+      <div class="filter-group" id="difficulty-filters">
+        <button class="btn active" data-diff="all">All Difficulties</button>
+        <button class="btn" data-diff="Easy">Easy</button>
+        <button class="btn" data-diff="Medium">Medium</button>
+        <button class="btn" data-diff="Hard">Hard</button>
+      </div>
+
+      <div class="filter-group" id="level-filters">
+        <button class="btn active" data-level="all">All Levels</button>
+        <button class="btn" data-level="1">L1: Linear</button>
+        <button class="btn" data-level="2">L2: Search/Trees</button>
+        <button class="btn" data-level="3">L3: Graphs</button>
+        <button class="btn" data-level="4">L4: DP</button>
+        <button class="btn" data-level="5">L5: CP</button>
+      </div>
+    </div>
+
+    <div class="problems-grid" id="problems-container"></div>
+  </div>
+
+  <script src="/js/tracker.js"></script>
+  <script>
+    let problemsData = [];
+    let solvedSet = new Set(JSON.parse(localStorage.getItem('dsa_solved_problems') || '[]'));
+    let activeDiff = 'all';
+    let activeLevel = 'all';
+    let searchQuery = '';
+
+    function renderHeader() {
+        const isFile = window.location.protocol === 'file:';
+        const dashUrl = isFile ? './index.html' : '/';
+        const editUrl = isFile ? './editor.html' : '/editor.html';
+        const roadmapUrl = isFile ? './roadmap.html' : '/roadmap.html';
+        
+        const isDashActive = window.location.pathname === '/' || window.location.pathname.includes('index') || window.location.pathname.includes('dashboard');
+        
+        const headerHtml = `
+          <header class="main-header">
+            <a href="${dashUrl}" class="header-brand">
+              <i class="fa-solid fa-layer-group brand-logo" style="color: #ffffff; font-size: 1.7rem;"></i>
+              <span class="brand-name serif italic" style="font-weight: 600; font-size: 1.65rem; font-family: 'Cormorant Garamond', serif; font-style: italic;">AlgoDeck</span>
+            </a>
+            <nav class="header-nav">
+              <a href="${dashUrl}" class="nav-item ${isDashActive ? 'active' : ''}">
+                <i class="fa-solid fa-chart-simple"></i> Dashboard
+              </a>
+              <a href="${editUrl}" class="nav-item ${window.location.pathname.includes('editor') ? 'active' : ''}">
+                <i class="fa-solid fa-terminal"></i> Editor Playground
+              </a>
+              <a href="${roadmapUrl}" class="nav-item ${window.location.pathname.includes('roadmap') ? 'active' : ''}">
+                <i class="fa-solid fa-map-location-dot"></i> Curriculum Roadmap
+              </a>
+            </nav>
+          </header>
+        `;
+        
+        const container = document.getElementById("app-header");
+        if (container) {
+            container.innerHTML = headerHtml;
+        }
+    }
+
+    async function loadData() {
+      renderHeader();
+      
+      // Try to load dynamic server data if accessed via http/https protocol
+      if (window.location.protocol.startsWith('http')) {
+        try {
+          const res = await fetch('/api/problems');
+          const data = await res.json();
+          problemsData = data.problems;
+          
+          // Populate solvedSet based on backend progress (repetitions > 0)
+          solvedSet = new Set(problemsData.filter(p => p.repetitions > 0).map(p => p.id));
+          localStorage.setItem('dsa_solved_problems', JSON.stringify(Array.from(solvedSet)));
+          
+          // Display ELO rating
+          if (data.user_rating) {
+            document.getElementById('user-rating-val').innerText = data.user_rating;
+            document.getElementById('user-rating-container').style.display = 'inline-flex';
+          }
+          
+          render();
+          return;
+        } catch (err) {
+          console.warn('Backend server not reachable, falling back to static/local storage.', err);
+        }
+      }
+      
+      // Fallback for file:// protocol or server failure
+      if (window.problemsData) {
+        problemsData = window.problemsData;
+        render();
+      } else {
+        try {
+          const res = await fetch('./tracker.json');
+          problemsData = await res.json();
+          render();
+        } catch (err) {
+          console.error('Failed to load tracker.json', err);
+        }
+      }
+    }
+
+    async function toggleSolved(id) {
+      const problem = problemsData.find(p => p.id === id);
+      if (!problem) return;
+      
+      if (solvedSet.has(id)) {
+        solvedSet.delete(id);
+        // Try server request to reset SM-2 / ELO
+        if (window.location.protocol.startsWith('http')) {
+          try {
+            const res = await fetch('/api/submit', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ path: problem.pythonPath, quality: 0 })
+            });
+            const data = await res.json();
+            if (data && data.user_rating) {
+              document.getElementById('user-rating-val').innerText = data.user_rating;
+            }
+          } catch (e) {
+            console.error('Failed to update backend progress:', e);
+          }
+        }
+      } else {
+        solvedSet.add(id);
+        // Try server request to mark solved (quality 5)
+        if (window.location.protocol.startsWith('http')) {
+          try {
+            const res = await fetch('/api/submit', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ path: problem.pythonPath, quality: 5 })
+            });
+            const data = await res.json();
+            if (data && data.user_rating) {
+              document.getElementById('user-rating-val').innerText = data.user_rating;
+            }
+          } catch (e) {
+            console.error('Failed to update backend progress:', e);
+          }
+        }
+      }
+      
+      localStorage.setItem('dsa_solved_problems', JSON.stringify(Array.from(solvedSet)));
+      updateProgress();
+    }
+
+    function updateProgress() {
+      const total = problemsData.length;
+      const solved = problemsData.filter(p => solvedSet.has(p.id)).length;
+      const pct = total ? Math.round((solved / total) * 100) : 0;
+      
+      document.getElementById('progress-text').innerText = `${solved} / ${total} Solved (${pct}%)`;
+      document.getElementById('progress-bar').style.width = `${pct}%`;
+    }
+
+    function render() {
+      const container = document.getElementById('problems-container');
+      container.innerHTML = '';
+
+      const filtered = problemsData.filter(p => {
+        const matchesDiff = activeDiff === 'all' || p.difficulty === activeDiff;
+        const matchesLevel = activeLevel === 'all' || p.level === parseInt(activeLevel);
+        const matchesSearch = p.title.toLowerCase().includes(searchQuery) || 
+                              p.pattern.toLowerCase().includes(searchQuery);
+        return matchesDiff && matchesLevel && matchesSearch;
+      });
+
+      filtered.forEach(p => {
+        const isSolved = solvedSet.has(p.id);
+        const editorUrl = window.location.protocol === 'file:' 
+          ? './editor.html' 
+          : '/editor.html';
+
+        const card = document.createElement('div');
+        card.className = 'problem-card';
+        card.innerHTML = `
+          <div>
+            <div class="problem-header">
+              <input type="checkbox" class="problem-checkbox" ${isSolved ? 'checked' : ''} onchange="toggleSolved('${p.id}')">
+              <div class="problem-title-area">
+                <a href="${editorUrl}?id=${p.id}" class="problem-title">${p.title}</a>
+                <div class="problem-tags">
+                  <span class="tag tag-${p.difficulty.toLowerCase()}">${p.difficulty}</span>
+                  <span class="tag tag-pattern">${p.pattern}</span>
+                </div>
+              </div>
+            </div>
+            <div class="action-links">
+              <a href="${editorUrl}?id=${p.id}" class="action-btn practice-btn">
+                <i class="fa-solid fa-code"></i> Code Offline
+              </a>
+              <a href="${p.problemUrl}" target="_blank" class="action-btn external-btn">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i> External Link
+              </a>
+            </div>
+          </div>
+          <div class="problem-footer">
+            <span>Level ${p.level} • ${p.platform}</span>
+            <div class="code-links">
+              <a href="${p.pythonPath}" target="_blank">Python</a>
+              <a href="${p.jsPath}" target="_blank">JS</a>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      updateProgress();
+    }
+
+    // Event Listeners
+    document.getElementById('search').addEventListener('input', (e) => {
+      searchQuery = e.target.value.toLowerCase();
+      render();
+    });
+
+    document.querySelectorAll('#difficulty-filters .btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#difficulty-filters .btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeDiff = btn.dataset.diff;
+        render();
+      });
+    });
+
+    document.querySelectorAll('#level-filters .btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#level-filters .btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeLevel = btn.dataset.level;
+        render();
+      });
+    });
+
+    loadData();
+  </script>
+</body>
+</html>
