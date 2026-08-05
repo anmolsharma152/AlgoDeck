@@ -15,6 +15,11 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=algodeck_secure_pass
       - POSTGRES_DB=algodeck
+    volumes:
+      - ./public:/app/public
+      - ./server:/app/server
+      - ./content:/app/content
+      - ./docs:/app/docs
     networks:
       - default
       - homelab
