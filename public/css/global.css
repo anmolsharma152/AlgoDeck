@@ -50,8 +50,8 @@
     --nav-text: #0f172a;
     --nav-border: rgba(0, 0, 0, 0.08);
     --card-bg: #ffffff;
-    --terminal-bg: #0f172a;
-    --terminal-text: #4ade80;
+    --terminal-bg: #f8fafc;
+    --terminal-text: #16a34a;
     --spotlight-color: rgba(37, 99, 235, 0.05);
 }
 
@@ -231,8 +231,18 @@ body {
 [data-theme="light"] .feature-card h3,
 [data-theme="light"] .dev-info h3,
 [data-theme="light"] .topic-title,
-[data-theme="light"] .sidebar-header {
+[data-theme="light"] .sidebar-header,
+[data-theme="light"] .roadmap-header h1,
+[data-theme="light"] .split-info h2,
+[data-theme="light"] .stat-pill strong,
+[data-theme="light"] .section-title {
     color: var(--primary) !important;
+}
+
+[data-theme="light"] .roadmap-header p,
+[data-theme="light"] .split-info p,
+[data-theme="light"] .stat-pill span {
+    color: var(--text-muted) !important;
 }
 
 [data-theme="light"] .hero-title {
@@ -259,9 +269,32 @@ body {
 [data-theme="light"] .editor-terminal-pane,
 [data-theme="light"] .tab-header,
 [data-theme="light"] .editor-header,
-[data-theme="light"] .editor-footer {
+[data-theme="light"] .editor-footer,
+[data-theme="light"] .docs-sidebar {
     background-color: #ffffff !important;
     border-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .code-editor-box,
+[data-theme="light"] #code-editor-container,
+[data-theme="light"] #solution-editor-container {
+    background-color: #ffffff !important;
+}
+
+[data-theme="light"] .terminal-panel {
+    background-color: #f8fafc !important;
+    border-top-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .terminal-header {
+    background-color: #f1f5f9 !important;
+    border-bottom-color: #e2e8f0 !important;
+    color: #475569 !important;
+}
+
+[data-theme="light"] .terminal-body {
+    background-color: #f8fafc !important;
+    color: #16a34a !important;
 }
 
 [data-theme="light"] .tab-btn {
@@ -276,6 +309,21 @@ body {
     color: #0f172a !important;
     border-bottom-color: #0f172a !important;
     background: #f1f5f9 !important;
+}
+
+[data-theme="light"] .doc-nav-btn {
+    color: #475569 !important;
+}
+
+[data-theme="light"] .doc-nav-btn:hover {
+    color: #0f172a !important;
+    background-color: #f1f5f9 !important;
+}
+
+[data-theme="light"] .doc-nav-btn.active {
+    color: #0f172a !important;
+    background-color: #e2e8f0 !important;
+    border-color: #cbd5e1 !important;
 }
 
 [data-theme="light"] .lang-btn {
@@ -325,11 +373,18 @@ body {
 [data-theme="light"] .feature-card,
 [data-theme="light"] .dev-card,
 [data-theme="light"] .roadmap-card,
+[data-theme="light"] .roadmap-split-card,
+[data-theme="light"] .section-card,
 [data-theme="light"] .cheatsheet-card {
     background-color: #ffffff !important;
     color: #0f172a !important;
     border-color: #e2e8f0 !important;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+}
+
+[data-theme="light"] .stat-pill {
+    background-color: #f1f5f9 !important;
+    border-color: #e2e8f0 !important;
 }
 
 [data-theme="light"] input,

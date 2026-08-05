@@ -139,13 +139,27 @@
             }
 
             const renderArea = document.getElementById('doc-render-area');
-            try {
-                const response = await fetch('/docs/' + fileName);
-                if (!response.ok) throw new Error('File not found');
-                const markdownText = await response.text();
-                renderArea.innerHTML = marked.parse(markdownText);
-            } catch (err) {
-                renderArea.innerHTML = `<div style="color: #ff5252; padding: 20px;">Failed to load documentation file: ${fileName}</div>`;
+            renderArea.innerHTML = `<div style="text-align: center; padding: 40px; color: var(--text-muted);"><i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 12px;"></i><div>Loading documentation...</div></div>`;
+
+            const pathsToTry = [`/docs/${fileName}`, `docs/${fileName}`, `./docs/${fileName}`, `./${fileName}`];
+            let loadedText = null;
+
+            for (const p of pathsToTry) {
+                try {
+                    const res = await fetch(p);
+                    if (res.ok) {
+                        loadedText = await res.text();
+                        break;
+                    }
+                } catch (e) {
+                    // try next path
+                }
+            }
+
+            if (loadedText) {
+                renderArea.innerHTML = marked.parse(loadedText);
+            } else {
+                renderArea.innerHTML = `<div style="color: var(--danger); padding: 20px; text-align: center; border: 1px solid var(--border); border-radius: 8px;">Failed to load documentation file: ${fileName}.</div>`;
             }
         }
 
