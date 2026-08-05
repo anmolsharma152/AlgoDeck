@@ -295,7 +295,7 @@
 
     .accordion-item {
       background: var(--card-bg);
-      border: 1px solid var(--card-border);
+      border: 1px solid var(--border);
       border-radius: 12px;
       overflow: hidden;
       transition: border-color 0.25s ease, box-shadow 0.25s ease;
@@ -307,14 +307,15 @@
       align-items: center;
       padding: 1.35rem 1.75rem;
       cursor: pointer;
-      background: rgba(255, 255, 255, 0.015);
+      background: var(--bg-element);
       font-weight: 700;
       font-size: 1.1rem;
+      color: var(--primary);
       transition: background-color 0.2s;
     }
 
     .accordion-header:hover {
-      background: rgba(255, 255, 255, 0.04);
+      background: var(--bg-surface);
     }
 
     .accordion-icon {
@@ -323,33 +324,32 @@
     }
 
     .accordion-item.active {
-      border-color: rgba(255, 255, 255, 0.2);
-      box-shadow: 0 0 20px rgba(255, 255, 255, 0.03);
+      border-color: var(--border-hover);
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.03);
     }
 
     .accordion-item.active .accordion-icon {
       transform: rotate(180deg);
-      color: #ffffff;
+      color: var(--primary);
     }
 
     .accordion-content {
       max-height: 0;
       overflow: hidden;
-      transition: max-height 0.35s cubic-bezier(0, 1, 0, 1);
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
       padding: 0 1.75rem;
     }
 
     .accordion-item.active .accordion-content {
       max-height: 2500px;
       padding: 1.75rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
-      transition: max-height 0.35s ease-in-out;
+      border-top: 1px solid var(--border);
     }
 
     .pattern-block {
       margin-bottom: 1.75rem;
       padding-bottom: 1.5rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      border-bottom: 1px solid var(--border);
     }
 
     .pattern-block:last-child {
@@ -361,8 +361,8 @@
     .pattern-name {
       font-size: 1.05rem;
       font-weight: 700;
-      color: #ffffff;
-      margin-bottom: 0.4rem;
+      color: var(--primary);
+      margin-bottom: 0.6rem;
       display: flex;
       align-items: center;
       gap: 10px;
@@ -379,9 +379,9 @@
       font-weight: 600;
       padding: 5px 12px;
       border-radius: 6px;
-      background: rgba(255, 255, 255, 0.04);
+      background: var(--bg-element);
       color: var(--text-main);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
       cursor: pointer;
       text-decoration: none;
       transition: all 0.2s ease;
@@ -392,13 +392,13 @@
 
     .prob-tag:hover {
       transform: translateY(-1px);
-      border-color: rgba(255, 255, 255, 0.3);
-      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--border-hover);
+      background: var(--bg-surface);
     }
 
-    .prob-tag.easy { color: var(--accent-green); border-color: rgba(16, 185, 129, 0.2); }
-    .prob-tag.medium { color: var(--accent-orange); border-color: rgba(255, 176, 32, 0.2); }
-    .prob-tag.hard { color: var(--accent-red); border-color: rgba(255, 82, 82, 0.2); }
+    .prob-tag.easy { color: var(--easy); border-color: rgba(16, 185, 129, 0.2); }
+    .prob-tag.medium { color: var(--medium); border-color: rgba(245, 158, 11, 0.2); }
+    .prob-tag.hard { color: var(--hard); border-color: rgba(239, 68, 68, 0.2); }
 
     .tag-level {
       font-size: 0.72rem;
@@ -457,7 +457,7 @@
 
     <!-- Data Structure Complexity Cheatsheet -->
     <div class="section-card">
-      <div class="section-title">
+      <div class="section-title" style="color: var(--primary);">
         <i class="fa-solid fa-gauge-high" style="color: #fbbf24;"></i> Data Structure & Algorithm Complexity Cheatsheet
       </div>
       <div class="table-container">
@@ -520,7 +520,7 @@
     </div>
 
     <!-- 5 Levels Accordion Section -->
-    <div style="margin-bottom: 1.25rem; font-size: 1.35rem; font-weight: 700; color: #ffffff; display: flex; align-items: center; gap: 10px;">
+    <div style="margin-bottom: 1.25rem; font-size: 1.35rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 10px;">
       <i class="fa-solid fa-layer-group" style="color: #38bdf8;"></i> Curriculum Level Breakdown (75 Problems)
     </div>
 
@@ -566,18 +566,18 @@
     function toggleAccordion(header) {
       const item = header.parentElement;
       const content = item.querySelector('.accordion-content');
+      const isCurrentlyActive = item.classList.contains('active');
       
-      if (item.classList.contains('active')) {
+      if (isCurrentlyActive) {
         item.classList.remove('active');
-        content.style.maxHeight = null;
+        content.style.maxHeight = '0px';
+        content.style.paddingTop = '0px';
+        content.style.paddingBottom = '0px';
       } else {
-        document.querySelectorAll('.accordion-item').forEach(el => {
-          el.classList.remove('active');
-          el.querySelector('.accordion-content').style.maxHeight = null;
-        });
-        
         item.classList.add('active');
-        content.style.maxHeight = content.scrollHeight + "px";
+        content.style.maxHeight = content.scrollHeight + 100 + "px";
+        content.style.paddingTop = '1.75rem';
+        content.style.paddingBottom = '1.75rem';
       }
     }
 
@@ -625,7 +625,7 @@
         });
 
         html += `
-          <div class="accordion-item ${lvl.id === 1 ? 'active' : ''}">
+          <div class="accordion-item active">
             <div class="accordion-header" onclick="toggleAccordion(this)">
               <div>
                 <i class="fa-solid ${lvl.icon}" style="margin-right: 8px;"></i> ${lvl.title}
@@ -634,7 +634,7 @@
               </div>
               <i class="fa-solid fa-chevron-down accordion-icon"></i>
             </div>
-            <div class="accordion-content" style="${lvl.id === 1 ? 'max-height: 2500px; padding: 1.75rem;' : ''}">
+            <div class="accordion-content" style="max-height: 2500px; padding: 1.75rem;">
               ${patternsHtml}
             </div>
           </div>
