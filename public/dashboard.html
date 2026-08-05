@@ -102,15 +102,15 @@
       min-width: 250px;
       padding: 0.75rem 1.25rem;
       border-radius: 0.75rem;
-      border: 1px solid var(--card-border);
-      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border);
+      background: var(--bg-surface);
       color: var(--text-main);
       font-size: 0.95rem;
       outline: none;
     }
 
     .search-input:focus {
-      border-color: var(--accent-blue);
+      border-color: var(--border-hover);
     }
 
     .filter-group {
@@ -122,8 +122,8 @@
     .btn {
       padding: 0.5rem 1rem;
       border-radius: 0.5rem;
-      border: 1px solid var(--card-border);
-      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid var(--border);
+      background: var(--bg-element);
       color: var(--text-muted);
       font-size: 0.85rem;
       font-weight: 600;
@@ -131,10 +131,16 @@
       transition: all 0.2s ease;
     }
 
-    .btn:hover, .btn.active {
-      background: var(--accent-blue);
-      color: #0f172a;
-      border-color: var(--accent-blue);
+    .btn:hover {
+      background: var(--bg-surface);
+      color: var(--primary);
+      border-color: var(--border-hover);
+    }
+
+    .btn.active {
+      background: var(--primary) !important;
+      color: var(--bg-base) !important;
+      border-color: var(--primary) !important;
     }
 
     .problems-grid {

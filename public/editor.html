@@ -984,6 +984,13 @@ Terminal logs and assertion output will display here after you run code.
             fetchProblems();
         });
 
+        // Trigger problem catalog fetch immediately on DOM load
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', fetchProblems);
+        } else {
+            fetchProblems();
+        }
+
         // Font Size Zoom Controls (A+ / A-)
         function zoomEditor(delta) {
             currentFontSize = Math.min(28, Math.max(10, currentFontSize + (delta * 2)));
