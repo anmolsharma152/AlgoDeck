@@ -1030,7 +1030,7 @@ Terminal logs and assertion output will display here after you run code.
                 const targetId = urlParams.get('id');
                 const targetLang = urlParams.get('lang');
                 if (targetLang && (targetLang === 'python' || targetLang === 'javascript')) {
-                    setLanguage(targetLang);
+                    switchLanguage(targetLang);
                 }
                 if (targetId && problemList.length > 0) {
                     const targetProb = problemList.find(p => p.id === targetId);
