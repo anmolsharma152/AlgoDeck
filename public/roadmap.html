@@ -612,7 +612,7 @@
         });
 
         html += `
-          <div class="accordion-item active">
+          <div class="accordion-item">
             <div class="accordion-header" onclick="toggleAccordion(this)">
               <div>
                 <i class="fa-solid ${lvl.icon}" style="margin-right: 8px;"></i> ${lvl.title}
@@ -621,7 +621,7 @@
               </div>
               <i class="fa-solid fa-chevron-down accordion-icon"></i>
             </div>
-            <div class="accordion-content" style="max-height: 2500px; padding: 1.75rem;">
+            <div class="accordion-content">
               ${patternsHtml}
             </div>
           </div>
