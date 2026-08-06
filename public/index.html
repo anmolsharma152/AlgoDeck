@@ -305,13 +305,14 @@
         }
 
         .feature-code-box {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: var(--bg-element);
+            border: 1px solid var(--border);
             border-radius: 8px;
             padding: 12px 16px;
             font-family: 'Fira Code', monospace;
             font-size: 0.8rem;
-            color: #d1d5db;
+            line-height: 1.5;
+            color: var(--text-main);
         }
 
         /* Developer & About Section */
@@ -590,10 +591,10 @@
                     <i class="fa-solid fa-brain"></i>
                 </div>
                 <h3>SuperMemo-2 Spaced Repetition</h3>
-                <p>Never forget a pattern. AlgoDeck tracks your solution quality ($q \in [0..5]$) and calculates the exact date ($I_n$) you need to review each problem before memory decays.</p>
+                <p>Never forget a pattern. AlgoDeck tracks your solution quality (q ∈ [0..5]) and calculates the exact date (I_n) you need to review each problem before memory decays.</p>
                 <div class="feature-code-box">
-                    I_n = I_{n-1} \times EF'<br>
-                    EF' = EF + (0.1 - (5-q) \times (0.08 + (5-q) \times 0.02))
+                    I_n = I_{n-1} × EF'<br>
+                    EF' = EF + (0.1 - (5-q) × (0.08 + (5-q) × 0.02))
                 </div>
             </div>
 
@@ -603,10 +604,10 @@
                     <i class="fa-solid fa-trophy"></i>
                 </div>
                 <h3>Chess-Style ELO Rating Engine</h3>
-                <p>Track your coding proficiency with real-time ELO updates. Solve harder problems (Medium/Hard) to boost your rating ($R_{user}$) using expected probability functions.</p>
+                <p>Track your coding proficiency with real-time ELO updates. Solve harder problems (Medium/Hard) to boost your rating (R_user) using expected probability functions.</p>
                 <div class="feature-code-box">
                     E_A = 1 / (1 + 10^((R_prob - R_user) / 400))<br>
-                    R'_user = R_user + K \times (S - E_A)
+                    R'_user = R_user + K × (S - E_A)
                 </div>
             </div>
 

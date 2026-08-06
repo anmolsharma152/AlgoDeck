@@ -454,6 +454,7 @@ body {
 }
 
 [data-theme="light"] .formula-box,
+[data-theme="light"] .feature-code-box,
 [data-theme="light"] pre,
 [data-theme="light"] code {
     background: #f1f5f9 !important;
