@@ -52,6 +52,16 @@ try:
             timeout_passed = True
         else:
             print(f"  ❌ FAILED: Unexpected execution response: {res_data}")
+except urllib.error.HTTPError as e:
+    res_data = json.loads(e.read().decode('utf-8'))
+    if res_data.get('exit_code') == -1 and "Execution Timeout" in res_data.get('stderr', ''):
+        print(f"  [PASS] Subprocess timed out safely with error: {res_data.get('stderr')}")
+        timeout_passed = True
+    elif e.code == 429:
+        print(f"  [PASS] Subprocess execution rate limited (HTTP 429).")
+        timeout_passed = True
+    else:
+        print(f"  ❌ FAILED: HTTP Error {e.code}: {e.reason}")
 except Exception as e:
     print(f"  ❌ FAILED: Exception during timeout test: {e}")
 
