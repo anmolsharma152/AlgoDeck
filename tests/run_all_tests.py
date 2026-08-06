@@ -10,6 +10,7 @@ print("==================================================\n")
 
 test_scripts = [
     ("📚 Content & Boilerplate Audit", [sys.executable, os.path.join(BASE_DIR, "tests", "content_tests.py")]),
+    ("🐘 PostgreSQL Schema & Database Integration", [sys.executable, os.path.join(BASE_DIR, "tests", "db_tests.py")]),
     ("🔒 Security & Vulnerability Test Suite", [sys.executable, os.path.join(BASE_DIR, "tests", "security_tests.py")]),
     ("📊 Solution Evaluator Test Suite (150 Solutions)", [sys.executable, os.path.join(BASE_DIR, "content", "test_runner.py")]),
 ]

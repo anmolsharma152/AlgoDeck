@@ -8,7 +8,8 @@ import os
 def get_active_base_url():
     if os.getenv("TEST_BASE_URL"):
         return os.getenv("TEST_BASE_URL")
-    for port in [3095, 3000]:
+    # Default deterministically to standard local server port 3000
+    for port in [3000, 3095]:
         try:
             req = urllib.request.Request(f"http://localhost:{port}/api/problems")
             with urllib.request.urlopen(req, timeout=2) as resp:
@@ -16,7 +17,7 @@ def get_active_base_url():
                     return f"http://localhost:{port}"
         except Exception:
             pass
-    return "http://localhost:3095"
+    return "http://localhost:3000"
 
 BASE_URL = get_active_base_url()
 print(f"🔒 Running Security & Vulnerability Test Suite for AlgoDeck against {BASE_URL}...\n")

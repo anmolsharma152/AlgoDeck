@@ -24,12 +24,10 @@
 
 ---
 
-## 🌐 Dual Distribution Modes
+## 🌐 Operating & Distribution Modes
 
-AlgoDeck supports two execution models out of the box:
-
-1. **☁️ Online Cloud SaaS (`https://algodeck.dev`)**: Zero-install instant browser workspace with guest UUID isolation and multi-user JWT authentication.
-2. **💻 Local On-Device Workstation (`docker compose up`)**: 100% offline-capable development environment running locally on your laptop without any cloud API dependencies.
+1. **💻 Local On-Device Workstation (Current v1.0)**: 100% offline-capable development workstation running locally via Node.js or `docker compose` with zero external API dependencies. Operates under a **Trusted Local Machine** execution model.
+2. **☁️ Multi-Tenant Cloud SaaS (Roadmap Phase 3 & 4)**: Cloud-hosted architecture incorporating gVisor container sandboxing, multi-tenant JWT user authentication, and managed PostgreSQL storage (see [`docs/implementation_plan.md`](file:///home/anmol/Projects/AlgoDeck/docs/implementation_plan.md)).
 
 ---
 
