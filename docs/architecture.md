@@ -9,7 +9,7 @@
 ```mermaid
 graph TD
     User["Client Browser (Monaco IDE & Visual Dashboard)"] -->|HTTPS / algodeck.localhost| Caddy["Caddy Reverse Proxy (Homelab Network)"]
-    Caddy -->|Reverse Proxy :3000| Server["Node.js Express App Server"]
+    Caddy -->|Reverse Proxy algodeck_app:3000| Server["Node.js Express App Server (Host Port 3095)"]
     
     subgraph Backend Microservice
         Server -->|Subprocess Execution| Sandbox["Python 3 / Node.js Subprocess Sandbox"]
