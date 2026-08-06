@@ -160,5 +160,6 @@ module.exports = {
   initDb,
   getProgress,
   saveProgress,
-  isPgAvailable: () => isPgAvailable
+  isPgAvailable: () => isPgAvailable,
+  getPool: () => pool
 };

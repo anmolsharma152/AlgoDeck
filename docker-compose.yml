@@ -26,6 +26,11 @@ services:
     image: postgres:16-alpine
     container_name: algodeck_db
     restart: unless-stopped
+    ports:
+      - "127.0.0.1:5433:5432"
+    networks:
+      - default
+      - homelab
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: algodeck_secure_pass

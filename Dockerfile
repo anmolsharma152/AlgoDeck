@@ -14,6 +14,7 @@ COPY public/ ./public/
 COPY server/ ./server/
 COPY content/ ./content/
 COPY docs/ ./docs/
+COPY tests/ ./tests/
 
 EXPOSE 3000
 
