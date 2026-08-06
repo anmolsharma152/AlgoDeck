@@ -905,6 +905,16 @@ Terminal logs and assertion output will display here after you run code.
     <script>
         const API_BASE = window.location.origin;
         
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+        
         function renderHeader() {
             if (window.renderGlobalNavbar) {
                 window.renderGlobalNavbar();
@@ -1280,7 +1290,7 @@ Terminal logs and assertion output will display here after you run code.
                 }
 
                 groupHeader.innerHTML = `
-                    <span>${pattern} (${probs.length})</span>
+                    <span>${escapeHtml(pattern)} (${probs.length})</span>
                     <i class="fa-solid ${isGroupCollapsed ? 'fa-chevron-right' : 'fa-chevron-down'}" style="font-size:0.75rem; color:var(--text-muted); transition: transform 0.2s;"></i>
                 `;
 
@@ -1321,11 +1331,12 @@ Terminal logs and assertion output will display here after you run code.
                         badgeHtml = `<span class="sr-badge learning">Reviewing</span>`;
                     }
 
+                    const safeTitle = escapeHtml(p.title);
                     item.innerHTML = `
                         <div class="prob-details">
-                            <div class="prob-title" title="${p.title}">${p.title}</div>
+                            <div class="prob-title" title="${safeTitle}">${safeTitle}</div>
                             <div class="prob-meta">
-                                <span class="diff-tag ${p.difficulty.toLowerCase()}">${p.difficulty}</span>
+                                <span class="diff-tag ${p.difficulty.toLowerCase()}">${escapeHtml(p.difficulty)}</span>
                                 ${badgeHtml}
                             </div>
                         </div>
