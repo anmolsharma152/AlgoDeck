@@ -4,23 +4,36 @@ const path = require('path');
 let pool = null;
 let isPgAvailable = false;
 
-const DATABASE_URL = process.env.DATABASE_URL || (process.env.POSTGRES_HOST ? 
-  `postgres://${process.env.POSTGRES_USER || 'postgres'}:${process.env.POSTGRES_PASSWORD || 'algodeck123'}@${process.env.POSTGRES_HOST || 'localhost'}:${process.env.POSTGRES_PORT || 5432}/${process.env.POSTGRES_DB || 'algodeck'}` : null);
-
-if (DATABASE_URL) {
-  try {
-    const { Pool } = require('pg');
-    pool = new Pool({
-      connectionString: DATABASE_URL,
-      connectionTimeoutMillis: 5000
-    });
-    isPgAvailable = true;
-    console.log('🐘 PostgreSQL configuration detected. Connecting to database...');
-  } catch (err) {
-    console.warn('⚠️ pg module not found or connection failed. Falling back to JSON file storage.');
-    isPgAvailable = false;
-  }
+function getDatabaseUrl() {
+  return process.env.DATABASE_URL || (process.env.POSTGRES_HOST ? 
+    `postgres://${process.env.POSTGRES_USER || 'postgres'}:${process.env.POSTGRES_PASSWORD || 'algodeck123'}@${process.env.POSTGRES_HOST || 'localhost'}:${process.env.POSTGRES_PORT || 5432}/${process.env.POSTGRES_DB || 'algodeck'}` : null);
 }
+
+function ensurePool() {
+  const currentUrl = getDatabaseUrl();
+  if (!currentUrl) {
+    isPgAvailable = false;
+    return null;
+  }
+  if (!pool) {
+    try {
+      const { Pool } = require('pg');
+      pool = new Pool({
+        connectionString: currentUrl,
+        connectionTimeoutMillis: 5000
+      });
+      isPgAvailable = true;
+      console.log('🐘 PostgreSQL configuration detected. Connecting to database...');
+    } catch (err) {
+      console.warn('⚠️ pg module not found or connection failed. Falling back to JSON file storage.');
+      isPgAvailable = false;
+      pool = null;
+    }
+  }
+  return pool;
+}
+
+ensurePool();
 
 async function initDb() {
   if (!isPgAvailable || !pool) return false;
@@ -161,5 +174,11 @@ module.exports = {
   getProgress,
   saveProgress,
   isPgAvailable: () => isPgAvailable,
-  getPool: () => pool
+  getPool: () => pool,
+  closePool: async () => {
+    if (pool) {
+      await pool.end();
+      pool = null;
+    }
+  }
 };

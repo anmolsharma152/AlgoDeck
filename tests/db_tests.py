@@ -5,14 +5,14 @@ import subprocess
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, BASE_DIR)
 
-print("🐘 Running PostgreSQL Schema, Migration & Non-Destructive Roundtrip Integration Test Suite...\n")
+print("🐘 Running Fully Isolated PostgreSQL Migration & Disposable DB Test Suite...\n")
 
 node_test_script = """
 const db = require('./server/db');
 const path = require('path');
 const fs = require('fs');
 
-async function testPostgresIntegration() {
+async function runIsolatedDbTest() {
     console.log('1️⃣ Checking db.js exported contracts...');
     if (typeof db.initDb !== 'function' || typeof db.getProgress !== 'function' || typeof db.saveProgress !== 'function') {
         console.error('❌ FAILED: db.js exports missing expected functions');
@@ -20,131 +20,163 @@ async function testPostgresIntegration() {
     }
     console.log('  [PASS] db.js contract methods present.');
 
-    console.log('\\n2️⃣ Testing Database Schema Initialization & Full Payload Roundtrip...');
-    
-    // Isolated non-destructive test identifier
-    const TEST_PROB_ID = 'test_isolated_roundtrip_999';
+    console.log('\\n2️⃣ Testing Clean Database Creation, Migration & Full Payload Roundtrip...');
+
+    const TEST_PROB_ID = 'test_disposable_prob_123';
     const testPayload = {
-        user_rating: 1450,
+        user_rating: 1550,
         spaced_repetition: {
             [TEST_PROB_ID]: {
-                interval: 21,
-                ease_factor: 2.7,
-                repetitions: 4,
-                next_review: 1710000000000
+                interval: 30,
+                ease_factor: 2.8,
+                repetitions: 5,
+                next_review: 1720000000000
             }
         },
         history: [
             {
                 problem_id: TEST_PROB_ID,
-                timestamp: 1710000000000,
+                timestamp: 1720000000000,
                 quality: 5,
-                rating_before: 1430,
-                rating_after: 1450,
+                rating_before: 1530,
+                rating_after: 1550,
                 elo_change: 20
             }
         ]
     };
 
     if (!db.isPgAvailable()) {
-        console.log('  [INFO] PostgreSQL database not active (isPgAvailable = false). Testing JSON fallback storage.');
+        console.log('  [INFO] PostgreSQL not configured (isPgAvailable = false). Testing JSON fallback.');
         const testFile = path.join(__dirname, 'server', 'test_disposable_progress.json');
         try {
             await db.saveProgress(testFile, testPayload, TEST_PROB_ID);
             const fetched = await db.getProgress(testFile);
             
-            // Full Payload Verification
             const srMatch = fetched.spaced_repetition && fetched.spaced_repetition[TEST_PROB_ID];
             const histMatch = fetched.history && fetched.history.find(h => h.problem_id === TEST_PROB_ID);
 
             if (
-                fetched.user_rating === 1450 &&
+                fetched.user_rating === 1550 &&
                 srMatch &&
-                srMatch.interval === 21 &&
-                Math.abs(srMatch.ease_factor - 2.7) < 0.01 &&
-                srMatch.repetitions === 4 &&
-                String(srMatch.next_review) === '1710000000000' &&
+                srMatch.interval === 30 &&
+                Math.abs(srMatch.ease_factor - 2.8) < 0.01 &&
+                srMatch.repetitions === 5 &&
+                String(srMatch.next_review) === '1720000000000' &&
                 histMatch &&
                 histMatch.quality === 5 &&
-                histMatch.rating_before === 1430 &&
-                histMatch.rating_after === 1450 &&
+                histMatch.rating_before === 1530 &&
+                histMatch.rating_after === 1550 &&
                 histMatch.elo_change === 20
             ) {
-                console.log('  [PASS] JSON fallback full payload roundtrip verified successfully.');
+                console.log('  [PASS] JSON fallback full payload roundtrip verified.');
                 if (fs.existsSync(testFile)) fs.unlinkSync(testFile);
                 process.exit(0);
             } else {
-                console.error('❌ FAILED: JSON full payload roundtrip mismatch:', JSON.stringify(fetched, null, 2));
+                console.error('❌ FAILED: JSON roundtrip mismatch:', JSON.stringify(fetched, null, 2));
                 if (fs.existsSync(testFile)) fs.unlinkSync(testFile);
                 process.exit(1);
             }
         } catch (e) {
-            console.error('❌ FAILED: Exception during JSON storage roundtrip:', e.message);
+            console.error('❌ FAILED: Exception during JSON storage test:', e.message);
             if (fs.existsSync(testFile)) fs.unlinkSync(testFile);
             process.exit(1);
         }
     } else {
-        const pool = db.getPool();
+        const { Client } = require('pg');
+        const pgHost = process.env.POSTGRES_HOST || 'localhost';
+        const pgPort = process.env.POSTGRES_PORT || 5432;
+        const pgUser = process.env.POSTGRES_USER || 'postgres';
+        const pgPass = process.env.POSTGRES_PASSWORD || 'algodeck_secure_pass';
+
+        const adminClient = new Client({
+            host: pgHost,
+            port: pgPort,
+            user: pgUser,
+            password: pgPass,
+            database: 'postgres'
+        });
+
+        const TEST_DB_NAME = 'algodeck_test_disposable';
+        let testDb = null;
+
         try {
-            console.log('  [INFO] PostgreSQL connection detected. Executing initDb() migration...');
-            const initSuccess = await db.initDb();
+            console.log(`  [INFO] Connecting to Postgres admin interface on ${pgHost}:${pgPort}...`);
+            await adminClient.connect();
+
+            console.log(`  [INFO] Creating isolated disposable test database '${TEST_DB_NAME}'...`);
+            await adminClient.query(`DROP DATABASE IF EXISTS ${TEST_DB_NAME} WITH (FORCE);`);
+            await adminClient.query(`CREATE DATABASE ${TEST_DB_NAME};`);
+            console.log(`  [PASS] Isolated test database '${TEST_DB_NAME}' created.`);
+
+            // Point environment to isolated test database
+            process.env.POSTGRES_DB = TEST_DB_NAME;
+            process.env.DATABASE_URL = `postgres://${pgUser}:${pgPass}@${pgHost}:${pgPort}/${TEST_DB_NAME}`;
+
+            // Re-require / re-initialize db module with test connection pool
+            delete require.cache[require.resolve('./server/db')];
+            testDb = require('./server/db');
+
+            console.log('  [INFO] Running initDb() migration on 100% clean empty test database...');
+            const initSuccess = await testDb.initDb();
             if (!initSuccess) {
-                console.error('❌ FAILED: db.initDb() returned false');
+                console.error('❌ FAILED: initDb() failed on clean test database');
                 process.exit(1);
             }
-            console.log('  [PASS] db.initDb() executed successfully.');
+            console.log('  [PASS] Clean database migration completed successfully.');
 
-            const dummyFile = path.join(__dirname, 'server', 'dummy_pg_test.json');
+            const dummyFile = path.join(__dirname, 'server', 'disposable_pg_test.json');
             
-            // Fetch initial user rating to restore later (non-destructive)
-            const initialProgress = await db.getProgress(dummyFile);
-            const originalUserRating = initialProgress.user_rating || 1200;
+            console.log('  [INFO] Saving test payload to clean isolated PostgreSQL database...');
+            await testDb.saveProgress(dummyFile, testPayload, TEST_PROB_ID);
 
-            console.log('  [INFO] Performing saveProgress() with test payload...');
-            await db.saveProgress(dummyFile, testPayload, TEST_PROB_ID);
-
-            console.log('  [INFO] Performing getProgress() and asserting full payload...');
-            const fetched = await db.getProgress(dummyFile);
+            console.log('  [INFO] Reading back progress and verifying full payload...');
+            const fetched = await testDb.getProgress(dummyFile);
 
             const srMatch = fetched.spaced_repetition && fetched.spaced_repetition[TEST_PROB_ID];
             const histMatch = fetched.history && fetched.history.find(h => h.problem_id === TEST_PROB_ID);
 
             const isValid = (
-                fetched.user_rating === 1450 &&
+                fetched.user_rating === 1550 &&
                 srMatch &&
-                srMatch.interval === 21 &&
-                Math.abs(srMatch.ease_factor - 2.7) < 0.01 &&
-                srMatch.repetitions === 4 &&
-                String(srMatch.next_review) === '1710000000000' &&
+                srMatch.interval === 30 &&
+                Math.abs(srMatch.ease_factor - 2.8) < 0.01 &&
+                srMatch.repetitions === 5 &&
+                String(srMatch.next_review) === '1720000000000' &&
                 histMatch &&
                 histMatch.quality === 5 &&
-                histMatch.rating_before === 1430 &&
-                histMatch.rating_after === 1450 &&
+                histMatch.rating_before === 1530 &&
+                histMatch.rating_after === 1550 &&
                 histMatch.elo_change === 20
             );
 
-            // CLEANUP TEST ROWS (Non-Destructive Restoration)
-            console.log('  [INFO] Cleaning up test rows from PostgreSQL tables...');
-            await pool.query('DELETE FROM spaced_repetition WHERE problem_id = $1', [TEST_PROB_ID]);
-            await pool.query('DELETE FROM review_history WHERE problem_id = $1', [TEST_PROB_ID]);
-            await pool.query('UPDATE user_progress SET user_rating = $1 WHERE id = 1', [originalUserRating]);
             if (fs.existsSync(dummyFile)) fs.unlinkSync(dummyFile);
 
             if (isValid) {
-                console.log('  [PASS] PostgreSQL full schema migration & full payload roundtrip verified with zero side-effects!');
-                process.exit(0);
+                console.log('  [PASS] 100% isolated clean database migration & full payload roundtrip verified!');
             } else {
-                console.error('❌ FAILED: PostgreSQL full payload mismatch:', JSON.stringify(fetched, null, 2));
+                console.error('❌ FAILED: PostgreSQL full payload mismatch on test DB:', JSON.stringify(fetched, null, 2));
                 process.exit(1);
             }
         } catch (err) {
-            console.error('❌ FAILED: Exception during PostgreSQL integration test:', err.message);
+            console.error('❌ FAILED: Exception during isolated PostgreSQL test:', err.message);
             process.exit(1);
+        } finally {
+            try {
+                if (testDb && typeof testDb.closePool === 'function') {
+                    await testDb.closePool();
+                }
+                console.log(`  [INFO] Cleaning up: Dropping isolated test database '${TEST_DB_NAME}'...`);
+                await adminClient.query(`DROP DATABASE IF EXISTS ${TEST_DB_NAME} WITH (FORCE);`);
+                await adminClient.end();
+                console.log(`  [PASS] Isolated test database '${TEST_DB_NAME}' dropped. Zero side-effects guaranteed!`);
+            } catch (cleanupErr) {
+                console.warn('⚠️ Warning: Failed to drop test database:', cleanupErr.message);
+            }
         }
     }
 }
 
-testPostgresIntegration();
+runIsolatedDbTest();
 """
 
 res = subprocess.run(['node', '-e', node_test_script], cwd=BASE_DIR, capture_output=True, text=True)
@@ -152,10 +184,10 @@ print(res.stdout.strip())
 
 if res.returncode == 0:
     print("\n--------------------------------------------------")
-    print("✅ Non-Destructive PostgreSQL Integration Test Suite Passed (100% Validated)!")
+    print("✅ Fully Isolated Disposable PostgreSQL Integration Test Passed (100% Validated)!")
     sys.exit(0)
 else:
     print(res.stderr.strip())
     print("\n--------------------------------------------------")
-    print("❌ PostgreSQL Integration Test Suite Failed!")
+    print("❌ Isolated PostgreSQL Integration Test Failed!")
     sys.exit(1)
