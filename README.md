@@ -17,7 +17,7 @@
 * **🧠 Cognitive Spaced Repetition (SuperMemo-2 Engine)**: Dynamically calculates optimal review intervals ($I_n$) and Ease Factors ($EF$) based on your performance scores ($q \in [0..5]$) so you never forget core algorithm patterns.
 * **♟️ ELO Rating System**: Adjusts your user rating ($R_{user}$) and problem difficulties ($R_{prob}$) in real-time using expected probability calculations after every practice session.
 * **💻 Monaco IDE Workspace**: Dual-pane Monaco editor with custom syntax highlighting, indentation guides, code auto-formatting, font zoom ($10px \leftrightarrow 28px$), word-wrap toggles, and starter code reset.
-* **🔒 Isolated Subprocess Code Execution Sandbox**: Executes Python 3 and JavaScript code safely in real-time with 5-second process kill timeouts and 512KB output buffer caps.
+* **🔒 Subprocess Code Execution Runner**: Executes Python 3 and JavaScript code in real-time with 5-second process kill timeouts and 512KB output buffer caps (trusted local execution model).
 * **📊 Visual Curriculum Roadmap**: Interactive 19-topic pattern visualizer mapping **75 curated DSA problems** (Blind 75 & NeetCode 150 aligned).
 * **🗄️ Dual-Mode Persistence**: Seamlessly switches between PostgreSQL 16 database connection pooling and zero-dependency local JSON storage (`progress.json`).
 * **🧪 100% Automated Test Suite**: Integrated test harness (`npm test`) validating 150 problem solutions, security path-traversal shields, and content integrity.

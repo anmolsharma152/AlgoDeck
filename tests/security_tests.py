@@ -5,21 +5,20 @@ import time
 import sys
 import os
 
-def get_active_base_url():
+def resolve_base_url():
     if os.getenv("TEST_BASE_URL"):
         return os.getenv("TEST_BASE_URL")
-    # Default deterministically to standard local server port 3000
     for port in [3000, 3095]:
         try:
             req = urllib.request.Request(f"http://localhost:{port}/api/problems")
-            with urllib.request.urlopen(req, timeout=2) as resp:
+            with urllib.request.urlopen(req, timeout=1) as resp:
                 if resp.status == 200:
                     return f"http://localhost:{port}"
         except Exception:
             pass
     return "http://localhost:3000"
 
-BASE_URL = get_active_base_url()
+BASE_URL = resolve_base_url()
 print(f"🔒 Running Security & Vulnerability Test Suite for AlgoDeck against {BASE_URL}...\n")
 
 # 1. Path Traversal Test
