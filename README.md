@@ -62,14 +62,14 @@ graph TD
 
 ```bash
 # 1. Clone Repository
-git clone https://github.com/YOUR_USERNAME/AlgoDeck.git
+git clone https://github.com/anmolsharma152/AlgoDeck.git
 cd AlgoDeck
 
 # 2. Launch Stack (App + PostgreSQL)
 docker compose up -d --build
 
 # 3. Open in Browser
-# Access https://algodeck.localhost or http://localhost:3000
+# Access https://algodeck.localhost or http://localhost:3095
 ```
 
 ### Mode 2: Local Node.js & Python
