@@ -4,9 +4,22 @@ import json
 import time
 import sys
 import os
-BASE_URL = os.getenv("TEST_BASE_URL", "http://localhost:3095")
 
-print("🔒 Running Security & Vulnerability Test Suite for AlgoDeck...\n")
+def get_active_base_url():
+    if os.getenv("TEST_BASE_URL"):
+        return os.getenv("TEST_BASE_URL")
+    for port in [3095, 3000]:
+        try:
+            req = urllib.request.Request(f"http://localhost:{port}/api/problems")
+            with urllib.request.urlopen(req, timeout=2) as resp:
+                if resp.status == 200:
+                    return f"http://localhost:{port}"
+        except Exception:
+            pass
+    return "http://localhost:3095"
+
+BASE_URL = get_active_base_url()
+print(f"🔒 Running Security & Vulnerability Test Suite for AlgoDeck against {BASE_URL}...\n")
 
 # 1. Path Traversal Test
 print("1️⃣ Testing Path Traversal Protections (/api/boilerplate & /api/solution)...")

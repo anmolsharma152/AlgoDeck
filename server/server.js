@@ -539,6 +539,9 @@ app.use((req, res) => {
     res.status(404).send("File not found");
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
     console.log(`🚀 AlgoDeck server running at http://localhost:${PORT}`);
+    if (db.isPgAvailable()) {
+        await db.initDb();
+    }
 });
