@@ -6,12 +6,15 @@ const { execFile } = require('child_process');
 const db = require('./db');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
+const TRUST_PROXY_SETTING = process.env.TRUST_PROXY ? process.env.TRUST_PROXY.split(',').map(s => s.trim()) : false;
+app.set('trust proxy', TRUST_PROXY_SETTING);
 
 const WORKSPACE_DIR = __dirname;
 const PROJECT_ROOT = path.resolve(WORKSPACE_DIR, '..');
 const PUBLIC_DIR = path.join(PROJECT_ROOT, 'public');
 const CONTENT_DIR = path.join(PROJECT_ROOT, 'content');
+const REAL_CONTENT_DIR = fs.existsSync(CONTENT_DIR) ? fs.realpathSync(CONTENT_DIR) : CONTENT_DIR;
 const PROGRESS_FILE = path.join(WORKSPACE_DIR, 'progress.json');
 const TRACKER_FILE = path.join(PUBLIC_DIR, 'tracker.json');
 const DESCRIPTIONS_FILE = path.join(WORKSPACE_DIR, 'descriptions.json');
@@ -294,17 +297,41 @@ app.get('/api/problems', async (req, res) => {
     });
 });
 
-// Path normalization and traversal prevention
+// Path normalization, extension restriction, and safe containment check
 function safeResolveContentPath(filePath) {
     if (!filePath || typeof filePath !== 'string') return null;
+    const ext = path.extname(filePath).toLowerCase();
+    if (ext !== '.py' && ext !== '.js') return null;
+
     const normalized = path.normalize(filePath).replace(/^(\.\.[\/\\])+/, '');
     const resolvedPath = path.resolve(CONTENT_DIR, normalized);
-    if (!resolvedPath.startsWith(CONTENT_DIR)) return null;
-    return resolvedPath;
+
+    let realPath, stat;
+    try {
+        realPath = fs.realpathSync(resolvedPath);
+        stat = fs.statSync(realPath);
+    } catch (e) {
+        return null;
+    }
+
+    if (!stat.isFile()) return null;
+
+    const rel = path.relative(REAL_CONTENT_DIR, realPath);
+    if (rel === '..' || rel.startsWith('..' + path.sep) || path.isAbsolute(rel)) return null;
+
+    return realPath;
 }
 
-// In-memory rate limiting middleware
+// In-memory rate limiting middleware with periodic unref'd memory cleanup
 const requestCounts = new Map();
+const rateLimiterCleanupTimer = setInterval(() => {
+    const now = Date.now();
+    for (const [ip, record] of requestCounts.entries()) {
+        if (now > record.resetTime) requestCounts.delete(ip);
+    }
+}, 600000);
+rateLimiterCleanupTimer.unref();
+
 function rateLimiter(maxRequestsPerMin = 30) {
     return (req, res, next) => {
         const ip = req.ip || req.socket.remoteAddress || '127.0.0.1';

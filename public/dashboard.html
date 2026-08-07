@@ -391,45 +391,44 @@
     async function toggleSolved(id) {
       const problem = problemsData.find(p => p.id === id);
       if (!problem) return;
-      
-      if (solvedSet.has(id)) {
-        solvedSet.delete(id);
-        // Try server request to reset SM-2 / ELO
-        if (window.location.protocol.startsWith('http')) {
-          try {
-            const res = await fetch('/api/submit', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ path: problem.pythonPath, quality: 0 })
-            });
-            const data = await res.json();
-            if (data && data.user_rating) {
-              document.getElementById('user-rating-val').innerText = data.user_rating;
-            }
-          } catch (e) {
-            console.error('Failed to update backend progress:', e);
+
+      const checkbox = document.querySelector(`.problem-checkbox[data-id="${id}"]`);
+      const isCurrentlySolved = solvedSet.has(id);
+      const targetSolvedState = !isCurrentlySolved;
+      const quality = targetSolvedState ? 5 : 0;
+
+      if (window.location.protocol.startsWith('http')) {
+        try {
+          const res = await fetch('/api/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ problem_id: problem.id, quality: quality })
+          });
+
+          if (!res.ok) {
+            console.error(`Failed to update progress for ${problem.id}: HTTP ${res.status}`);
+            if (checkbox) checkbox.checked = isCurrentlySolved;
+            return;
           }
-        }
-      } else {
-        solvedSet.add(id);
-        // Try server request to mark solved (quality 5)
-        if (window.location.protocol.startsWith('http')) {
-          try {
-            const res = await fetch('/api/submit', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ path: problem.pythonPath, quality: 5 })
-            });
-            const data = await res.json();
-            if (data && data.user_rating) {
-              document.getElementById('user-rating-val').innerText = data.user_rating;
-            }
-          } catch (e) {
-            console.error('Failed to update backend progress:', e);
+
+          const data = await res.json();
+          if (data && data.user_rating) {
+            const ratingEl = document.getElementById('user-rating-val');
+            if (ratingEl) ratingEl.innerText = data.user_rating;
           }
+        } catch (e) {
+          console.error('Failed to update backend progress:', e);
+          if (checkbox) checkbox.checked = isCurrentlySolved;
+          return;
         }
       }
-      
+
+      if (targetSolvedState) {
+        solvedSet.add(id);
+      } else {
+        solvedSet.delete(id);
+      }
+
       localStorage.setItem('dsa_solved_problems', JSON.stringify(Array.from(solvedSet)));
       updateProgress();
     }

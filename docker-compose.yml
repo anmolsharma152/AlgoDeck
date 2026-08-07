@@ -15,6 +15,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=algodeck_secure_pass
       - POSTGRES_DB=algodeck
+      - TRUST_PROXY=loopback
     networks:
       - default
       - homelab

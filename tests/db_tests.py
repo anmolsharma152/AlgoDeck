@@ -5,7 +5,7 @@ import subprocess
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, BASE_DIR)
 
-print("🐘 Running Fully Isolated PostgreSQL Migration & Disposable DB Test Suite...\n")
+print("🐘 Running Fully Isolated PostgreSQL Migration, Safe Containment & Failure Cleanup Test Suite...\n")
 
 node_test_script = """
 const db = require('./server/db');
@@ -16,7 +16,8 @@ async function runIsolatedDbTest() {
     console.log('1️⃣ Checking db.js exported contracts...');
     if (typeof db.initDb !== 'function' || typeof db.getProgress !== 'function' || typeof db.saveProgress !== 'function') {
         console.error('❌ FAILED: db.js exports missing expected functions');
-        process.exit(1);
+        process.exitCode = 1;
+        return;
     }
     console.log('  [PASS] db.js contract methods present.');
 
@@ -70,16 +71,15 @@ async function runIsolatedDbTest() {
             ) {
                 console.log('  [PASS] JSON fallback full payload roundtrip verified.');
                 if (fs.existsSync(testFile)) fs.unlinkSync(testFile);
-                process.exit(0);
             } else {
                 console.error('❌ FAILED: JSON roundtrip mismatch:', JSON.stringify(fetched, null, 2));
                 if (fs.existsSync(testFile)) fs.unlinkSync(testFile);
-                process.exit(1);
+                process.exitCode = 1;
             }
         } catch (e) {
             console.error('❌ FAILED: Exception during JSON storage test:', e.message);
             if (fs.existsSync(testFile)) fs.unlinkSync(testFile);
-            process.exit(1);
+            process.exitCode = 1;
         }
     } else {
         const { Client } = require('pg');
@@ -96,10 +96,16 @@ async function runIsolatedDbTest() {
             database: 'postgres'
         });
 
-        const TEST_DB_NAME = 'algodeck_test_disposable';
+        // Identifier-safe dynamic test database name
+        const TEST_DB_NAME = `algodeck_test_${process.pid}_${Date.now()}`;
         let testDb = null;
 
         try {
+            // Close initial pool before switching connection URL
+            if (typeof db.closePool === 'function') {
+                await db.closePool();
+            }
+
             console.log(`  [INFO] Connecting to Postgres admin interface on ${pgHost}:${pgPort}...`);
             await adminClient.connect();
 
@@ -119,8 +125,7 @@ async function runIsolatedDbTest() {
             console.log('  [INFO] Running initDb() migration on 100% clean empty test database...');
             const initSuccess = await testDb.initDb();
             if (!initSuccess) {
-                console.error('❌ FAILED: initDb() failed on clean test database');
-                process.exit(1);
+                throw new Error('initDb() returned false on clean test database');
             }
             console.log('  [PASS] Clean database migration completed successfully.');
 
@@ -155,11 +160,11 @@ async function runIsolatedDbTest() {
                 console.log('  [PASS] 100% isolated clean database migration & full payload roundtrip verified!');
             } else {
                 console.error('❌ FAILED: PostgreSQL full payload mismatch on test DB:', JSON.stringify(fetched, null, 2));
-                process.exit(1);
+                process.exitCode = 1;
             }
         } catch (err) {
             console.error('❌ FAILED: Exception during isolated PostgreSQL test:', err.message);
-            process.exit(1);
+            process.exitCode = 1;
         } finally {
             try {
                 if (testDb && typeof testDb.closePool === 'function') {
@@ -171,6 +176,7 @@ async function runIsolatedDbTest() {
                 console.log(`  [PASS] Isolated test database '${TEST_DB_NAME}' dropped. Zero side-effects guaranteed!`);
             } catch (cleanupErr) {
                 console.warn('⚠️ Warning: Failed to drop test database:', cleanupErr.message);
+                process.exitCode = 1;
             }
         }
     }
