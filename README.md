@@ -31,7 +31,7 @@
 
 ### ⚙️ Environment Variables & Deployment Configuration
 - `PORT`: Server listening port (default: `3000`).
-- `TRUST_PROXY`: Configures Express proxy IP trust evaluation (default: `loopback` / `false` for bare local runs; set to explicit proxy IPs or subnets e.g. `loopback,172.16.0.0/12` when deployed behind Caddy).
+- `TRUST_PROXY`: Configures Express proxy IP trust evaluation (default: `loopback` / `false` for bare local runs; set to explicit proxy IP or exact bridge subnet e.g. `loopback,172.18.0.0/16` when deployed behind reverse proxies like Caddy).
 - `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`: PostgreSQL connection configuration (falls back to local `progress.json` if unconfigured).
 
 *For third-party library licenses and versions (`marked` v11.1.1, `DOMPurify` v3.0.8), see [`THIRD_PARTY_NOTICES.md`](file:///home/anmol/Projects/AlgoDeck/THIRD_PARTY_NOTICES.md).*

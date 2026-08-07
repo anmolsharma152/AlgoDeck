@@ -165,9 +165,11 @@
             }
 
             if (loadedText) {
-                const parsed = typeof marked !== 'undefined' ? marked.parse(loadedText) : String(loadedText);
-                const safeHtml = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(parsed) : parsed;
-                renderArea.innerHTML = safeHtml;
+                if (typeof DOMPurify !== 'undefined' && typeof marked !== 'undefined') {
+                    renderArea.innerHTML = DOMPurify.sanitize(marked.parse(loadedText));
+                } else {
+                    renderArea.textContent = loadedText;
+                }
             } else {
                 renderArea.replaceChildren();
                 const errDiv = document.createElement('div');

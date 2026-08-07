@@ -185,15 +185,107 @@ async function runIsolatedDbTest() {
 runIsolatedDbTest();
 """
 
-res = subprocess.run(['node', '-e', node_test_script], cwd=BASE_DIR, capture_output=True, text=True)
-print(res.stdout.strip())
+node_forced_fail_script = """
+const { Client } = require('pg');
+const path = require('path');
 
-if res.returncode == 0:
+const FORCED_DB_NAME = `algodeck_test_forced_fail_${process.pid}_${Date.now()}`;
+
+async function runForcedFailTest() {
+    const pgHost = process.env.POSTGRES_HOST || '127.0.0.1';
+    const pgPort = process.env.POSTGRES_PORT || 5432;
+    const pgUser = process.env.POSTGRES_USER || 'postgres';
+    const pgPass = process.env.POSTGRES_PASSWORD || 'algodeck_secure_pass';
+
+    const adminClient = new Client({
+        host: pgHost,
+        port: pgPort,
+        user: pgUser,
+        password: pgPass,
+        database: 'postgres'
+    });
+
+    await adminClient.connect();
+    await adminClient.query(`CREATE DATABASE ${FORCED_DB_NAME};`);
+    console.log(`FORCED_DB_CREATED:${FORCED_DB_NAME}`);
+
+    try {
+        process.env.DATABASE_URL = `postgres://${pgUser}:${pgPass}@${pgHost}:${pgPort}/${FORCED_DB_NAME}`;
+        const db = require(path.join(__dirname, 'server', 'db'));
+        await db.initDb();
+        
+        // Simulating an unhandled crash or assertion failure inside worker
+        throw new Error('SIMULATED_UNHANDLED_CRASH');
+    } catch (err) {
+        console.log(`[INFO] Caught forced exception inside worker: ${err.message}`);
+        process.exitCode = 1;
+    } finally {
+        try {
+            const db = require(path.join(__dirname, 'server', 'db'));
+            if (db && typeof db.closePool === 'function') {
+                await db.closePool();
+            }
+            await adminClient.query(`DROP DATABASE IF EXISTS ${FORCED_DB_NAME} WITH (FORCE);`);
+            await adminClient.end();
+            console.log(`FORCED_DB_DROPPED:${FORCED_DB_NAME}`);
+        } catch (cleanupErr) {
+            console.error(`FORCED_DB_DROP_FAILED:${cleanupErr.message}`);
+            process.exitCode = 1;
+        }
+    }
+}
+
+runForcedFailTest();
+"""
+
+res_normal = subprocess.run(['node', '-e', node_test_script], cwd=BASE_DIR, capture_output=True, text=True)
+print(res_normal.stdout.strip())
+
+if res_normal.returncode != 0:
+    print(f"\n❌ FAILED: Isolated PostgreSQL Test failed:\n{res_normal.stderr}")
+    sys.exit(1)
+
+print("\n3️⃣ Testing Child-Process Forced Failure DB Cleanup Safeguard...")
+res_fail = subprocess.run(['node', '-e', node_forced_fail_script], cwd=BASE_DIR, capture_output=True, text=True)
+
+forced_db_name = None
+for line in res_fail.stdout.splitlines():
+    if line.startswith("FORCED_DB_CREATED:"):
+        forced_db_name = line.split(":", 1)[1].strip()
+
+if not forced_db_name or res_fail.returncode != 1:
+    print(f"❌ FAILED: Forced fail worker did not exit with code 1 or create DB name. stdout:\n{res_fail.stdout}\nstderr:\n{res_fail.stderr}")
+    sys.exit(1)
+
+# Verify DB no longer exists in Postgres catalog
+check_db_sql = f"SELECT 1 FROM pg_database WHERE datname = '{forced_db_name}';"
+verify_cmd = [
+    'node', '-e',
+    f"""
+    const {{ Client }} = require('pg');
+    async function verify() {{
+        const client = new Client({{
+            host: process.env.POSTGRES_HOST || '127.0.0.1',
+            port: process.env.POSTGRES_PORT || 5432,
+            user: process.env.POSTGRES_USER || 'postgres',
+            password: process.env.POSTGRES_PASSWORD || 'algodeck_secure_pass',
+            database: 'postgres'
+        }});
+        await client.connect();
+        const res = await client.query("{check_db_sql}");
+        await client.end();
+        console.log("EXISTS_COUNT:" + res.rowCount);
+    }}
+    verify();
+    """
+]
+
+res_verify = subprocess.run(verify_cmd, cwd=BASE_DIR, capture_output=True, text=True)
+if "EXISTS_COUNT:0" in res_verify.stdout:
+    print(f"  [PASS] Forced failure cleanup verified: Worker DB '{forced_db_name}' was unconditionally dropped by finally handler!")
     print("\n--------------------------------------------------")
-    print("✅ Fully Isolated Disposable PostgreSQL Integration Test Passed (100% Validated)!")
+    print("✅ Fully Isolated Disposable PostgreSQL Integration & Crash Resiliency Test Passed (100% Validated)!")
     sys.exit(0)
 else:
-    print(res.stderr.strip())
-    print("\n--------------------------------------------------")
-    print("❌ Isolated PostgreSQL Integration Test Failed!")
+    print(f"❌ FAILED: Forced fail DB '{forced_db_name}' still exists in Postgres catalog after worker crash! stdout:\n{res_verify.stdout}")
     sys.exit(1)

@@ -465,7 +465,7 @@
         card.innerHTML = `
           <div>
             <div class="problem-header">
-              <input type="checkbox" class="problem-checkbox" ${isSolved ? 'checked' : ''} onchange="toggleSolved('${p.id}')">
+              <input type="checkbox" class="problem-checkbox" data-id="${p.id}" ${isSolved ? 'checked' : ''} onchange="toggleSolved('${p.id}')">
               <div class="problem-title-area">
                 <a href="${editorUrl}?id=${p.id}" class="problem-title">${p.title}</a>
                 <div class="problem-tags">
