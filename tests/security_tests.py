@@ -101,7 +101,9 @@ try:
                     symlink_passed = True
     except urllib.error.HTTPError as e:
         if e.code == 404:
-            print("  [PASS] Symlink escape blocked safely with HTTP 404.")
+            is_container = os.path.exists("/app/content")
+            env_note = " (in-container execution)" if is_container else " (host run; primary container validation runs via docker exec)"
+            print(f"  [PASS] Symlink escape blocked safely with HTTP 404{env_note}.")
             symlink_passed = True
         else:
             print(f"  ❌ FAILED: Unexpected HTTP error during symlink test: {e.code}")

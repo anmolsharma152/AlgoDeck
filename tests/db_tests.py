@@ -245,7 +245,7 @@ if res_normal.returncode != 0:
     print(f"\n❌ FAILED: Isolated PostgreSQL Test failed:\n{res_normal.stderr}")
     sys.exit(1)
 
-print("\n3️⃣ Testing Child-Process Forced Failure DB Cleanup Safeguard...")
+print("\n3️⃣ Testing Child-Process Handled Exception DB Cleanup Safeguard...")
 res_fail = subprocess.run(['node', '-e', node_forced_fail_script], cwd=BASE_DIR, capture_output=True, text=True)
 
 forced_db_name = None
@@ -254,7 +254,7 @@ for line in res_fail.stdout.splitlines():
         forced_db_name = line.split(":", 1)[1].strip()
 
 if not forced_db_name or res_fail.returncode != 1:
-    print(f"❌ FAILED: Forced fail worker did not exit with code 1 or create DB name. stdout:\n{res_fail.stdout}\nstderr:\n{res_fail.stderr}")
+    print(f"❌ FAILED: Worker did not exit with code 1 or create DB name. stdout:\n{res_fail.stdout}\nstderr:\n{res_fail.stderr}")
     sys.exit(1)
 
 # Verify DB no longer exists in Postgres catalog
@@ -282,9 +282,9 @@ verify_cmd = [
 
 res_verify = subprocess.run(verify_cmd, cwd=BASE_DIR, capture_output=True, text=True)
 if "EXISTS_COUNT:0" in res_verify.stdout:
-    print(f"  [PASS] Forced failure cleanup verified: Worker DB '{forced_db_name}' was unconditionally dropped by finally handler!")
+    print(f"  [PASS] Handled-exception cleanup verified: Worker DB '{forced_db_name}' was dropped by try/catch/finally handler.")
     print("\n--------------------------------------------------")
-    print("✅ Fully Isolated Disposable PostgreSQL Integration & Crash Resiliency Test Passed (100% Validated)!")
+    print("✅ Fully Isolated Disposable PostgreSQL Integration & Handled-Exception Resiliency Test Passed (100% Validated)!")
     sys.exit(0)
 else:
     print(f"❌ FAILED: Forced fail DB '{forced_db_name}' still exists in Postgres catalog after worker crash! stdout:\n{res_verify.stdout}")
