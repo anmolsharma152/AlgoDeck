@@ -296,7 +296,7 @@ app.get('/', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'index.html')));
 app.get(['/playground', '/playground.html', '/editor', '/editor.html'], (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'playground.html')));
 app.get(['/dashboard', '/dashboard.html'], (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'dashboard.html')));
 app.get(['/roadmap', '/roadmap.html'], (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'roadmap.html')));
-app.get('/docs.html', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'docs.html')));
+app.get(['/docs', '/docs.html'], (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'docs.html')));
 
 app.use((req, res) => {
     res.status(404).send("File not found");

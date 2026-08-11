@@ -202,18 +202,21 @@
             ? `<i class="fa-solid fa-sun" style="color: #f59e0b; font-size: 0.95rem;"></i>`
             : `<i class="fa-solid fa-moon" style="color: #a855f7; font-size: 0.95rem;"></i>`;
 
+        const isFile = window.location.protocol === 'file:';
+        const getUrl = (rel) => isFile ? ('./' + rel) : ('/' + rel);
+
         headerContainer.innerHTML = `
             <header class="main-header">
-                <a href="/index.html" class="header-brand">
+                <a href="${getUrl('index.html')}" class="header-brand">
                     <i class="fa-solid fa-layer-group brand-logo"></i>
                     <span class="brand-name serif italic">AlgoDeck</span>
                 </a>
                 <nav class="header-nav">
-                    <a href="/index.html" class="nav-item ${isHome ? 'active' : ''}"><i class="fa-solid fa-house"></i> Home</a>
-                    <a href="/dashboard.html" class="nav-item ${isDash ? 'active' : ''}"><i class="fa-solid fa-chart-simple"></i> Dashboard</a>
-                    <a href="/playground.html" class="nav-item ${isPlayground ? 'active' : ''}"><i class="fa-solid fa-terminal"></i> Playground</a>
-                    <a href="/roadmap.html" class="nav-item ${isRoadmap ? 'active' : ''}"><i class="fa-solid fa-diagram-project"></i> Roadmap</a>
-                    <a href="/docs.html" class="nav-item ${isDocs ? 'active' : ''}"><i class="fa-solid fa-book"></i> Docs</a>
+                    <a href="${getUrl('index.html')}" class="nav-item ${isHome ? 'active' : ''}"><i class="fa-solid fa-house"></i> Home</a>
+                    <a href="${getUrl('dashboard.html')}" class="nav-item ${isDash ? 'active' : ''}"><i class="fa-solid fa-chart-simple"></i> Dashboard</a>
+                    <a href="${getUrl('playground.html')}" class="nav-item ${isPlayground ? 'active' : ''}"><i class="fa-solid fa-terminal"></i> Playground</a>
+                    <a href="${getUrl('roadmap.html')}" class="nav-item ${isRoadmap ? 'active' : ''}"><i class="fa-solid fa-diagram-project"></i> Roadmap</a>
+                    <a href="${getUrl('docs.html')}" class="nav-item ${isDocs ? 'active' : ''}"><i class="fa-solid fa-book"></i> Docs</a>
                     <button id="btn-theme-toggle" onclick="window.toggleTheme()" title="Toggle Light/Dark Theme" style="background: var(--bg-element); color: var(--nav-text); border: 1px solid var(--border); width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;">
                         ${themeIcon}
                     </button>
@@ -244,7 +247,8 @@
                 if (nav && !document.getElementById('nav-due-nudge')) {
                     const pill = document.createElement('a');
                     pill.id = 'nav-due-nudge';
-                    pill.href = '/playground.html?mode=daily_deck';
+                    const isFile = window.location.protocol === 'file:';
+                    pill.href = isFile ? './playground.html?mode=daily_deck' : '/playground.html?mode=daily_deck';
                     pill.className = 'nav-due-pill';
                     pill.style.cssText = 'background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); padding: 5px 12px; border-radius: 9999px; font-size: 0.8rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;';
                     pill.innerHTML = `<i class="fa-solid fa-bell"></i> ${dueCount} Due Today <span title="Snooze 24h" onclick="window.snoozeDueNudge(event)" style="margin-left: 4px; opacity: 0.7; cursor: pointer;">&times;</span>`;

@@ -28,80 +28,6 @@
             overflow-x: hidden;
         }
 
-        /* Navigation Header */
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 40px;
-            background: rgba(10, 10, 12, 0.85);
-            backdrop-filter: blur(16px);
-            border-bottom: 1px solid var(--card-border);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .brand-container {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-            color: #ffffff;
-        }
-
-        .brand-logo {
-            font-size: 1.6rem;
-            color: #ffffff;
-        }
-
-        .brand-name {
-            font-family: 'Cormorant Garamond', serif;
-            font-style: italic;
-            font-weight: 600;
-            font-size: 1.7rem;
-            letter-spacing: -0.5px;
-        }
-
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-        }
-
-        .nav-item {
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 600;
-            transition: color 0.2s ease;
-        }
-
-        .nav-item:hover, .nav-item.active {
-            color: #ffffff;
-        }
-
-        .btn-auth {
-            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.03));
-            color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 8px 18px;
-            border-radius: 9999px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-auth:hover {
-            border-color: #ffffff;
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-1px);
-        }
-
         /* Hero Section */
         .hero-section {
             max-width: 1200px;
@@ -333,8 +259,8 @@
         }
 
         .dev-avatar {
-            width: 120px;
-            height: 120px;
+            width: 140px;
+            height: 140px;
             border-radius: 50%;
             background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
             display: flex;
@@ -342,8 +268,17 @@
             justify-content: center;
             font-size: 3rem;
             color: #ffffff;
-            box-shadow: 0 0 30px rgba(139, 92, 246, 0.3);
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.4);
             flex-shrink: 0;
+            overflow: hidden;
+            border: 3px solid rgba(255, 255, 255, 0.25);
+            position: relative;
+        }
+
+        .dev-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .dev-info {
@@ -630,7 +565,7 @@
     <section class="developer-section">
         <div class="dev-container">
             <div class="dev-avatar">
-                <i class="fa-solid fa-terminal"></i>
+                <img id="dev-profile-img" src="/images/developer_profile.jpg" alt="Developer Profile" onerror="this.onerror=null; this.src='./images/developer_profile.jpg';">
             </div>
             <div class="dev-info">
                 <h3>About the Platform & Developer</h3>
