@@ -15,15 +15,33 @@ test_scripts = [
     ("📊 Solution Evaluator Test Suite (150 Solutions)", [sys.executable, os.path.join(BASE_DIR, "content", "test_runner.py")]),
 ]
 
+import urllib.request
+import time
+
+# Ensure Node server is running on port 3000 for network tests
+server_proc = None
+try:
+    urllib.request.urlopen("http://localhost:3000/api/problems", timeout=1)
+except Exception:
+    print("⚡ Starting temporary Node server on port 3000 for test suite...")
+    env = dict(os.environ)
+    env["PORT"] = "3000"
+    server_proc = subprocess.Popen([sys.executable, "-c", "import subprocess; subprocess.run(['node', 'server/server.js'])"], cwd=BASE_DIR, env=env)
+    time.sleep(2)
+
 all_passed = True
-for name, cmd in test_scripts:
-    print(f"\n--- Running: {name} ---")
-    res = subprocess.run(cmd, cwd=BASE_DIR)
-    if res.returncode != 0:
-        print(f"❌ FAILED: {name}")
-        all_passed = False
-    else:
-        print(f"✅ PASSED: {name}")
+try:
+    for name, cmd in test_scripts:
+        print(f"\n--- Running: {name} ---")
+        res = subprocess.run(cmd, cwd=BASE_DIR)
+        if res.returncode != 0:
+            print(f"❌ FAILED: {name}")
+            all_passed = False
+        else:
+            print(f"✅ PASSED: {name}")
+finally:
+    if server_proc:
+        server_proc.terminate()
 
 print("\n==================================================")
 if all_passed:

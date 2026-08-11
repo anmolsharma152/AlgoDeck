@@ -82,175 +82,177 @@ function extractPythonBoilerplate(codeContent) {
     const lines = codeContent.split(/\r?\n/);
     const output = [];
     let i = 0;
-    let insideTargetClass = false;
     
+    // Skip top-level module docstring
+    if (i < lines.length && (lines[i].trim().startsWith('"""') || lines[i].trim().startsWith("'''"))) {
+        const quoteType = lines[i].trim().substring(0, 3);
+        if (lines[i].trim().endsWith(quoteType) && lines[i].trim().length > 3) {
+            i++;
+        } else {
+            i++;
+            while (i < lines.length && !lines[i].trim().endsWith(quoteType)) {
+                i++;
+            }
+            if (i < lines.length) i++;
+        }
+    }
+
+    let inHelperClass = false;
+    let helperClassIndent = -1;
+
     while (i < lines.length) {
         const line = lines[i];
         const stripped = line.trim();
         const currentIndent = line.length - line.trimStart().length;
-        
-        if (currentIndent === 0 && line.startsWith("class ")) {
-            if (!(line.startsWith("class ListNode") || line.startsWith("class TrieNode"))) {
-                insideTargetClass = true;
+
+        if (stripped === "if __name__ == \"__main__\":" || stripped === "# Test Cases" || stripped.startsWith("if __name__ ==")) {
+            break;
+        }
+
+        if (currentIndent === 0 && stripped.startsWith("class ")) {
+            if (stripped.startsWith("class ListNode") || stripped.startsWith("class TreeNode") || stripped.startsWith("class TrieNode")) {
+                inHelperClass = true;
+                helperClassIndent = currentIndent;
+                output.push(line);
+                i++;
+                continue;
             } else {
-                insideTargetClass = false;
+                inHelperClass = false;
+                output.push(line);
+                i++;
+                continue;
             }
-            output.push(line);
-            i++;
-            continue;
         }
-        
-        if (currentIndent === 0 && stripped !== "" && !line.startsWith("class ")) {
-            insideTargetClass = false;
+
+        if (inHelperClass) {
+            if (stripped === "" || currentIndent > helperClassIndent) {
+                output.push(line);
+                i++;
+                continue;
+            } else {
+                inHelperClass = false;
+            }
         }
-        
-        if (insideTargetClass && currentIndent === 4 && stripped.startsWith("def ")) {
+
+        if (stripped.startsWith("def ")) {
             output.push(line);
+            
+            let placeholderIndent = currentIndent === 0 ? "    " : "        ";
+            output.push(`${placeholderIndent}# Write your code here`);
+            output.push(`${placeholderIndent}pass`);
+
             i++;
-            
-            const docstringLines = [];
-            if (i < lines.length && (lines[i].trim().startsWith('"""') || lines[i].trim().startsWith("'''"))) {
-                const quoteType = lines[i].trim().startsWith('"""') ? '"""' : "'''";
-                docstringLines.push(lines[i]);
-                if (lines[i].trim().endsWith(quoteType) && lines[i].trim().length > 3) {
-                    i++;
-                } else {
-                    i++;
-                    while (i < lines.length) {
-                        docstringLines.push(lines[i]);
-                        if (lines[i].trim().endsWith(quoteType)) {
-                            i++;
-                            break;
-                        }
-                        i++;
-                    }
-                }
-            }
-            for (const dl of docstringLines) {
-                output.push(dl);
-            }
-            output.push("        # Write your code here");
-            output.push("        pass");
-            
             while (i < lines.length) {
                 const nextLine = lines[i];
                 const nextStripped = nextLine.trim();
                 const nextIndent = nextLine.length - nextLine.trimStart().length;
-                if (nextStripped !== "" && nextIndent <= 4) {
+                
+                if (nextStripped === "if __name__ == \"__main__\":" || nextStripped === "# Test Cases" || nextStripped.startsWith("if __name__ ==")) {
                     break;
+                }
+                if (nextStripped !== "") {
+                    if (currentIndent === 0 && nextIndent <= 0) break;
+                    if (currentIndent === 4 && nextIndent <= 4) break;
                 }
                 i++;
             }
             continue;
         }
-        
-        if (currentIndent === 0 && stripped.startsWith("def ")) {
-            output.push(line);
+
+        if (stripped.startsWith('"""') || stripped.startsWith("'''")) {
+            const quoteType = stripped.substring(0, 3);
+            if (stripped.endsWith(quoteType) && stripped.length > 3) {
+                i++;
+                continue;
+            }
             i++;
-            
-            const docstringLines = [];
-            if (i < lines.length && (lines[i].trim().startsWith('"""') || lines[i].trim().startsWith("'''"))) {
-                const quoteType = lines[i].trim().startsWith('"""') ? '"""' : "'''";
-                docstringLines.push(lines[i]);
-                if (lines[i].trim().endsWith(quoteType) && lines[i].trim().length > 3) {
-                    i++;
-                } else {
-                    i++;
-                    while (i < lines.length) {
-                        docstringLines.push(lines[i]);
-                        if (lines[i].trim().endsWith(quoteType)) {
-                            i++;
-                            break;
-                        }
-                        i++;
-                    }
-                }
-            }
-            for (const dl of docstringLines) {
-                output.push(dl);
-            }
-            output.push("    # Write your code here");
-            output.push("    pass");
-            
-            while (i < lines.length) {
-                const nextLine = lines[i];
-                const nextStripped = nextLine.trim();
-                const nextIndent = nextLine.length - nextLine.trimStart().length;
-                if (nextStripped !== "" && nextIndent === 0) {
-                    break;
-                }
+            while (i < lines.length && !lines[i].trim().endsWith(quoteType)) {
                 i++;
             }
+            if (i < lines.length) i++;
             continue;
         }
-        
+
         output.push(line);
         i++;
     }
-    return output.join("\n");
+
+    while (output.length > 0 && output[output.length - 1].trim() === "") {
+        output.pop();
+    }
+    
+    return output.join("\n") + "\n";
 }
 
 function extractJsBoilerplate(codeContent) {
     const lines = codeContent.split(/\r?\n/);
     const output = [];
     let i = 0;
-    let insideTargetClass = false;
     
+    if (i < lines.length && (lines[i].trim().startsWith("/**") || lines[i].trim().startsWith("/*"))) {
+        if (lines[i].trim().endsWith("*/") && lines[i].trim().length > 2) {
+            i++;
+        } else {
+            i++;
+            while (i < lines.length && !lines[i].trim().endsWith("*/")) {
+                i++;
+            }
+            if (i < lines.length) i++;
+        }
+    }
+
+    let inHelperClass = false;
+
     while (i < lines.length) {
         const line = lines[i];
         const stripped = line.trim();
         const currentIndent = line.length - line.trimStart().length;
-        
-        if (currentIndent === 0 && line.startsWith("class ")) {
-            if (!(line.startsWith("class ListNode") || line.startsWith("class TrieNode"))) {
-                insideTargetClass = true;
+
+        if (stripped === "if (require.main === module) {" || stripped === "// Test Cases" || stripped.startsWith("if (require.main === module)")) {
+            break;
+        }
+
+        if (currentIndent === 0 && stripped.startsWith("class ")) {
+            if (stripped.startsWith("class ListNode") || stripped.startsWith("class TreeNode") || stripped.startsWith("class TrieNode")) {
+                inHelperClass = true;
+                output.push(line);
+                i++;
+                continue;
             } else {
-                insideTargetClass = false;
+                inHelperClass = false;
+                output.push(line);
+                i++;
+                continue;
+            }
+        }
+
+        if (inHelperClass) {
+            if (stripped === "}" && currentIndent === 0) {
+                inHelperClass = false;
             }
             output.push(line);
             i++;
             continue;
         }
-        
-        if (currentIndent === 0 && stripped !== "" && !line.startsWith("class ")) {
-            insideTargetClass = false;
-        }
-        
-        if (insideTargetClass && currentIndent === 4 && stripped.includes("(") && (stripped.includes("{") || (i + 1 < lines.length && lines[i+1].includes("{")))) {
-            output.push(line);
-            if (!stripped.includes("{")) {
-                i++;
-                output.push(lines[i]);
-            }
-            i++;
-            
-            output.push("        // Write your code here");
-            output.push("    }");
-            
-            while (i < lines.length) {
-                const nextLine = lines[i];
-                const nextStripped = nextLine.trim();
-                const nextIndent = nextLine.length - nextLine.trimStart().length;
-                if (nextStripped === "}" && nextIndent === 4) {
-                    i++;
-                    break;
-                }
-                i++;
-            }
-            continue;
-        }
-        
+
         if (currentIndent === 0 && stripped.startsWith("function ")) {
             output.push(line);
-            i++;
-            
+            if (!stripped.includes("{")) {
+                if (i + 1 < lines.length && lines[i+1].includes("{")) {
+                    i++;
+                    output.push(lines[i]);
+                }
+            }
             output.push("    // Write your code here");
             output.push("}");
-            
+
+            i++;
             while (i < lines.length) {
-                const nextLine = lines[i];
-                const nextStripped = nextLine.trim();
-                const nextIndent = nextLine.length - nextLine.trimStart().length;
+                const nextStripped = lines[i].trim();
+                const nextIndent = lines[i].length - lines[i].trimStart().length;
+                if (nextStripped === "if (require.main === module) {" || nextStripped === "// Test Cases" || nextStripped.startsWith("if (require.main === module)")) {
+                    break;
+                }
                 if (nextStripped === "}" && nextIndent === 0) {
                     i++;
                     break;
@@ -259,11 +261,159 @@ function extractJsBoilerplate(codeContent) {
             }
             continue;
         }
-        
+
+        if (currentIndent === 4 && stripped !== "" && !stripped.startsWith("//") && (stripped.includes("(") && (stripped.includes(")") || stripped.includes("{")))) {
+            output.push(line);
+            if (!stripped.includes("{")) {
+                if (i + 1 < lines.length && lines[i+1].includes("{")) {
+                    i++;
+                    output.push(lines[i]);
+                }
+            }
+            output.push("        // Write your code here");
+            output.push("    }");
+
+            i++;
+            while (i < lines.length) {
+                const nextStripped = lines[i].trim();
+                const nextIndent = lines[i].length - lines[i].trimStart().length;
+                if (nextStripped === "}" && nextIndent === 4) {
+                    i++;
+                    break;
+                }
+                i++;
+            }
+            continue;
+        }
+
+        if (stripped.startsWith("/**") || stripped.startsWith("/*")) {
+            if (stripped.endsWith("*/") && stripped.length > 2) {
+                i++;
+                continue;
+            }
+            i++;
+            while (i < lines.length && !lines[i].trim().endsWith("*/")) {
+                i++;
+            }
+            if (i < lines.length) i++;
+            continue;
+        }
+
         output.push(line);
         i++;
     }
-    return output.join("\n");
+
+    while (output.length > 0 && output[output.length - 1].trim() === "") {
+        output.pop();
+    }
+    
+    return output.join("\n") + "\n";
+}
+
+function extractPythonTests(codeContent) {
+    const lines = codeContent.split(/\r?\n/);
+    let testIndex = -1;
+    let lastTargetIndex = -1;
+    
+    for (let i = 0; i < lines.length; i++) {
+        const stripped = lines[i].trim();
+        if (stripped === "if __name__ == \"__main__\":" || stripped === "# Test Cases" || stripped.startsWith("if __name__ ==")) {
+            testIndex = i;
+            break;
+        }
+    }
+    
+    if (testIndex === -1) return "";
+    
+    for (let i = testIndex - 1; i >= 0; i--) {
+        const line = lines[i];
+        const stripped = line.trim();
+        const currentIndent = line.length - line.trimStart().length;
+        
+        if (currentIndent === 0 && stripped.startsWith("class ")) {
+            if (!(stripped.startsWith("class ListNode") || stripped.startsWith("class TreeNode") || stripped.startsWith("class TrieNode"))) {
+                lastTargetIndex = i;
+                break;
+            }
+        }
+        
+        if (currentIndent === 0 && stripped.startsWith("def ")) {
+            if (!stripped.startsWith("def to_list") && !stripped.startsWith("def to_array") && !stripped.startsWith("def build_") && !stripped.startsWith("def print_") && !stripped.startsWith("def create_") && !stripped.startsWith("def tree_") && !stripped.startsWith("def compare_")) {
+                lastTargetIndex = i;
+                break;
+            }
+        }
+    }
+    
+    let testsStartIndex = testIndex;
+    if (lastTargetIndex !== -1) {
+        let endOfTarget = lastTargetIndex + 1;
+        while (endOfTarget < testIndex) {
+            const nextLine = lines[endOfTarget];
+            const nextStripped = nextLine.trim();
+            const nextIndent = nextLine.length - nextLine.trimStart().length;
+            if (nextStripped !== "" && nextIndent === 0 && nextStripped.startsWith("def ")) {
+                testsStartIndex = endOfTarget;
+                break;
+            }
+            endOfTarget++;
+        }
+    }
+    
+    return lines.slice(testsStartIndex).join("\n");
+}
+
+function extractJsTests(codeContent) {
+    const lines = codeContent.split(/\r?\n/);
+    let testIndex = -1;
+    let lastTargetIndex = -1;
+    
+    for (let i = 0; i < lines.length; i++) {
+        const stripped = lines[i].trim();
+        if (stripped === "if (require.main === module) {" || stripped === "// Test Cases" || stripped.startsWith("if (require.main === module)")) {
+            testIndex = i;
+            break;
+        }
+    }
+    
+    if (testIndex === -1) return "";
+    
+    for (let i = testIndex - 1; i >= 0; i--) {
+        const line = lines[i];
+        const stripped = line.trim();
+        const currentIndent = line.length - line.trimStart().length;
+        
+        if (currentIndent === 0 && stripped.startsWith("class ")) {
+            if (!(stripped.startsWith("class ListNode") || stripped.startsWith("class TreeNode") || stripped.startsWith("class TrieNode"))) {
+                lastTargetIndex = i;
+                break;
+            }
+        }
+        
+        if (currentIndent === 0 && stripped.startsWith("function ")) {
+            if (!stripped.startsWith("function toList") && !stripped.startsWith("function toArray") && !stripped.startsWith("function build") && !stripped.startsWith("function print") && !stripped.startsWith("function create") && !stripped.startsWith("function tree") && !stripped.startsWith("function compare")) {
+                lastTargetIndex = i;
+                break;
+            }
+        }
+    }
+    
+    let testsStartIndex = testIndex;
+    if (lastTargetIndex !== -1) {
+        let endOfTarget = lastTargetIndex + 1;
+        while (endOfTarget < testIndex) {
+            const nextLine = lines[endOfTarget];
+            const nextStripped = nextLine.trim();
+            const nextIndent = nextLine.length - nextLine.trimStart().length;
+            if (nextStripped !== "" && nextIndent === 0 && (nextStripped.startsWith("function ") || nextStripped.startsWith("class ") || nextStripped.startsWith("const ") || nextStripped.startsWith("let ") || nextStripped.startsWith("var "))) {
+                testsStartIndex = endOfTarget;
+                break;
+            }
+            endOfTarget++;
+        }
+    }
+    
+    return lines.slice(testsStartIndex).join("\n");
 }
 
 
@@ -396,8 +546,24 @@ app.get('/api/solution', (req, res) => {
 
 // API: Run submission stubs in subprocesses with rate limiting
 app.post('/api/run', rateLimiter(30), (req, res) => {
-    const { code, language } = req.body;
+    let { code, language, problem_path } = req.body;
     if (!code || !language) return res.status(400).send("Missing code or language parameter");
+    
+    if (problem_path) {
+        const fullPath = safeResolveContentPath(problem_path);
+        if (fullPath && fs.existsSync(fullPath)) {
+            const content = fs.readFileSync(fullPath, 'utf-8');
+            let tests = "";
+            if (language === 'python') {
+                tests = extractPythonTests(content);
+            } else if (language === 'javascript') {
+                tests = extractJsTests(content);
+            }
+            if (tests) {
+                code = code + "\n\n" + tests;
+            }
+        }
+    }
     
     const scratchDir = path.join(WORKSPACE_DIR, 'scratch');
     if (!fs.existsSync(scratchDir)) fs.mkdirSync(scratchDir, { recursive: true });

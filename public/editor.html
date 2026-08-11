@@ -278,40 +278,84 @@
 
         .doc-desc {
             font-size: 0.95rem;
-            line-height: 1.6;
+            line-height: 1.7;
             color: var(--text-main);
             white-space: normal;
             font-family: inherit;
+            word-wrap: break-word;
         }
         .doc-desc p {
-            margin-bottom: 0.8rem;
+            margin-bottom: 0.75rem;
         }
         .doc-desc ul, .doc-desc ol {
             margin-left: 1.5rem;
             margin-bottom: 0.8rem;
         }
+        .doc-desc li {
+            margin-bottom: 0.3rem;
+        }
         .doc-desc code {
             font-family: 'Fira Code', monospace;
-            background: rgba(255, 255, 255, 0.08);
-            padding: 2px 6px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 7px;
             border-radius: 4px;
-            color: var(--accent-green);
+            color: #a5d6ff;
             font-size: 0.85rem;
+            white-space: nowrap;
         }
         .doc-desc pre {
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.35);
             border: 1px solid var(--border);
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 0.8rem;
+            padding: 14px 16px;
+            border-radius: 8px;
+            margin-bottom: 1rem;
             overflow-x: auto;
+            line-height: 1.5;
+            font-size: 0.88rem;
+        }
+        .doc-desc pre code {
+            background: transparent;
+            padding: 0;
+            color: var(--text-main);
+            white-space: pre;
+        }
+        .doc-desc strong.example {
+            display: inline-block;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            margin-top: 0.5rem;
         }
         .doc-desc .example-block {
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(255, 255, 255, 0.025);
             border-left: 3px solid var(--accent-blue);
-            padding: 10px 15px;
-            margin-bottom: 0.8rem;
-            border-radius: 0 6px 6px 0;
+            padding: 12px 18px;
+            margin-bottom: 1rem;
+            border-radius: 0 8px 8px 0;
+        }
+        .doc-desc .example-block p {
+            margin-bottom: 0.4rem;
+        }
+        .doc-desc .example-io {
+            font-family: 'Fira Code', monospace;
+            color: #a5d6ff;
+            font-size: 0.88rem;
+        }
+        .doc-desc sup {
+            font-size: 0.7em;
+            vertical-align: super;
+            line-height: 0;
+        }
+        .doc-desc img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin: 0.5rem 0;
+        }
+        .doc-desc a {
+            color: var(--accent-blue);
+            text-decoration: none;
+        }
+        .doc-desc a:hover {
+            text-decoration: underline;
         }
 
         .sr-card {
@@ -1718,7 +1762,7 @@ Terminal logs and assertion output will display here after you run code.
                     body: JSON.stringify({
                         code: monacoEditor.getValue(),
                         language: activeLanguage,
-                        path: activeLanguage === "python" ? activeProblem.pythonPath : activeProblem.jsPath
+                        problem_path: activeLanguage === "python" ? activeProblem.pythonPath : activeProblem.jsPath
                     })
                 });
 

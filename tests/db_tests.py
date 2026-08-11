@@ -211,7 +211,7 @@ async function runForcedFailTest() {
 
     try {
         process.env.DATABASE_URL = `postgres://${pgUser}:${pgPass}@${pgHost}:${pgPort}/${FORCED_DB_NAME}`;
-        const db = require(path.join(__dirname, 'server', 'db'));
+        const db = require(path.join(process.cwd(), 'server', 'db'));
         await db.initDb();
         
         // Simulating an unhandled crash or assertion failure inside worker
@@ -221,7 +221,7 @@ async function runForcedFailTest() {
         process.exitCode = 1;
     } finally {
         try {
-            const db = require(path.join(__dirname, 'server', 'db'));
+            const db = require(path.join(process.cwd(), 'server', 'db'));
             if (db && typeof db.closePool === 'function') {
                 await db.closePool();
             }
@@ -231,6 +231,8 @@ async function runForcedFailTest() {
         } catch (cleanupErr) {
             console.error(`FORCED_DB_DROP_FAILED:${cleanupErr.message}`);
             process.exitCode = 1;
+        } finally {
+            if (process.exitCode) process.exit(process.exitCode);
         }
     }
 }
