@@ -24,13 +24,13 @@ This document serves as the **authoritative master plan** for **AlgoDeck**. It c
 ### ❓ Question: "Where even is the due filter? I don't see it anywhere."
 - **Current System Behavior**:
   - The backend calculates `is_due` (`next_review <= now`) for every problem.
-  - In `public/editor.html`, `is_due` is used to attach a small `[Due Today]` badge to problem cards in the sidebar.
+  - In `public/playground.html`, `is_due` is used to attach a small `[Due Today]` badge to problem cards in the sidebar.
   - Selecting **Sort by: "Next Review"** in the dropdown floats due items to the top of the sidebar.
 - **The UX Gap**:
   - There is **no explicit button or checkbox** for `[ ] Due Today Only` in the filter UI!
   - Users are forced to manually sort by "Next Review" and scroll through the list rather than toggling a dedicated "Due Only" view.
 - **Planned Solution**:
-  - Add an explicit toggle button: `[ 🔔 Due Only (Count) ]` in both `editor.html` sidebar and `dashboard.html` filter bar.
+  - Add an explicit toggle button: `[ 🔔 Due Only (Count) ]` in both `playground.html` sidebar and `dashboard.html` filter bar.
 
 ---
 
@@ -42,11 +42,11 @@ Before expanding to Phase 2 (Polyglot Execution & Sandbox Cgroups) and Phase 3 (
 - **Issue**: Page titles lack brand identity (`<title>Home Page</title>`, `<title>Coding Playground</title>`). Users opening multiple browser tabs cannot distinguish AlgoDeck pages.
 - **Fix**: Standardize all `<title>` tags to follow `AlgoDeck | <Page Name>`:
   - `index.html` → `<title>AlgoDeck | Home</title>`
-  - `editor.html` → `<title>AlgoDeck | Coding Playground</title>`
+  - `playground.html` → `<title>AlgoDeck | Coding Playground</title>`
   - `dashboard.html` → `<title>AlgoDeck | Problem Dashboard</title>`
   - `roadmap.html` → `<title>AlgoDeck | Curriculum Roadmap</title>`
   - `docs.html` → `<title>AlgoDeck | Technical Docs</title>`
-- **Route Aliases**: Map clean Express routes in `server/server.js` (`/playground` → `editor.html`, `/editor` → `editor.html`, `/dashboard` → `dashboard.html`) to eliminate `404` errors when omitting `.html`.
+- **Route Aliases**: Map clean Express routes in `server/server.js` (`/playground` → `playground.html`, `/editor` → `playground.html`, `/dashboard` → `dashboard.html`) to eliminate `404` errors when omitting `.html`.
 
 ### 2. Async State Management & Race Conditions
 - **Issue A: In-Flight Fetch Cancellation**: Rapidly switching problems or languages triggers overlapping `/api/boilerplate` fetch promises. Out-of-order promise resolution can overwrite Monaco with stale code.
@@ -55,7 +55,7 @@ Before expanding to Phase 2 (Polyglot Execution & Sandbox Cgroups) and Phase 3 (
   - *Solution*: Execute `solutionEditor.setValue("")` immediately upon `selectProblem()`.
 
 ### 3. Data Sync & Draft Cache Versioning (`starterHash`)
-- **Issue A: Spaced Repetition UI Sync**: Submitting a performance rating updates the DB/JSON file, but local `activeProblem` memory in `editor.html` is not mutated, causing the SR badge to show stale dates until page reload.
+- **Issue A: Spaced Repetition UI Sync**: Submitting a performance rating updates the DB/JSON file, but local `activeProblem` memory in `playground.html` is not mutated, causing the SR badge to show stale dates until page reload.
   - *Solution*: Instantly mutate local `activeProblem` fields (`next_review`, `interval`) upon `/api/submit` response.
 - **Issue B: `starterHash` Draft Versioning**: Relying on client-side regex matching to purge stale drafts is brittle when starter code signatures are updated in `content/`.
   - *Solution*: Attach a 32-bit `starterHash` to `localStorage` entries (`{ starterHash: "a1b2c3", userCode: "..." }`). If `starterHash` mismatches the current server starter stub, display an un-intrusive notification offering to load the fresh stub or keep the local draft.
@@ -99,12 +99,12 @@ flowchart TD
 ### Phase 1A: Active Behavioral Nudges & "Daily Deck Queue"
 
 #### 1. Integrated Header Status Pill & 24h Snooze
-- On page load (`dashboard.html` or `editor.html`), query due status (`is_due`).
+- On page load (`dashboard.html` or `playground.html`), query due status (`is_due`).
 - If `is_due` count > 0, render an un-intrusive status pill in the navbar header:
   > `🔔 3 Due Today [Start Session →]`
 - Include a 24-hour "Snooze Review Notifications" toggle saved in `sessionStorage` to prevent notification fatigue while browsing docs or roadmap pages.
 
-#### 2. Dedicated "Daily Deck" Review Mode (`/editor.html?mode=daily_deck`)
+#### 2. Dedicated "Daily Deck" Review Mode (`/playground.html?mode=daily_deck`)
 - Automatically loads due problems in sequence.
 - After submitting a passing solution and rating quality (q = 0..5), auto-advances to the next due problem in the queue.
 - Includes pre-session SM-2 confidence prompting (*"How confident are you with this pattern?"*).
@@ -159,13 +159,13 @@ Filterable, searchable table detailing:
 
 | ID | Module | Issue / Feature | Refined Technical Solution | Targeted File(s) |
 | :---: | :--- | :--- | :--- | :--- |
-| **T-101** | UX/Nav | Missing explicit "Due Filter" button | Add `[ 🔔 Due Only ]` toggle button in sidebar & dashboard filter bars. | `public/editor.html`<br>`public/dashboard.html` |
+| **T-101** | UX/Nav | Missing explicit "Due Filter" button | Add `[ 🔔 Due Only ]` toggle button in sidebar & dashboard filter bars. | `public/playground.html`<br>`public/dashboard.html` |
 | **T-102** | UX/Nav | Generic document `<title>` tags | Update all HTML `<title>` tags with brand prefix `AlgoDeck \| <Page>`. | All `.html` files in `public/` |
 | **T-103** | Server | No clean route aliases | Add `app.get('/playground')`, `/editor`, `/dashboard` route handlers. | `server/server.js` |
-| **T-104** | Editor | Fetch race condition during rapid switch | Implement `AbortController` for `/api/boilerplate` fetch promises. | `public/editor.html` |
-| **T-105** | Editor | Solution editor stale cache leak | Add `solutionEditor.setValue("")` to `selectProblem()`. | `public/editor.html` |
-| **T-106** | SR Engine | Proactive behavioral nudges | Integrated navbar status pill `🔔 3 Due Today`, 24h snooze, & `daily_deck` queue mode. | `public/js/global.js`<br>`public/editor.html` |
+| **T-104** | Editor | Fetch race condition during rapid switch | Implement `AbortController` for `/api/boilerplate` fetch promises. | `public/playground.html` |
+| **T-105** | Editor | Solution editor stale cache leak | Add `solutionEditor.setValue("")` to `selectProblem()`. | `public/playground.html` |
+| **T-106** | SR Engine | Proactive behavioral nudges | Integrated navbar status pill `🔔 3 Due Today`, 24h snooze, & `daily_deck` queue mode. | `public/js/global.js`<br>`public/playground.html` |
 | **T-107** | Dashboard | Granular attempt & assistance tracking | 5-Tier Activity Matrix with decoupled `assistance_level` enum (`CLEAN`, `HINT_USED`, `SOLUTION_REVEALED`). | `public/dashboard.html`<br>`server/server.js`<br>`server/db.js` |
 | **T-108** | Sandbox | Orphan scratch file accumulation | Add startup cleanup sweep for `server/scratch/_temp_run_*` files older than 1h. | `server/server.js` |
-| **T-109** | Draft Cache | Brittle regex draft purging | Attach 32-bit `starterHash` to `localStorage` keys for clean stub synchronization. | `public/editor.html`<br>`server/server.js` |
+| **T-109** | Draft Cache | Brittle regex draft purging | Attach 32-bit `starterHash` to `localStorage` keys for clean stub synchronization. | `public/playground.html`<br>`server/server.js` |
 | **T-110** | Backend Arch| Monolithic `server.js` structure | Modularize `server.js` into `server/lib/parser.js`, `sandbox.js`, and `security.js`. | `server/server.js`<br>`server/lib/*` |

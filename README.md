@@ -98,7 +98,7 @@ npm start
 AlgoDeck/
 ├── public/                 # Frontend Web Pages & Assets
 │   ├── index.html          # Dashboard & Review Visualizer
-│   ├── editor.html         # Monaco Practice Playground
+│   ├── playground.html     # Monaco Practice Playground
 │   ├── roadmap.html        # Interactive 19-Pattern Curriculum Map
 │   ├── css/global.css      # Design System Stylesheet
 │   ├── js/global.js        # Shared UX & Navigation Modules

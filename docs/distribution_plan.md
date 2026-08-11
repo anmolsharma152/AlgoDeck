@@ -92,7 +92,7 @@ To achieve 100% feature parity with commercial platforms like LeetCode and NeetC
 
 ### Phase 3: Analytics & Benchmark Visualizer
 - Add execution timing benchmarking in `/api/run` using `process.hrtime.bigint()`.
-- Render time-complexity comparison histograms in `public/editor.html`.
+- Render time-complexity comparison histograms in `public/playground.html`.
 
 ### Phase 4: One-Click Desktop Installers
 - Create GitHub Actions workflow to build Tauri / Electron `.dmg`, `.deb`, and `.exe` releases on every version tag.
