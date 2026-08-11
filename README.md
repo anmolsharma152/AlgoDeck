@@ -44,8 +44,8 @@
 
 ```mermaid
 graph TD
-    User["🌐 Browser Client (Monaco IDE & Dashboard)"] -->|HTTPS / algodeck.localhost| Caddy["🛡️ Caddy Reverse Proxy"]
-    Caddy -->|Reverse Proxy :3000| Server["⚡ Node.js Express App Server"]
+    User["🌐 Browser Client (Monaco IDE & Dashboard)"] -->|HTTP http://localhost:3095 or HTTPS| Proxy["🛡️ Reverse Proxy / Host Port 3095"]
+    Proxy -->|Container Forwarding :3000| Server["⚡ Node.js Express App Server"]
     
     subgraph AppServer ["Express App Microservices"]
         Server -->|Subprocess Exec| Sandbox["🔒 Isolated Code Execution Sandbox"]
