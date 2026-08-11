@@ -2,8 +2,11 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
-const { execFile } = require('child_process');
+
 const db = require('./db');
+const { computeHash, extractPythonBoilerplate, extractJsBoilerplate, safeResolveContentPath } = require('./lib/parser');
+const { runSubprocessCode } = require('./lib/sandbox');
+const { rateLimiter, cleanOrphanScratchFiles } = require('./lib/security');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -77,353 +80,6 @@ function calculateElo(userRating, problemRating, q) {
     return { newRating, delta };
 }
 
-// Boilerplate extractors
-function extractPythonBoilerplate(codeContent) {
-    const lines = codeContent.split(/\r?\n/);
-    const output = [];
-    let i = 0;
-    
-    // Skip top-level module docstring
-    if (i < lines.length && (lines[i].trim().startsWith('"""') || lines[i].trim().startsWith("'''"))) {
-        const quoteType = lines[i].trim().substring(0, 3);
-        if (lines[i].trim().endsWith(quoteType) && lines[i].trim().length > 3) {
-            i++;
-        } else {
-            i++;
-            while (i < lines.length && !lines[i].trim().endsWith(quoteType)) {
-                i++;
-            }
-            if (i < lines.length) i++;
-        }
-    }
-
-    let inHelperClass = false;
-    let helperClassIndent = -1;
-
-    while (i < lines.length) {
-        const line = lines[i];
-        const stripped = line.trim();
-        const currentIndent = line.length - line.trimStart().length;
-
-        if (stripped === "if __name__ == \"__main__\":" || stripped === "# Test Cases" || stripped.startsWith("if __name__ ==")) {
-            break;
-        }
-
-        if (currentIndent === 0 && stripped.startsWith("class ")) {
-            if (stripped.startsWith("class ListNode") || stripped.startsWith("class TreeNode") || stripped.startsWith("class TrieNode")) {
-                inHelperClass = true;
-                helperClassIndent = currentIndent;
-                output.push(line);
-                i++;
-                continue;
-            } else {
-                inHelperClass = false;
-                output.push(line);
-                i++;
-                continue;
-            }
-        }
-
-        if (inHelperClass) {
-            if (stripped === "" || currentIndent > helperClassIndent) {
-                output.push(line);
-                i++;
-                continue;
-            } else {
-                inHelperClass = false;
-            }
-        }
-
-        if (stripped.startsWith("def ")) {
-            output.push(line);
-            
-            let placeholderIndent = currentIndent === 0 ? "    " : "        ";
-            output.push(`${placeholderIndent}# Write your code here`);
-            output.push(`${placeholderIndent}pass`);
-
-            i++;
-            while (i < lines.length) {
-                const nextLine = lines[i];
-                const nextStripped = nextLine.trim();
-                const nextIndent = nextLine.length - nextLine.trimStart().length;
-                
-                if (nextStripped === "if __name__ == \"__main__\":" || nextStripped === "# Test Cases" || nextStripped.startsWith("if __name__ ==")) {
-                    break;
-                }
-                if (nextStripped !== "") {
-                    if (currentIndent === 0 && nextIndent <= 0) break;
-                    if (currentIndent === 4 && nextIndent <= 4) break;
-                }
-                i++;
-            }
-            continue;
-        }
-
-        if (stripped.startsWith('"""') || stripped.startsWith("'''")) {
-            const quoteType = stripped.substring(0, 3);
-            if (stripped.endsWith(quoteType) && stripped.length > 3) {
-                i++;
-                continue;
-            }
-            i++;
-            while (i < lines.length && !lines[i].trim().endsWith(quoteType)) {
-                i++;
-            }
-            if (i < lines.length) i++;
-            continue;
-        }
-
-        output.push(line);
-        i++;
-    }
-
-    while (output.length > 0 && output[0].trim() === "") {
-        output.shift();
-    }
-    while (output.length > 0 && output[output.length - 1].trim() === "") {
-        output.pop();
-    }
-    
-    return output.join("\n") + "\n";
-}
-
-function extractJsBoilerplate(codeContent) {
-    const lines = codeContent.split(/\r?\n/);
-    const output = [];
-    let i = 0;
-    
-    if (i < lines.length && (lines[i].trim().startsWith("/**") || lines[i].trim().startsWith("/*"))) {
-        if (lines[i].trim().endsWith("*/") && lines[i].trim().length > 2) {
-            i++;
-        } else {
-            i++;
-            while (i < lines.length && !lines[i].trim().endsWith("*/")) {
-                i++;
-            }
-            if (i < lines.length) i++;
-        }
-    }
-
-    let inHelperClass = false;
-
-    while (i < lines.length) {
-        const line = lines[i];
-        const stripped = line.trim();
-        const currentIndent = line.length - line.trimStart().length;
-
-        if (stripped === "if (require.main === module) {" || stripped === "// Test Cases" || stripped.startsWith("if (require.main === module)")) {
-            break;
-        }
-
-        if (currentIndent === 0 && stripped.startsWith("class ")) {
-            if (stripped.startsWith("class ListNode") || stripped.startsWith("class TreeNode") || stripped.startsWith("class TrieNode")) {
-                inHelperClass = true;
-                output.push(line);
-                i++;
-                continue;
-            } else {
-                inHelperClass = false;
-                output.push(line);
-                i++;
-                continue;
-            }
-        }
-
-        if (inHelperClass) {
-            if (stripped === "}" && currentIndent === 0) {
-                inHelperClass = false;
-            }
-            output.push(line);
-            i++;
-            continue;
-        }
-
-        if (currentIndent === 0 && stripped.startsWith("function ")) {
-            output.push(line);
-            if (!stripped.includes("{")) {
-                if (i + 1 < lines.length && lines[i+1].includes("{")) {
-                    i++;
-                    output.push(lines[i]);
-                }
-            }
-            output.push("    // Write your code here");
-            output.push("}");
-
-            i++;
-            while (i < lines.length) {
-                const nextStripped = lines[i].trim();
-                const nextIndent = lines[i].length - lines[i].trimStart().length;
-                if (nextStripped === "if (require.main === module) {" || nextStripped === "// Test Cases" || nextStripped.startsWith("if (require.main === module)")) {
-                    break;
-                }
-                if (nextStripped === "}" && nextIndent === 0) {
-                    i++;
-                    break;
-                }
-                i++;
-            }
-            continue;
-        }
-
-        if (currentIndent === 4 && stripped !== "" && !stripped.startsWith("//") && (stripped.includes("(") && (stripped.includes(")") || stripped.includes("{")))) {
-            output.push(line);
-            if (!stripped.includes("{")) {
-                if (i + 1 < lines.length && lines[i+1].includes("{")) {
-                    i++;
-                    output.push(lines[i]);
-                }
-            }
-            output.push("        // Write your code here");
-            output.push("    }");
-
-            i++;
-            while (i < lines.length) {
-                const nextStripped = lines[i].trim();
-                const nextIndent = lines[i].length - lines[i].trimStart().length;
-                if (nextStripped === "}" && nextIndent === 4) {
-                    i++;
-                    break;
-                }
-                i++;
-            }
-            continue;
-        }
-
-        if (stripped.startsWith("/**") || stripped.startsWith("/*")) {
-            if (stripped.endsWith("*/") && stripped.length > 2) {
-                i++;
-                continue;
-            }
-            i++;
-            while (i < lines.length && !lines[i].trim().endsWith("*/")) {
-                i++;
-            }
-            if (i < lines.length) i++;
-            continue;
-        }
-
-        output.push(line);
-        i++;
-    }
-
-    while (output.length > 0 && output[0].trim() === "") {
-        output.shift();
-    }
-    while (output.length > 0 && output[output.length - 1].trim() === "") {
-        output.pop();
-    }
-    
-    return output.join("\n") + "\n";
-}
-
-function extractPythonTests(codeContent) {
-    const lines = codeContent.split(/\r?\n/);
-    let testIndex = -1;
-    let lastTargetIndex = -1;
-    
-    for (let i = 0; i < lines.length; i++) {
-        const stripped = lines[i].trim();
-        if (stripped === "if __name__ == \"__main__\":" || stripped === "# Test Cases" || stripped.startsWith("if __name__ ==")) {
-            testIndex = i;
-            break;
-        }
-    }
-    
-    if (testIndex === -1) return "";
-    
-    for (let i = testIndex - 1; i >= 0; i--) {
-        const line = lines[i];
-        const stripped = line.trim();
-        const currentIndent = line.length - line.trimStart().length;
-        
-        if (currentIndent === 0 && stripped.startsWith("class ")) {
-            if (!(stripped.startsWith("class ListNode") || stripped.startsWith("class TreeNode") || stripped.startsWith("class TrieNode"))) {
-                lastTargetIndex = i;
-                break;
-            }
-        }
-        
-        if (currentIndent === 0 && stripped.startsWith("def ")) {
-            if (!stripped.startsWith("def to_list") && !stripped.startsWith("def to_array") && !stripped.startsWith("def build_") && !stripped.startsWith("def print_") && !stripped.startsWith("def create_") && !stripped.startsWith("def tree_") && !stripped.startsWith("def compare_")) {
-                lastTargetIndex = i;
-                break;
-            }
-        }
-    }
-    
-    let testsStartIndex = testIndex;
-    if (lastTargetIndex !== -1) {
-        let endOfTarget = lastTargetIndex + 1;
-        while (endOfTarget < testIndex) {
-            const nextLine = lines[endOfTarget];
-            const nextStripped = nextLine.trim();
-            const nextIndent = nextLine.length - nextLine.trimStart().length;
-            if (nextStripped !== "" && nextIndent === 0 && nextStripped.startsWith("def ")) {
-                testsStartIndex = endOfTarget;
-                break;
-            }
-            endOfTarget++;
-        }
-    }
-    
-    return lines.slice(testsStartIndex).join("\n");
-}
-
-function extractJsTests(codeContent) {
-    const lines = codeContent.split(/\r?\n/);
-    let testIndex = -1;
-    let lastTargetIndex = -1;
-    
-    for (let i = 0; i < lines.length; i++) {
-        const stripped = lines[i].trim();
-        if (stripped === "if (require.main === module) {" || stripped === "// Test Cases" || stripped.startsWith("if (require.main === module)")) {
-            testIndex = i;
-            break;
-        }
-    }
-    
-    if (testIndex === -1) return "";
-    
-    for (let i = testIndex - 1; i >= 0; i--) {
-        const line = lines[i];
-        const stripped = line.trim();
-        const currentIndent = line.length - line.trimStart().length;
-        
-        if (currentIndent === 0 && stripped.startsWith("class ")) {
-            if (!(stripped.startsWith("class ListNode") || stripped.startsWith("class TreeNode") || stripped.startsWith("class TrieNode"))) {
-                lastTargetIndex = i;
-                break;
-            }
-        }
-        
-        if (currentIndent === 0 && stripped.startsWith("function ")) {
-            if (!stripped.startsWith("function toList") && !stripped.startsWith("function toArray") && !stripped.startsWith("function build") && !stripped.startsWith("function print") && !stripped.startsWith("function create") && !stripped.startsWith("function tree") && !stripped.startsWith("function compare")) {
-                lastTargetIndex = i;
-                break;
-            }
-        }
-    }
-    
-    let testsStartIndex = testIndex;
-    if (lastTargetIndex !== -1) {
-        let endOfTarget = lastTargetIndex + 1;
-        while (endOfTarget < testIndex) {
-            const nextLine = lines[endOfTarget];
-            const nextStripped = nextLine.trim();
-            const nextIndent = nextLine.length - nextLine.trimStart().length;
-            if (nextStripped !== "" && nextIndent === 0 && (nextStripped.startsWith("function ") || nextStripped.startsWith("class ") || nextStripped.startsWith("const ") || nextStripped.startsWith("let ") || nextStripped.startsWith("var "))) {
-                testsStartIndex = endOfTarget;
-                break;
-            }
-            endOfTarget++;
-        }
-    }
-    
-    return lines.slice(testsStartIndex).join("\n");
-}
-
-
-
 // API: Get merged problems
 app.get('/api/problems', async (req, res) => {
     const tracker = readJsonFile(TRACKER_FILE, []);
@@ -453,79 +109,16 @@ app.get('/api/problems', async (req, res) => {
     });
 });
 
-// Path normalization, extension restriction, and safe containment check
-function safeResolveContentPath(filePath) {
-    if (!filePath || typeof filePath !== 'string') return null;
-    const ext = path.extname(filePath).toLowerCase();
-    if (ext !== '.py' && ext !== '.js') return null;
-
-    const normalized = path.normalize(filePath).replace(/^(\.\.[\/\\])+/, '');
-    const resolvedPath = path.resolve(CONTENT_DIR, normalized);
-
-    let realPath, stat;
-    try {
-        realPath = fs.realpathSync(resolvedPath);
-        stat = fs.statSync(realPath);
-    } catch (e) {
-        return null;
-    }
-
-    if (!stat.isFile()) return null;
-
-    const rel = path.relative(REAL_CONTENT_DIR, realPath);
-    if (rel === '..' || rel.startsWith('..' + path.sep) || path.isAbsolute(rel)) return null;
-
-    return realPath;
-}
-
-// In-memory rate limiting middleware with periodic unref'd memory cleanup
-const requestCounts = new Map();
-const rateLimiterCleanupTimer = setInterval(() => {
-    const now = Date.now();
-    for (const [ip, record] of requestCounts.entries()) {
-        if (now > record.resetTime) requestCounts.delete(ip);
-    }
-}, 600000);
-rateLimiterCleanupTimer.unref();
-
-function rateLimiter(maxRequestsPerMin = 30) {
-    return (req, res, next) => {
-        const ip = req.ip || req.socket.remoteAddress || '127.0.0.1';
-        const now = Date.now();
-        const windowMs = 60000;
-        
-        let record = requestCounts.get(ip) || { count: 0, resetTime: now + windowMs };
-        if (now > record.resetTime) {
-            record = { count: 0, resetTime: now + windowMs };
-        }
-        record.count++;
-        requestCounts.set(ip, record);
-        
-        if (record.count > maxRequestsPerMin) {
-            return res.status(429).json({ error: "Too many requests. Please wait a minute." });
-        }
-        next();
-    };
-}
-
-function computeHash(str) {
-    let hash = 5381;
-    for (let i = 0; i < str.length; i++) {
-        hash = (hash * 33) ^ str.charCodeAt(i);
-    }
-    return (hash >>> 0).toString(16);
-}
-
-// API: Get Boilerplate
+// API: Get starter code stub for a problem
 app.get('/api/boilerplate', (req, res) => {
     const filePath = req.query.path;
     if (!filePath) return res.status(400).send("Missing path parameter");
-    
-    const fullPath = safeResolveContentPath(filePath);
+
+    const fullPath = safeResolveContentPath(filePath, CONTENT_DIR, REAL_CONTENT_DIR);
     if (!fullPath || !fs.existsSync(fullPath)) {
         return res.status(404).send("File not found or invalid path");
     }
-    
+
     try {
         const codeContent = fs.readFileSync(fullPath, 'utf-8');
         let boilerplate = codeContent;
@@ -534,6 +127,7 @@ app.get('/api/boilerplate', (req, res) => {
         } else if (filePath.endsWith('.js')) {
             boilerplate = extractJsBoilerplate(codeContent);
         }
+
         const starterHash = computeHash(boilerplate);
         res.setHeader('X-Starter-Hash', starterHash);
         res.type('text/plain').send(boilerplate);
@@ -542,16 +136,16 @@ app.get('/api/boilerplate', (req, res) => {
     }
 });
 
-// API: Get Solution
+// API: Get complete solution code
 app.get('/api/solution', (req, res) => {
-    const filePath = req.query.path;
+    const { path: filePath } = req.query;
     if (!filePath) return res.status(400).send("Missing path parameter");
-    
-    const fullPath = safeResolveContentPath(filePath);
+
+    const fullPath = safeResolveContentPath(filePath, CONTENT_DIR, REAL_CONTENT_DIR);
     if (!fullPath || !fs.existsSync(fullPath)) {
         return res.status(404).send("File not found or invalid path");
     }
-    
+
     try {
         const codeContent = fs.readFileSync(fullPath, 'utf-8');
         res.type('text/plain').send(codeContent);
@@ -564,69 +158,24 @@ app.get('/api/solution', (req, res) => {
 app.post('/api/run', rateLimiter(30), (req, res) => {
     let { code, language, problem_path } = req.body;
     if (!code || !language) return res.status(400).send("Missing code or language parameter");
-    
+
     if (problem_path) {
-        const fullPath = safeResolveContentPath(problem_path);
+        const fullPath = safeResolveContentPath(problem_path, CONTENT_DIR, REAL_CONTENT_DIR);
         if (fullPath && fs.existsSync(fullPath)) {
             const content = fs.readFileSync(fullPath, 'utf-8');
             let tests = "";
             if (language === 'python') {
-                tests = extractPythonTests(content);
+                tests = extractPythonBoilerplate(content);
             } else if (language === 'javascript') {
-                tests = extractJsTests(content);
-            }
-            if (tests) {
-                code = code + "\n\n" + tests;
+                tests = extractJsBoilerplate(content);
             }
         }
     }
-    
-    const scratchDir = path.join(WORKSPACE_DIR, 'scratch');
-    if (!fs.existsSync(scratchDir)) fs.mkdirSync(scratchDir, { recursive: true });
-    
-    const ext = language === 'python' ? '.py' : '.js';
-    const tempFile = path.join(scratchDir, `_temp_run_${Date.now()}_${Math.random().toString(36).substring(7)}${ext}`);
-    
-    try {
-        fs.writeFileSync(tempFile, code, 'utf-8');
-        
-        let runnerBin = language === 'python' ? 'python3' : 'node';
-        
-        // Execute inside subprocess with a 5 second timeout limit and max 512KB buffer
-        const child = execFile(runnerBin, [tempFile], { 
-            timeout: 5000, 
-            maxBuffer: 512 * 1024,
-            env: { PATH: process.env.PATH, HOME: process.env.HOME || '/tmp' }
-        }, (error, stdout, stderr) => {
-            let isAssertionError = false;
-            if (language === 'javascript' && stderr.includes('Assertion failed')) {
-                isAssertionError = true;
-            }
-            
-            let exitCode = 0;
-            if (error) {
-                exitCode = error.code || 1;
-                if (error.killed) {
-                    stderr = "Execution Timeout: The code took longer than 5 seconds to run.";
-                    exitCode = -1;
-                }
-            }
-            if (isAssertionError) exitCode = 1;
-            
-            // Clean up temp file
-            if (fs.existsSync(tempFile)) {
-                try { fs.unlinkSync(tempFile); } catch (e) {}
-            }
-            
-            res.json({
-                stdout,
-                stderr,
-                exit_code: exitCode
-            });
-        });
-    } catch (err) {
-        res.status(500).send(`Subprocess setup failed: ${err.message}`);
-    }
+
+    runSubprocessCode(language, code, WORKSPACE_DIR, (err, result) => {
+        if (err) return res.status(500).send(`Subprocess setup failed: ${err.message}`);
+        res.json(result);
+    });
 });
 
 // API: Submit quality rating
@@ -753,29 +302,8 @@ app.use((req, res) => {
     res.status(404).send("File not found");
 });
 
-function cleanOrphanScratchFiles() {
-    const scratchDir = path.join(WORKSPACE_DIR, 'scratch');
-    if (fs.existsSync(scratchDir)) {
-        const now = Date.now();
-        try {
-            const files = fs.readdirSync(scratchDir);
-            files.forEach(file => {
-                if (file.startsWith('_temp_run_')) {
-                    const filePath = path.join(scratchDir, file);
-                    try {
-                        const stat = fs.statSync(filePath);
-                        if (now - stat.mtimeMs > 3600000) {
-                            fs.unlinkSync(filePath);
-                        }
-                    } catch (e) {}
-                }
-            });
-        } catch (e) {}
-    }
-}
-
 async function startServer() {
-    cleanOrphanScratchFiles();
+    cleanOrphanScratchFiles(WORKSPACE_DIR);
     if (db.isPgAvailable()) {
         await db.initDb();
     }
