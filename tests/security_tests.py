@@ -167,7 +167,7 @@ else:
 # 6. Monaco Editor Local Vendoring & Synchronization Audit
 print("\n6️⃣ Testing Monaco Editor Local Vendoring & Synchronization Guard...")
 monaco_audit_passed = False
-editor_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "public", "editor.html"))
+editor_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "public", "playground.html"))
 if os.path.exists(editor_path):
     with open(editor_path, "r", encoding="utf-8") as f:
         editor_src = f.read()
@@ -176,12 +176,12 @@ if os.path.exists(editor_path):
     has_sync_state = "isMonacoReady" in editor_src and "pendingProblemToSelect" in editor_src
 
     if has_local_loader and has_no_cdn and has_sync_state:
-        print("  [PASS] editor.html loads Monaco from local /vendor directory, contains 0 CDN links, and synchronizes selection state!")
+        print("  [PASS] playground.html loads Monaco from local /vendor directory, contains 0 CDN links, and synchronizes selection state!")
         monaco_audit_passed = True
     else:
-        print(f"  ❌ FAILED: editor.html static audit failed (local_loader={has_local_loader}, no_cdn={has_no_cdn}, sync_state={has_sync_state})")
+        print(f"  ❌ FAILED: playground.html static audit failed (local_loader={has_local_loader}, no_cdn={has_no_cdn}, sync_state={has_sync_state})")
 else:
-    print("  ❌ FAILED: editor.html file not found!")
+    print("  ❌ FAILED: playground.html file not found!")
 
 # 7. Rate Limiter Test (MUST RUN LAST)
 print("\n7️⃣ Testing API Rate Limiter (/api/run)...")

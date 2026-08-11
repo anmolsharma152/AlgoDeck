@@ -484,9 +484,9 @@
 
       filtered.forEach(p => {
         const isSolved = solvedSet.has(p.id);
-        const editorUrl = window.location.protocol === 'file:' 
-          ? './editor.html' 
-          : '/editor.html';
+        const playgroundUrl = window.location.protocol === 'file:' 
+          ? './playground.html' 
+          : '/playground.html';
 
         const card = document.createElement('div');
         card.className = 'problem-card';
@@ -495,7 +495,7 @@
             <div class="problem-header">
               <input type="checkbox" class="problem-checkbox" data-id="${p.id}" ${isSolved ? 'checked' : ''} onchange="toggleSolved('${p.id}')">
               <div class="problem-title-area">
-                <a href="${editorUrl}?id=${p.id}" class="problem-title">${p.title}</a>
+                <a href="${playgroundUrl}?id=${p.id}" class="problem-title">${p.title}</a>
                 <div class="problem-tags">
                   <span class="tag tag-${p.difficulty.toLowerCase()}">${p.difficulty}</span>
                   <span class="tag tag-pattern">${p.pattern}</span>
@@ -503,7 +503,7 @@
               </div>
             </div>
             <div class="action-links">
-              <a href="${editorUrl}?id=${p.id}" class="action-btn practice-btn">
+              <a href="${playgroundUrl}?id=${p.id}" class="action-btn practice-btn">
                 <i class="fa-solid fa-code"></i> Code Offline
               </a>
               <a href="${p.problemUrl}" target="_blank" class="action-btn external-btn">

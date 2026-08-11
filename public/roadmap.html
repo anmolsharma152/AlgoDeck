@@ -596,7 +596,7 @@
         Object.keys(patterns).forEach(patName => {
           const probs = patterns[patName];
           let tagsHtml = probs.map(p => `
-            <a href="/editor.html?id=${p.id}" class="prob-tag ${p.difficulty.toLowerCase()}" title="Click to solve ${p.title}">
+            <a href="/playground.html?id=${p.id}" class="prob-tag ${p.difficulty.toLowerCase()}" title="Click to solve ${p.title}">
               <i class="fa-solid fa-code" style="font-size: 0.7rem;"></i> ${p.title}
             </a>
           `).join('');

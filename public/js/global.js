@@ -178,7 +178,7 @@
         const path = window.location.pathname;
         const isHome = path === '/' || path.endsWith('/index.html') || path === '';
         const isDash = path.includes('dashboard');
-        const isEdit = path.includes('editor');
+        const isPlayground = path.includes('playground') || path.includes('editor');
         const isRoadmap = path.includes('roadmap');
         const isDocs = path.includes('docs');
 
@@ -211,7 +211,7 @@
                 <nav class="header-nav">
                     <a href="/index.html" class="nav-item ${isHome ? 'active' : ''}"><i class="fa-solid fa-house"></i> Home</a>
                     <a href="/dashboard.html" class="nav-item ${isDash ? 'active' : ''}"><i class="fa-solid fa-chart-simple"></i> Dashboard</a>
-                    <a href="/editor.html" class="nav-item ${isEdit ? 'active' : ''}"><i class="fa-solid fa-terminal"></i> Playground</a>
+                    <a href="/playground.html" class="nav-item ${isPlayground ? 'active' : ''}"><i class="fa-solid fa-terminal"></i> Playground</a>
                     <a href="/roadmap.html" class="nav-item ${isRoadmap ? 'active' : ''}"><i class="fa-solid fa-diagram-project"></i> Roadmap</a>
                     <a href="/docs.html" class="nav-item ${isDocs ? 'active' : ''}"><i class="fa-solid fa-book"></i> Docs</a>
                     <button id="btn-theme-toggle" onclick="window.toggleTheme()" title="Toggle Light/Dark Theme" style="background: var(--bg-element); color: var(--nav-text); border: 1px solid var(--border); width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;">
