@@ -679,12 +679,16 @@ app.post('/api/submit', async (req, res) => {
         eloChange = elo.delta;
     }
     
+    const validAssistance = ['CLEAN', 'HINT_USED', 'SOLUTION_REVEALED'];
+    const assistanceLevel = validAssistance.includes(req.body.assistance_level) ? req.body.assistance_level : 'CLEAN';
+
     progress.user_rating = newRating;
     progress.spaced_repetition[problem_id] = {
         interval: newInterval,
         ease_factor: newEaseFactor,
         repetitions: newRepetitions,
-        next_review: nextReview
+        next_review: nextReview,
+        assistance_level: assistanceLevel
     };
     
     progress.history.push({
@@ -693,7 +697,8 @@ app.post('/api/submit', async (req, res) => {
         quality: q,
         rating_before: userRating,
         rating_after: newRating,
-        elo_change: eloChange
+        elo_change: eloChange,
+        assistance_level: assistanceLevel
     });
     
     await db.saveProgress(PROGRESS_FILE, progress, problem_id);
@@ -701,7 +706,8 @@ app.post('/api/submit', async (req, res) => {
     res.json({
         user_rating: newRating,
         elo_change: eloChange,
-        next_review: nextReview
+        next_review: nextReview,
+        assistance_level: assistanceLevel
     });
 });
 

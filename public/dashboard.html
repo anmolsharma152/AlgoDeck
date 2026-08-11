@@ -310,6 +310,30 @@
       </div>
     </div>
 
+    <!-- 5-Tier Activity Matrix Summary Bar -->
+    <div class="matrix-summary-bar" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 24px;">
+      <div class="matrix-card" style="background: var(--bg-card); border: 1px solid var(--border); padding: 12px; border-radius: 12px; text-align: center;">
+        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Clean Pass</div>
+        <div id="matrix-clean-pass" style="font-size: 1.4rem; font-weight: 800; color: #10b981; margin-top: 4px;">0</div>
+      </div>
+      <div class="matrix-card" style="background: var(--bg-card); border: 1px solid var(--border); padding: 12px; border-radius: 12px; text-align: center;">
+        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Assisted Pass</div>
+        <div id="matrix-assisted-pass" style="font-size: 1.4rem; font-weight: 800; color: #3b82f6; margin-top: 4px;">0</div>
+      </div>
+      <div class="matrix-card" style="background: var(--bg-card); border: 1px solid var(--border); padding: 12px; border-radius: 12px; text-align: center;">
+        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Failed Attempt</div>
+        <div id="matrix-failed-attempt" style="font-size: 1.4rem; font-weight: 800; color: #ef4444; margin-top: 4px;">0</div>
+      </div>
+      <div class="matrix-card" style="background: var(--bg-card); border: 1px solid var(--border); padding: 12px; border-radius: 12px; text-align: center;">
+        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Interacted</div>
+        <div id="matrix-interacted" style="font-size: 1.4rem; font-weight: 800; color: #f59e0b; margin-top: 4px;">0</div>
+      </div>
+      <div class="matrix-card" style="background: var(--bg-card); border: 1px solid var(--border); padding: 12px; border-radius: 12px; text-align: center;">
+        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Untouched</div>
+        <div id="matrix-untouched" style="font-size: 1.4rem; font-weight: 800; color: var(--text-muted); margin-top: 4px;">0</div>
+      </div>
+    </div>
+
     <div class="filters-section">
       <input type="text" id="search" class="search-input" placeholder="Search problems or patterns...">
       
@@ -465,9 +489,43 @@
       render();
     }
 
+    function updateActivityMatrixCounts() {
+      let cleanPass = 0, assistedPass = 0, failedAttempt = 0, interacted = 0, untouched = 0;
+
+      problemsData.forEach(p => {
+        const isSolved = solvedSet.has(p.id) || (p.repetitions > 0);
+        const assistance = p.assistance_level || 'CLEAN';
+        const hasDraft = localStorage.getItem(`draft_${p.id}_python`) || localStorage.getItem(`draft_${p.id}_javascript`);
+
+        if (!isSolved && hasDraft) {
+          interacted++;
+        } else if (!isSolved) {
+          untouched++;
+        } else if (assistance === 'HINT_USED' || assistance === 'SOLUTION_REVEALED') {
+          assistedPass++;
+        } else {
+          cleanPass++;
+        }
+      });
+
+      const elClean = document.getElementById('matrix-clean-pass');
+      const elAssisted = document.getElementById('matrix-assisted-pass');
+      const elFailed = document.getElementById('matrix-failed-attempt');
+      const elInteracted = document.getElementById('matrix-interacted');
+      const elUntouched = document.getElementById('matrix-untouched');
+
+      if (elClean) elClean.innerText = cleanPass;
+      if (elAssisted) elAssisted.innerText = assistedPass;
+      if (elFailed) elFailed.innerText = failedAttempt;
+      if (elInteracted) elInteracted.innerText = interacted;
+      if (elUntouched) elUntouched.innerText = untouched;
+    }
+
     function render() {
       const container = document.getElementById('problems-container');
       container.innerHTML = '';
+
+      updateActivityMatrixCounts();
 
       const dueCount = problemsData.filter(p => p.is_due).length;
       const dashDueEl = document.getElementById('dash-due-count');
@@ -483,7 +541,19 @@
       });
 
       filtered.forEach(p => {
-        const isSolved = solvedSet.has(p.id);
+        const isSolved = solvedSet.has(p.id) || (p.repetitions > 0);
+        const assistance = p.assistance_level || 'CLEAN';
+        const hasDraft = localStorage.getItem(`draft_${p.id}_python`) || localStorage.getItem(`draft_${p.id}_javascript`);
+
+        let activityTagHtml = `<span class="tag" style="background: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.1);">⚪ Untouched</span>`;
+        if (isSolved && (assistance === 'HINT_USED' || assistance === 'SOLUTION_REVEALED')) {
+          activityTagHtml = `<span class="tag" style="background: rgba(59,130,246,0.15); color: #3b82f6; border: 1px solid rgba(59,130,246,0.3);">🔓 Assisted Pass</span>`;
+        } else if (isSolved) {
+          activityTagHtml = `<span class="tag" style="background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3);">✅ Clean Pass</span>`;
+        } else if (hasDraft) {
+          activityTagHtml = `<span class="tag" style="background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3);">✏️ Interacted</span>`;
+        }
+
         const playgroundUrl = window.location.protocol === 'file:' 
           ? './playground.html' 
           : '/playground.html';
@@ -499,6 +569,7 @@
                 <div class="problem-tags">
                   <span class="tag tag-${p.difficulty.toLowerCase()}">${p.difficulty}</span>
                   <span class="tag tag-pattern">${p.pattern}</span>
+                  ${activityTagHtml}
                 </div>
               </div>
             </div>
@@ -514,8 +585,8 @@
           <div class="problem-footer">
             <span>Level ${p.level} • ${p.platform}</span>
             <div class="code-links">
-              <a href="${editorUrl}?id=${p.id}&lang=python">Python</a>
-              <a href="${editorUrl}?id=${p.id}&lang=javascript">JS</a>
+              <a href="${playgroundUrl}?id=${p.id}&lang=python">Python</a>
+              <a href="${playgroundUrl}?id=${p.id}&lang=javascript">JS</a>
             </div>
           </div>
         `;

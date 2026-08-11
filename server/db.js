@@ -53,8 +53,11 @@ async function initDb() {
           ease_factor REAL DEFAULT 2.5,
           repetitions INT DEFAULT 0,
           next_review BIGINT DEFAULT 0,
+          assistance_level TEXT DEFAULT 'CLEAN',
           updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
+
+        ALTER TABLE spaced_repetition ADD COLUMN IF NOT EXISTS assistance_level TEXT DEFAULT 'CLEAN';
 
         CREATE TABLE IF NOT EXISTS review_history (
           id SERIAL PRIMARY KEY,
@@ -63,8 +66,11 @@ async function initDb() {
           quality INT NOT NULL,
           rating_before INT NOT NULL,
           rating_after INT NOT NULL,
-          elo_change INT NOT NULL
+          elo_change INT NOT NULL,
+          assistance_level TEXT DEFAULT 'CLEAN'
         );
+
+        ALTER TABLE review_history ADD COLUMN IF NOT EXISTS assistance_level TEXT DEFAULT 'CLEAN';
       `);
 
       await client.query(`
@@ -90,25 +96,27 @@ async function getProgress(progressFilePath) {
       const userRes = await pool.query('SELECT user_rating FROM user_progress WHERE id = 1');
       const userRating = userRes.rows.length > 0 ? userRes.rows[0].user_rating : 1200;
 
-      const srRes = await pool.query('SELECT problem_id, interval, ease_factor, repetitions, next_review FROM spaced_repetition');
+      const srRes = await pool.query('SELECT problem_id, interval, ease_factor, repetitions, next_review, assistance_level FROM spaced_repetition');
       const spaced_repetition = {};
       srRes.rows.forEach(row => {
         spaced_repetition[row.problem_id] = {
           interval: row.interval,
           ease_factor: row.ease_factor,
           repetitions: row.repetitions,
-          next_review: Number(row.next_review)
+          next_review: Number(row.next_review),
+          assistance_level: row.assistance_level || 'CLEAN'
         };
       });
 
-      const histRes = await pool.query('SELECT problem_id, timestamp, quality, rating_before, rating_after, elo_change FROM review_history ORDER BY id ASC LIMIT 500');
+      const histRes = await pool.query('SELECT problem_id, timestamp, quality, rating_before, rating_after, elo_change, assistance_level FROM review_history ORDER BY id ASC LIMIT 500');
       const history = histRes.rows.map(r => ({
         problem_id: r.problem_id,
         timestamp: Number(r.timestamp),
         quality: r.quality,
         rating_before: r.rating_before,
         rating_after: r.rating_after,
-        elo_change: r.elo_change
+        elo_change: r.elo_change,
+        assistance_level: r.assistance_level || 'CLEAN'
       }));
 
       return {
@@ -145,23 +153,24 @@ async function saveProgress(progressFilePath, data, lastSubmittedProblemId = nul
       if (lastSubmittedProblemId && data.spaced_repetition[lastSubmittedProblemId]) {
         const sr = data.spaced_repetition[lastSubmittedProblemId];
         await pool.query(`
-          INSERT INTO spaced_repetition (problem_id, interval, ease_factor, repetitions, next_review, updated_at)
-          VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)
+          INSERT INTO spaced_repetition (problem_id, interval, ease_factor, repetitions, next_review, assistance_level, updated_at)
+          VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP)
           ON CONFLICT (problem_id) DO UPDATE SET
             interval = EXCLUDED.interval,
             ease_factor = EXCLUDED.ease_factor,
             repetitions = EXCLUDED.repetitions,
             next_review = EXCLUDED.next_review,
+            assistance_level = EXCLUDED.assistance_level,
             updated_at = CURRENT_TIMESTAMP;
-        `, [lastSubmittedProblemId, sr.interval, sr.ease_factor, sr.repetitions, sr.next_review]);
+        `, [lastSubmittedProblemId, sr.interval, sr.ease_factor, sr.repetitions, sr.next_review, sr.assistance_level || 'CLEAN']);
       }
 
       if (data.history && data.history.length > 0) {
         const lastHist = data.history[data.history.length - 1];
         await pool.query(`
-          INSERT INTO review_history (problem_id, timestamp, quality, rating_before, rating_after, elo_change)
-          VALUES ($1, $2, $3, $4, $5, $6);
-        `, [lastHist.problem_id, lastHist.timestamp, lastHist.quality, lastHist.rating_before, lastHist.rating_after, lastHist.elo_change]);
+          INSERT INTO review_history (problem_id, timestamp, quality, rating_before, rating_after, elo_change, assistance_level)
+          VALUES ($1, $2, $3, $4, $5, $6, $7);
+        `, [lastHist.problem_id, lastHist.timestamp, lastHist.quality, lastHist.rating_before, lastHist.rating_after, lastHist.elo_change, lastHist.assistance_level || 'CLEAN']);
       }
     } catch (err) {
       console.error('Error saving progress to Postgres:', err.message);

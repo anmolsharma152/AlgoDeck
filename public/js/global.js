@@ -223,6 +223,46 @@
                 </nav>
             </header>
         `;
+
+        if (window.location.protocol.startsWith('http')) {
+            fetchDueNudge();
+        }
+    }
+
+    async function fetchDueNudge() {
+        const snoozeUntil = parseInt(localStorage.getItem('algodeck_snooze_until') || '0', 10);
+        if (Date.now() < snoozeUntil) return;
+
+        try {
+            const res = await fetch('/api/problems');
+            if (!res.ok) return;
+            const data = await res.json();
+            const dueCount = (data.problems || []).filter(p => p.is_due).length;
+            
+            if (dueCount > 0) {
+                const nav = document.querySelector('.header-nav');
+                if (nav && !document.getElementById('nav-due-nudge')) {
+                    const pill = document.createElement('a');
+                    pill.id = 'nav-due-nudge';
+                    pill.href = '/playground.html?mode=daily_deck';
+                    pill.className = 'nav-due-pill';
+                    pill.style.cssText = 'background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); padding: 5px 12px; border-radius: 9999px; font-size: 0.8rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;';
+                    pill.innerHTML = `<i class="fa-solid fa-bell"></i> ${dueCount} Due Today <span title="Snooze 24h" onclick="window.snoozeDueNudge(event)" style="margin-left: 4px; opacity: 0.7; cursor: pointer;">&times;</span>`;
+                    nav.insertBefore(pill, nav.firstChild);
+                }
+            }
+        } catch (err) {}
+    }
+
+    window.snoozeDueNudge = function(e) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        localStorage.setItem('algodeck_snooze_until', Date.now() + 86400000);
+        const pill = document.getElementById('nav-due-nudge');
+        if (pill) pill.remove();
+    };
     }
 
     // Expose navbar renderers

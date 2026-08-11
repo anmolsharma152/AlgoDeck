@@ -979,6 +979,8 @@ Terminal logs and assertion output will display here after you run code.
         let isDueOnlyFilterActive = false;
         let activeBoilerplateController = null;
         let currentStarterHash = null;
+        let currentAssistanceLevel = "CLEAN";
+        let isDailyDeckMode = false;
         let draftSavingTimeout = null;
         let currentFontSize = parseInt(localStorage.getItem('algodeck_fontsize') || '14', 10);
         let isWordWrapOn = localStorage.getItem('algodeck_wordwrap') === 'on';
@@ -1273,7 +1275,7 @@ Terminal logs and assertion output will display here after you run code.
             const dueEl = document.getElementById("due-count-val");
             if (dueEl) dueEl.innerText = dueCount;
             
-            // Select requested problem ONLY if target ID is passed in URL query, otherwise render clean empty placeholder
+            // Select requested problem ONLY if target ID or daily_deck mode is passed in URL query
             if (!activeProblem) {
                 const urlParams = new URLSearchParams(window.location.search);
                 const targetId = urlParams.get('id');
@@ -1281,7 +1283,24 @@ Terminal logs and assertion output will display here after you run code.
                 if (targetLang && (targetLang === 'python' || targetLang === 'javascript')) {
                     switchLanguage(targetLang);
                 }
-                if (targetId && problemList.length > 0) {
+                
+                if (urlParams.get('mode') === 'daily_deck') {
+                    isDailyDeckMode = true;
+                    isDueOnlyFilterActive = true;
+                    const dueBtn = document.getElementById("due-filter-btn");
+                    if (dueBtn) {
+                        dueBtn.classList.add("active");
+                        dueBtn.style.background = "rgba(239, 68, 68, 0.25)";
+                        dueBtn.style.borderColor = "rgba(239, 68, 68, 0.5)";
+                        dueBtn.style.color = "#ef4444";
+                    }
+                    const dueProbs = problemList.filter(p => p.is_due);
+                    if (dueProbs.length > 0) {
+                        selectProblem(dueProbs[0]);
+                    } else {
+                        renderEmptyState();
+                    }
+                } else if (targetId && problemList.length > 0) {
                     const normTarget = targetId.toLowerCase().replace(/[^a-z0-9]/g, '');
                     const targetProb = problemList.find(p => 
                         p.id === targetId || 
@@ -1545,6 +1564,7 @@ Terminal logs and assertion output will display here after you run code.
         async function selectProblem(problem) {
             if (!problem) return;
             activeProblem = problem;
+            currentAssistanceLevel = "CLEAN";
             if (problem.pattern) {
                 collapsedGroups[problem.pattern] = false; // ensure pattern group stays expanded
             }
@@ -1743,6 +1763,7 @@ Terminal logs and assertion output will display here after you run code.
         // Reveal Solution
         function revealSolution() {
             if (confirm("Reveal reference solution? Try to solve the problem yourself first!")) {
+                currentAssistanceLevel = "SOLUTION_REVEALED";
                 const overlay = document.getElementById("solution-lock-overlay");
                 if (overlay) {
                     overlay.style.display = "none";
@@ -1880,11 +1901,16 @@ Terminal logs and assertion output will display here after you run code.
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         problem_id: activeProblem.id,
-                        quality: quality
+                        quality: quality,
+                        assistance_level: currentAssistanceLevel
                     })
                 });
 
                 const data = await response.json();
+
+                // Mutate local activeProblem memory to prevent stale SR badges
+                activeProblem.repetitions = (activeProblem.repetitions || 0) + 1;
+                activeProblem.is_due = false;
 
                 // Clear current draft upon successful complete rating >= 4
                 if (quality >= 4) {
@@ -1902,13 +1928,27 @@ Terminal logs and assertion output will display here after you run code.
                 terminal.innerText = `
 Submission Logged Successfully!
 ------------------------------------
-Spaced Repetition: Scheduled next review in ${data.interval} days (${nextDateStr}).
+Spaced Repetition: Scheduled next review in ${data.interval || '---'} days (${nextDateStr}).
+Assistance Level:  ${data.assistance_level || currentAssistanceLevel}.
 ELO Rating Change: ${sign}${data.elo_change} ELO.
 New ELO Rating:    ${data.user_rating} ELO.
                 `.trim();
 
                 // Refresh ELO counts and lists
-                fetchProblems();
+                await fetchProblems();
+
+                // If Daily Deck Mode is active, auto-advance to next due item
+                if (isDailyDeckMode && allCatalogProblems.length > 0) {
+                    const remainingDue = allCatalogProblems.filter(p => p.is_due && p.id !== activeProblem.id);
+                    if (remainingDue.length > 0) {
+                        terminal.innerText += `\n\n🔥 Daily Deck Queue: Loading next due problem (${remainingDue.length} remaining)...`;
+                        setTimeout(() => {
+                            selectProblem(remainingDue[0]);
+                        }, 1200);
+                    } else {
+                        terminal.innerText += "\n\n🎉 Daily Deck Complete! All due reviews finished for today!";
+                    }
+                }
             } catch (err) {
                 alert(`Submission error: ${err}`);
             }
