@@ -71,11 +71,27 @@ function extractPythonBoilerplate(codeContent) {
         }
 
         if (stripped.startsWith("def ")) {
-            output.push(line);
-            
-            let placeholderIndent = currentIndent === 0 ? "    " : "        ";
-            output.push(`${placeholderIndent}# Write your code here`);
-            output.push(`${placeholderIndent}pass`);
+            if (currentIndent === 0) {
+                // Wrap standalone function in class Solution:
+                output.push("class Solution:");
+                // Add self as first parameter
+                const defMatch = stripped.match(/^def\s+(\w+)\(([^)]*)\)/);
+                if (defMatch) {
+                    const funcName = defMatch[1];
+                    const params = defMatch[2].trim();
+                    const returnType = stripped.includes('->') ? stripped.substring(stripped.indexOf('->')) : ':';
+                    const newParams = params ? `self, ${params}` : 'self';
+                    output.push(`    def ${funcName}(${newParams}) ${returnType}`);
+                } else {
+                    output.push("    " + line);
+                }
+                output.push("        ");
+            } else {
+                // Already inside a class — keep as-is with empty body
+                output.push(line);
+                let bodyIndent = " ".repeat(currentIndent + 4);
+                output.push(bodyIndent);
+            }
 
             i++;
             while (i < lines.length) {
