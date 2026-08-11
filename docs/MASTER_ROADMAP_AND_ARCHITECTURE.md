@@ -1,6 +1,6 @@
 # 🎯 AlgoDeck — Master Architecture, Expansion Roadmap & Hardening Blueprint
 
-This document serves as the **authoritative master plan** for **AlgoDeck**. It consolidates all past architectural modernization efforts, current system audit findings, UX gaps, and future phase expansion plans into a single, comprehensive reference document.
+This document serves as the **authoritative master plan** for **AlgoDeck**. It consolidates all past architectural modernization efforts, system audit findings, UX gap analyses, and refined multi-phase expansion specifications into a single reference document.
 
 ---
 
@@ -34,9 +34,9 @@ This document serves as the **authoritative master plan** for **AlgoDeck**. It c
 
 ---
 
-## 🛡️ Phase 1 Summary: Hardening & Consistency Checklist
+## 🛡️ Phase 1 Summary: Hardening, Refactor & Consistency Checklist
 
-Before expanding to Phase 2 (Polyglot Execution) and Phase 3 (Multi-tenant Auth), the following stability, consistency, and state-management issues must be addressed in Phase 1:
+Before expanding to Phase 2 (Polyglot Execution & Sandbox Cgroups) and Phase 3 (Multi-tenant Auth), the following stability, consistency, data-sync, and architectural refactoring items must be addressed in Phase 1:
 
 ### 1. UX & Branding Consistency
 - **Issue**: Page titles lack brand identity (`<title>Home Page</title>`, `<title>Coding Playground</title>`). Users opening multiple browser tabs cannot distinguish AlgoDeck pages.
@@ -54,28 +54,35 @@ Before expanding to Phase 2 (Polyglot Execution) and Phase 3 (Multi-tenant Auth)
 - **Issue B: Stale Reference Solution Cache**: Clicking "Reveal Solution" on Problem B while Problem A's text is still present in `solutionEditor` prevents fetching Problem B's solution.
   - *Solution*: Execute `solutionEditor.setValue("")` immediately upon `selectProblem()`.
 
-### 3. Data Sync & Cache Lifetime
+### 3. Data Sync & Draft Cache Versioning (`starterHash`)
 - **Issue A: Spaced Repetition UI Sync**: Submitting a performance rating updates the DB/JSON file, but local `activeProblem` memory in `editor.html` is not mutated, causing the SR badge to show stale dates until page reload.
   - *Solution*: Instantly mutate local `activeProblem` fields (`next_review`, `interval`) upon `/api/submit` response.
-- **Issue B: Draft Cache Versioning**: User drafts stored in `localStorage` lack schema versioning.
-  - *Solution*: Upgrade draft keys to `v2_draft_<problem_id>_<lang>` so catalog updates auto-purge obsolete drafts.
+- **Issue B: `starterHash` Draft Versioning**: Relying on client-side regex matching to purge stale drafts is brittle when starter code signatures are updated in `content/`.
+  - *Solution*: Attach a 32-bit `starterHash` to `localStorage` entries (`{ starterHash: "a1b2c3", userCode: "..." }`). If `starterHash` mismatches the current server starter stub, display an un-intrusive notification offering to load the fresh stub or keep the local draft.
 - **Issue C: Scratch Cleanup**: Node crashes during `/api/run` can leave orphan temporary files in `server/scratch/`.
-  - *Solution*: Add a 3-line startup directory sweep in `server.js` to unlink `_temp_run_*` files older than 1 hour.
+  - *Solution*: Add a 3-line startup directory sweep in `server.js` to unlink `_temp_run_*` files older than 1 hour on server boot.
+
+### 4. Modular Backend Refactoring
+- **Issue**: `server/server.js` (~750 lines) combines Express routing, AST parsing, subprocess execution, path security validation, and static serving in a single file.
+- **Fix**: Modularize `server/server.js` into focused, single-responsibility modules:
+  - `server/lib/parser.js` — AST boilerplate & test harness extraction logic.
+  - `server/lib/sandbox.js` — Subprocess execution runner & scratch file lifecycle.
+  - `server/lib/security.js` — Path traversal shield & sliding-window rate limiter.
 
 ---
 
-## 🚀 Phase Expansion Roadmap (Phases 1, 2 & 3)
+## 🚀 Refined Phase Expansion Roadmap (Phases 1, 2 & 3)
 
 ```mermaid
 flowchart TD
-    subgraph P1["Phase 1: Behavioral Nudges, Tracker & Hardening"]
-        P1A["1A. Active Spaced Repetition Nudge Engine\n(Global Due Banner & Daily Deck Mode)"]
-        P1B["1B. 5-Tier Problem Activity Tracker\n(State Spectrum & Assistance Analytics Matrix)"]
-        P1C["1C. Hardening & Route Standardization\n(AbortController, Clean Titles, /playground route)"]
+    subgraph P1["Phase 1: Hardening, Nudges, Tracker & Modular Refactor"]
+        P1A["1A. Active Behavioral Nudges\n(Header Status Pill & Daily Deck Queue)"]
+        P1B["1B. 5-Tier Activity Matrix & Decoupled SM-2\n(Assistance Level Enum & Dashboard Matrix)"]
+        P1C["1C. Technical Hardening & Modular Architecture\n(starterHash, AbortController, Due Filter, server/lib/*)"]
     end
 
-    subgraph P2["Phase 2: Polyglot Sandboxing & Security"]
-        P2A["2A. gVisor / Docker Isolation Engine\n(Strict Cgroups, Non-root execution)"]
+    subgraph P2["Phase 2: Polyglot Sandboxing & Cgroups Quotas"]
+        P2A["2A. gVisor / Docker Isolation Engine\n(Strict Cgroups: 128MB RAM, 0.5 CPU, 64 PIDs)"]
         P2B["2B. Polyglot Language Runners\n(Add C++, Java, Go execution harnesses)"]
     end
 
@@ -89,20 +96,23 @@ flowchart TD
 
 ---
 
-### Phase 1A: Active Spaced Repetition Nudge Engine & "Daily Deck Queue"
+### Phase 1A: Active Behavioral Nudges & "Daily Deck Queue"
 
-#### 1. Global Daily Review Nudge Banner
-- Query `is_due` status across all problems on app initialization.
-- If `is_due` count $> 0$, display a sleek glassmorphism banner:
-  > **🔔 3 Problems Due for Review Today!** `[Start Daily Deck (3 Due) →]`
+#### 1. Integrated Header Status Pill & 24h Snooze
+- On page load (`dashboard.html` or `editor.html`), query due status (`is_due`).
+- If `is_due` count > 0, render an un-intrusive status pill in the navbar header:
+  > `🔔 3 Due Today [Start Session →]`
+- Include a 24-hour "Snooze Review Notifications" toggle saved in `sessionStorage` to prevent notification fatigue while browsing docs or roadmap pages.
 
 #### 2. Dedicated "Daily Deck" Review Mode (`/editor.html?mode=daily_deck`)
 - Automatically loads due problems in sequence.
-- After submitting a passing solution and rating quality (0–5), auto-advances to the next due problem in the queue.
+- After submitting a passing solution and rating quality (q = 0..5), auto-advances to the next due problem in the queue.
 - Includes pre-session SM-2 confidence prompting (*"How confident are you with this pattern?"*).
 
-#### 3. Assistance Penalty Tagging
-- If a user unlocks the **Reference Solution** or views **Complexity Hints**, the SM-2 quality score is capped at **3 ("Passed with Difficulty")** to prevent false mastery ratings.
+#### 3. Decoupled Recall Math vs. Assistance Level Enum
+- **Mathematical Decoupling**: Keep raw SuperMemo-2 quality scores (q = 0..5) unconstrained for interval calculations (I_n = I_{n-1} × EF), preserving natural exponential memory decay curves.
+- **Assistance Metadata Tagging**: Store `assistance_level` (`CLEAN`, `HINT_USED`, `SOLUTION_REVEALED`) as an independent column in PostgreSQL/JSON storage.
+- **Dashboard Representation**: Mark assisted runs as `🔓 Assisted Pass` without corrupting the underlying EF growth equations.
 
 ---
 
@@ -113,9 +123,9 @@ Add a dedicated **Problem Activity Matrix** inside `dashboard.html`:
 #### 1. The 5-Tier Interaction Spectrum
 1. ⚪ **Unseen**: Never opened or attempted.
 2. 🟡 **Attempted**: Opened or code typed, but tests not yet passed.
-3. 🟢 **Clean Pass**: 100% tests passed **without** revealing hints/solution.
-4. 🔓 **Assisted Pass**: 100% tests passed, but Reference Solution or Hints were viewed.
-5. 🌟 **Mastered**: 3+ consecutive successful reviews with SM-2 Quality $\ge 4$.
+3. 🟢 **Clean Pass**: 100% tests passed **without** revealing hints/solution (`assistance_level = CLEAN`).
+4. 🔓 **Assisted Pass**: 100% tests passed, but Reference Solution or Hints were viewed (`assistance_level = HINT_USED | SOLUTION_REVEALED`).
+5. 🌟 **Mastered**: 3+ consecutive successful reviews with SM-2 Quality q >= 4.
 
 #### 2. Activity Matrix Table
 Filterable, searchable table detailing:
@@ -129,8 +139,8 @@ Filterable, searchable table detailing:
 ---
 
 ### Phase 2: Polyglot Sandboxing & Security Hardening
-- **gVisor / Docker Container Execution**:
-  - Wrap `/api/run` in isolated ephemeral containers with strict memory limits (`128MB`), CPU quota (`0.5 cores`), and disabled network access (`--network none`).
+- **gVisor / Docker Cgroups Execution**:
+  - Wrap `/api/run` in isolated ephemeral containers with strict resource controls: memory limit (`128MB`), CPU quota (`0.5 cores`), PID limit (`64`), and disabled networking (`--network none`).
 - **Language Expansion**:
   - Add C++ (`g++`), Java (`openjdk`), and Go (`go run`) execution harnesses alongside Python and JavaScript.
 
@@ -145,15 +155,17 @@ Filterable, searchable table detailing:
 
 ---
 
-## 📝 Task & Solution Reference Matrix
+## 📝 Refined Task & Solution Reference Matrix
 
-| ID | Module | Issue / Feature | Proposed Technical Solution | Targeted File(s) |
+| ID | Module | Issue / Feature | Refined Technical Solution | Targeted File(s) |
 | :---: | :--- | :--- | :--- | :--- |
 | **T-101** | UX/Nav | Missing explicit "Due Filter" button | Add `[ 🔔 Due Only ]` toggle button in sidebar & dashboard filter bars. | `public/editor.html`<br>`public/dashboard.html` |
-| **T-102** | UX/Nav | Generic document `<title>` tags | Update all HTML `<title>` tags with brand prefix `AlgoDeck \| <Page>`. | All `.html` files |
-| **T-103** | Server | No clean route aliases | Add `app.get('/playground')` and `app.get('/editor')` route handlers in server. | `server/server.js` |
+| **T-102** | UX/Nav | Generic document `<title>` tags | Update all HTML `<title>` tags with brand prefix `AlgoDeck \| <Page>`. | All `.html` files in `public/` |
+| **T-103** | Server | No clean route aliases | Add `app.get('/playground')`, `/editor`, `/dashboard` route handlers. | `server/server.js` |
 | **T-104** | Editor | Fetch race condition during rapid switch | Implement `AbortController` for `/api/boilerplate` fetch promises. | `public/editor.html` |
 | **T-105** | Editor | Solution editor stale cache leak | Add `solutionEditor.setValue("")` to `selectProblem()`. | `public/editor.html` |
-| **T-106** | SR Engine | Lack of proactive behavioral nudges | Implement Global Due Review Banner & `daily_deck` queue mode. | `public/global.js`<br>`public/editor.html` |
-| **T-107** | Dashboard | Lack of granular attempt tracking | Implement 5-Tier Problem Activity Matrix table with assistance flags. | `public/dashboard.html`<br>`server/server.js` |
-| **T-108** | Sandbox | Orphan scratch file accumulation | Add startup cleanup sweep for `server/scratch/_temp_run_*` files. | `server/server.js` |
+| **T-106** | SR Engine | Proactive behavioral nudges | Integrated navbar status pill `🔔 3 Due Today`, 24h snooze, & `daily_deck` queue mode. | `public/js/global.js`<br>`public/editor.html` |
+| **T-107** | Dashboard | Granular attempt & assistance tracking | 5-Tier Activity Matrix with decoupled `assistance_level` enum (`CLEAN`, `HINT_USED`, `SOLUTION_REVEALED`). | `public/dashboard.html`<br>`server/server.js`<br>`server/db.js` |
+| **T-108** | Sandbox | Orphan scratch file accumulation | Add startup cleanup sweep for `server/scratch/_temp_run_*` files older than 1h. | `server/server.js` |
+| **T-109** | Draft Cache | Brittle regex draft purging | Attach 32-bit `starterHash` to `localStorage` keys for clean stub synchronization. | `public/editor.html`<br>`server/server.js` |
+| **T-110** | Backend Arch| Monolithic `server.js` structure | Modularize `server.js` into `server/lib/parser.js`, `sandbox.js`, and `security.js`. | `server/server.js`<br>`server/lib/*` |
