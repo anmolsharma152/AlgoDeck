@@ -581,11 +581,7 @@
                         <i class="fa-solid fa-rotate" style="font-size: 1.5rem; color: #ffffff;"></i>
                     </div>
                 </div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <button onclick="cycleDevAvatar(-1)" title="Previous Image" style="background: rgba(255,255,255,0.08); border: 1px solid var(--border); color: var(--text-muted); width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.75rem;"><i class="fa-solid fa-chevron-left"></i></button>
-                    <div id="avatar-dots" style="display: flex; gap: 5px;"></div>
-                    <button onclick="cycleDevAvatar(1)" title="Next Image" style="background: rgba(255,255,255,0.08); border: 1px solid var(--border); color: var(--text-muted); width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.75rem;"><i class="fa-solid fa-chevron-right"></i></button>
-                </div>
+
                 <div id="avatar-label-badge" style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600; font-family: 'Fira Code', monospace; background: rgba(255,255,255,0.05); padding: 3px 10px; border-radius: 9999px; border: 1px solid var(--border);"></div>
             </div>
             <div class="dev-info">
@@ -613,14 +609,13 @@
     <script>
         (function() {
             const DEV_AVATARS = [
-                { src: '/images/new_images/IMG_20251208_174224_141.jpg', label: 'Studio HD Photo (1/8)' },
-                { src: '/images/new_images/my-notion-face-transparent.png', label: 'Notion Vector Portrait (2/8)' },
-                { src: '/images/new_images/Anmol.jpg', label: 'Anmol Sharma (3/8)' },
-                { src: '/images/new_images/headshot.jpg', label: 'Executive Headshot (4/8)' },
-                { src: '/images/new_images/my-notion-face-portrait.png', label: 'Notion Portrait (5/8)' },
-                { src: '/images/new_images/IMG_792.jpg', label: 'Developer Portrait (6/8)' },
-                { src: '/images/new_images/ChatGPT Image Apr 7, 2025, 12_17_20 PM.png', label: 'Neon Workstation AI (7/8)' },
-                { src: '/images/developer_profile.jpg', label: 'AlgoDeck Core Avatar (8/8)' }
+                { src: '/images/new_images/IMG_20251208_174224_141.jpg', label: 'Studio HD Photo (1/7)' },
+                { src: '/images/new_images/my-notion-face-transparent.png', label: 'Notion Vector Portrait (2/7)' },
+                { src: '/images/new_images/Anmol.jpg', label: 'Anmol Sharma (3/7)' },
+                { src: '/images/new_images/headshot.jpg', label: 'Executive Headshot (4/7)' },
+                { src: '/images/new_images/my-notion-face-portrait.png', label: 'Notion Portrait (5/7)' },
+                { src: '/images/new_images/ChatGPT Image Apr 7, 2025, 12_17_20 PM.png', label: 'Neon Workstation AI (6/7)' },
+                { src: '/images/developer_profile.jpg', label: 'AlgoDeck Core Avatar (7/7)' }
             ];
 
             let currentIndex = parseInt(localStorage.getItem('algodeck_avatar_idx') || '0', 10);
@@ -631,7 +626,6 @@
             function renderDevAvatar() {
                 const img = document.getElementById('dev-profile-img');
                 const label = document.getElementById('avatar-label-badge');
-                const dotsContainer = document.getElementById('avatar-dots');
                 if (!img || !label) return;
 
                 const item = DEV_AVATARS[currentIndex];
@@ -642,12 +636,6 @@
                 }, 120);
 
                 label.innerText = item.label;
-
-                if (dotsContainer) {
-                    dotsContainer.innerHTML = DEV_AVATARS.map((_, idx) => `
-                        <span onclick="setDevAvatar(${idx})" title="${DEV_AVATARS[idx].label}" style="width: ${idx === currentIndex ? '14px' : '6px'}; height: 6px; border-radius: 9999px; background: ${idx === currentIndex ? 'var(--primary)' : 'rgba(255,255,255,0.2)'}; cursor: pointer; transition: all 0.3s ease; display: inline-block;"></span>
-                    `).join('');
-                }
 
                 localStorage.setItem('algodeck_avatar_idx', currentIndex);
             }

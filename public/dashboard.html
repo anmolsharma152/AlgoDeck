@@ -563,7 +563,7 @@
         card.innerHTML = `
           <div>
             <div class="problem-header">
-              <input type="checkbox" class="problem-checkbox" data-id="${p.id}" ${isSolved ? 'checked' : ''} onchange="toggleSolved('${p.id}')">
+              ${isSolved ? '<span class="solved-badge" data-id="${p.id}" title="Solved"><i class="fa-solid fa-circle-check" style="color: var(--accent-green); font-size: 1.1rem;"></i></span>' : '<span class="unsolved-badge" data-id="${p.id}" title="Not yet solved"><i class="fa-regular fa-circle" style="color: var(--text-muted); font-size: 1.1rem; opacity: 0.4;"></i></span>'}
               <div class="problem-title-area">
                 <a href="${playgroundUrl}?id=${p.id}" class="problem-title">${p.title}</a>
                 <div class="problem-tags">
