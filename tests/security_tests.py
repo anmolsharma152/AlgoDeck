@@ -164,8 +164,27 @@ if os.path.exists(dash_path):
 else:
     print("  ❌ FAILED: dashboard.html file not found!")
 
-# 6. Rate Limiter Test (MUST RUN LAST)
-print("\n6️⃣ Testing API Rate Limiter (/api/run)...")
+# 6. Monaco Editor Local Vendoring & Synchronization Audit
+print("\n6️⃣ Testing Monaco Editor Local Vendoring & Synchronization Guard...")
+monaco_audit_passed = False
+editor_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "public", "editor.html"))
+if os.path.exists(editor_path):
+    with open(editor_path, "r", encoding="utf-8") as f:
+        editor_src = f.read()
+    has_local_loader = "/vendor/monaco-editor/vs/loader.js" in editor_src or "./vendor/monaco-editor/vs/loader.js" in editor_src
+    has_no_cdn = "cdnjs.cloudflare.com/ajax/libs/monaco-editor" not in editor_src
+    has_sync_state = "isMonacoReady" in editor_src and "pendingProblemToSelect" in editor_src
+
+    if has_local_loader and has_no_cdn and has_sync_state:
+        print("  [PASS] editor.html loads Monaco from local /vendor directory, contains 0 CDN links, and synchronizes selection state!")
+        monaco_audit_passed = True
+    else:
+        print(f"  ❌ FAILED: editor.html static audit failed (local_loader={has_local_loader}, no_cdn={has_no_cdn}, sync_state={has_sync_state})")
+else:
+    print("  ❌ FAILED: editor.html file not found!")
+
+# 7. Rate Limiter Test (MUST RUN LAST)
+print("\n7️⃣ Testing API Rate Limiter (/api/run)...")
 fast_code_data = json.dumps({"code": "print('ok')", "language": "python"}).encode('utf-8')
 rate_limit_passed = False
 req_count = 0
@@ -188,7 +207,7 @@ if not rate_limit_passed and req_count > 0:
     rate_limit_passed = True
 
 print("\n--------------------------------------------------")
-if path_traversal_passed and timeout_passed and rate_limit_passed and symlink_passed and docs_audit_passed and dash_audit_passed:
+if path_traversal_passed and timeout_passed and rate_limit_passed and symlink_passed and docs_audit_passed and dash_audit_passed and monaco_audit_passed:
     print("✅ Security & Vulnerability Test Suite Passed (100% Secure)!")
     sys.exit(0)
 else:

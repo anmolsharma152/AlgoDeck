@@ -523,6 +523,9 @@ app.post('/api/submit', async (req, res) => {
     });
 });
 
+// Long-term static caching for vendored JS/CSS libraries (Monaco, Marked, DOMPurify)
+app.use('/vendor', express.static(path.join(PUBLIC_DIR, 'vendor'), { maxAge: '30d' }));
+
 // Allow long-term caching for favicons so browser bookmark managers store the icon
 const faviconFiles = ['/favicon.ico', '/favicon.svg', '/favicon-32x32.png', '/favicon-16x16.png', '/apple-touch-icon.png'];
 faviconFiles.forEach(file => {

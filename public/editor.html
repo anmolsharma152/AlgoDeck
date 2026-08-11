@@ -17,8 +17,8 @@
     <link rel="stylesheet" href="/css/global.css?v=5.0">
     <script src="/js/global.js?v=5.0" defer></script>
     <script src="/js/tracker.js"></script>
-    <!-- Monaco Editor Loader -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.39.0/min/vs/loader.min.js"></script>
+    <!-- Monaco Editor Loader (Vendored Locally for 100% Offline Capability) -->
+    <script src="/vendor/monaco-editor/vs/loader.js"></script>
 
     <style>
 
@@ -930,8 +930,13 @@ Terminal logs and assertion output will display here after you run code.
         let currentFontSize = parseInt(localStorage.getItem('algodeck_fontsize') || '14', 10);
         let isWordWrapOn = localStorage.getItem('algodeck_wordwrap') === 'on';
 
-        // Initialize Monaco Editors
-        require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.39.0/min/vs' } });
+        let isMonacoReady = false;
+        let pendingProblemToSelect = null;
+        let pendingSolutionCode = null;
+
+        // Initialize Monaco Editors (Using Local Vendored Path for 100% Offline Capability)
+        const monacoVsPath = window.location.protocol === 'file:' ? './vendor/monaco-editor/vs' : '/vendor/monaco-editor/vs';
+        require.config({ paths: { vs: monacoVsPath } });
         require(['vs/editor/editor.main'], function () {
             const currentMonacoTheme = (localStorage.getItem('algodeck_theme') === 'light') ? 'vs' : 'vs-dark';
             
@@ -953,7 +958,10 @@ Terminal logs and assertion output will display here after you run code.
                 bracketPairColorization: { enabled: true },
                 guides: { indentation: true, bracketPairs: true },
                 folding: true,
-                showFoldingControls: 'always'
+                showFoldingControls: 'always',
+                quickSuggestions: false,
+                suggestOnTriggerCharacters: false,
+                snippetSuggestions: 'none'
             });
 
             // Solution display editor (read-only)
@@ -988,6 +996,24 @@ Terminal logs and assertion output will display here after you run code.
             // Sync Wrap Button Active UI state
             const wrapBtn = document.getElementById('btn-word-wrap');
             if (wrapBtn) wrapBtn.classList.toggle('active', isWordWrapOn);
+
+            isMonacoReady = true;
+
+            // Apply pending solution if it arrived before Monaco finished loading
+            if (pendingSolutionCode && solutionEditor) {
+                solutionEditor.setValue(pendingSolutionCode);
+                monaco.editor.setModelLanguage(solutionEditor.getModel(), activeLanguage);
+                pendingSolutionCode = null;
+            }
+
+            // Synchronize problem selection if fetch completed before Monaco was ready
+            if (activeProblem) {
+                selectProblem(activeProblem);
+            } else if (pendingProblemToSelect) {
+                const target = pendingProblemToSelect;
+                pendingProblemToSelect = null;
+                selectProblem(target);
+            }
         });
 
         // Trigger problem catalog fetch immediately on DOM load
@@ -1503,53 +1529,57 @@ Terminal logs and assertion output will display here after you run code.
 
             // Fetch boilerplate starter code
             const filePath = activeLanguage === "python" ? problem.pythonPath : problem.jsPath;
-            try {
-                // Read from LocalStorage draft if exists
-                const draftKey = `draft_${problem.id}_${activeLanguage}`;
-                let savedDraft = localStorage.getItem(draftKey);
 
-                // Discard invalid drafts (like 404 HTML error pages or server error strings cached from previous bugs)
-                if (savedDraft && (savedDraft.includes("<!DOCTYPE") || savedDraft.includes("Error response") || savedDraft.includes("Error code: 404") || savedDraft.includes("Error processing file") || savedDraft.includes("is not a function"))) {
-                    localStorage.removeItem(draftKey);
-                    savedDraft = null;
-                }
+            if (!isMonacoReady || !monacoEditor) {
+                pendingProblemToSelect = problem;
+            } else {
+                try {
+                    // Read from LocalStorage draft if exists
+                    const draftKey = `draft_${problem.id}_${activeLanguage}`;
+                    let savedDraft = localStorage.getItem(draftKey);
 
-                if (savedDraft) {
-                    monacoEditor.setValue(savedDraft);
-                    // Extract docstring dynamically from boilerplate to display on left
-                    fetchBoilerplateDocstring(filePath);
-                } else {
-                    const response = await fetch(`${API_BASE}/api/boilerplate?path=${encodeURIComponent(filePath)}`);
-                    const code = await response.text();
-                    monacoEditor.setValue(code);
-                    
-                    // Parse and display docstring/comment in left pane
-                    if (problem.description) {
-                        document.getElementById("doc-desc").innerHTML = problem.description;
-                    } else {
-                        extractDescriptionFromBoilerplate(code);
+                    // Discard invalid drafts (like 404 HTML error pages or server error strings cached from previous bugs)
+                    if (savedDraft && (savedDraft.includes("<!DOCTYPE") || savedDraft.includes("Error response") || savedDraft.includes("Error code: 404") || savedDraft.includes("Error processing file") || savedDraft.includes("is not a function"))) {
+                        localStorage.removeItem(draftKey);
+                        savedDraft = null;
                     }
-                }
 
-                // Fetch reference solution for side-tab
-                fetchReferenceSolution(filePath);
-                
-                // Hide solution by default (reset lock)
-                const overlay = document.getElementById("solution-lock-overlay");
-                if (overlay) {
-                    overlay.style.display = "flex";
+                    if (savedDraft) {
+                        monacoEditor.setValue(savedDraft);
+                        fetchBoilerplateDocstring(filePath);
+                    } else {
+                        const response = await fetch(`${API_BASE}/api/boilerplate?path=${encodeURIComponent(filePath)}`);
+                        if (response.ok) {
+                            const code = await response.text();
+                            monacoEditor.setValue(code);
+                            if (!problem.description) {
+                                extractDescriptionFromBoilerplate(code);
+                            }
+                        }
+                    }
+                    if (window.monaco && monacoEditor.getModel()) {
+                        monaco.editor.setModelLanguage(monacoEditor.getModel(), activeLanguage);
+                    }
+                } catch (err) {
+                    console.error("Failed to load boilerplate into Monaco:", err);
                 }
-                
-                // Clear console
-                const terminal = document.getElementById("terminal-body");
+            }
+
+            // Fetch reference solution for side-tab (decoupled from main editor readiness)
+            fetchReferenceSolution(filePath);
+
+            // Hide solution by default (reset lock)
+            const overlay = document.getElementById("solution-lock-overlay");
+            if (overlay) {
+                overlay.style.display = "flex";
+            }
+            
+            // Clear console
+            const terminal = document.getElementById("terminal-body");
+            if (terminal) {
                 terminal.className = "terminal-body";
                 terminal.innerText = "Console cleared. Code loaded successfully.";
                 document.getElementById("term-status").innerText = "Ready";
-
-                // Ensure Monaco highlights correctly
-                monaco.editor.setModelLanguage(monacoEditor.getModel(), activeLanguage);
-            } catch (err) {
-                console.error("Failed to load boilerplate:", err);
             }
         }
 
@@ -1561,8 +1591,10 @@ Terminal logs and assertion output will display here after you run code.
             }
             try {
                 const response = await fetch(`${API_BASE}/api/boilerplate?path=${encodeURIComponent(filePath)}`);
-                const code = await response.text();
-                extractDescriptionFromBoilerplate(code);
+                if (response.ok) {
+                    const code = await response.text();
+                    extractDescriptionFromBoilerplate(code);
+                }
             } catch (err) {}
         }
 
@@ -1598,6 +1630,12 @@ Terminal logs and assertion output will display here after you run code.
                 if (overlay) {
                     overlay.style.display = "none";
                 }
+                if (activeProblem) {
+                    const filePath = activeLanguage === "python" ? activeProblem.pythonPath : activeProblem.jsPath;
+                    if (!solutionEditor || solutionEditor.getValue() === "// Solution will load here." || !solutionEditor.getValue().trim()) {
+                        fetchReferenceSolution(filePath);
+                    }
+                }
                 if (solutionEditor) {
                     solutionEditor.layout();
                 }
@@ -1606,13 +1644,24 @@ Terminal logs and assertion output will display here after you run code.
 
         // Fetch Reference Solution
         async function fetchReferenceSolution(filePath) {
+            if (!filePath) return;
             try {
                 const response = await fetch(`${API_BASE}/api/solution?path=${encodeURIComponent(filePath)}`);
-                const code = await response.text();
-                solutionEditor.setValue(code);
-                monaco.editor.setModelLanguage(solutionEditor.getModel(), activeLanguage);
+                if (response.ok) {
+                    const code = await response.text();
+                    if (solutionEditor) {
+                        solutionEditor.setValue(code);
+                        if (window.monaco && solutionEditor.getModel()) {
+                            monaco.editor.setModelLanguage(solutionEditor.getModel(), activeLanguage);
+                        }
+                    } else {
+                        pendingSolutionCode = code;
+                    }
+                } else {
+                    if (solutionEditor) solutionEditor.setValue("// Solution not found for this problem.");
+                }
             } catch (err) {
-                solutionEditor.setValue("// Solution not found.");
+                if (solutionEditor) solutionEditor.setValue("// Solution load error: " + err.message);
             }
         }
 
