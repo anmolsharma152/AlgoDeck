@@ -1582,8 +1582,18 @@ Terminal logs and assertion output will display here after you run code.
                     const draftKey = `draft_${problem.id}_${activeLanguage}`;
                     let savedDraft = localStorage.getItem(draftKey);
 
-                    // Discard invalid drafts (like 404 HTML error pages or server error strings cached from previous bugs)
-                    if (savedDraft && (savedDraft.includes("<!DOCTYPE") || savedDraft.includes("Error response") || savedDraft.includes("Error code: 404") || savedDraft.includes("Error processing file") || savedDraft.includes("is not a function"))) {
+                    // Discard invalid or legacy drafts (e.g. error pages, or old un-modernized docstrings/test blocks)
+                    if (savedDraft && (
+                        savedDraft.includes("<!DOCTYPE") || 
+                        savedDraft.includes("Error response") || 
+                        savedDraft.includes("Error code: 404") || 
+                        savedDraft.includes("Error processing file") || 
+                        savedDraft.includes("is not a function") ||
+                        savedDraft.includes('if __name__ == "__main__":') ||
+                        savedDraft.includes('if (require.main === module)') ||
+                        savedDraft.includes('Time Complexity:') ||
+                        savedDraft.includes('Space Complexity:')
+                    )) {
                         localStorage.removeItem(draftKey);
                         savedDraft = null;
                     }
