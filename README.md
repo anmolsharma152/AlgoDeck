@@ -32,7 +32,8 @@
 2. **☁️ Multi-Tenant Cloud SaaS (Roadmap Phase 2 & 3)**: Cloud-hosted architecture incorporating gVisor container sandboxing, multi-tenant JWT user authentication, and managed PostgreSQL storage (see [`docs/MASTER_ROADMAP_AND_ARCHITECTURE.md`](file:///home/anmol/Projects/AlgoDeck/docs/MASTER_ROADMAP_AND_ARCHITECTURE.md)).
 
 ### ⚙️ Environment Variables & Deployment Configuration
-- `PORT`: Server listening port (default: `3000`).
+- `PORT`: Internal Node.js server listening port inside the container (default: `3000`).
+- `HOST_PORT`: Exposed host machine port mapped via Docker Compose (default: `3095` -> `http://localhost:3095`).
 - `TRUST_PROXY`: Configures Express proxy IP trust evaluation (default: `loopback` / `false` for bare local runs; set to explicit proxy IP or bridge subnet e.g. `loopback,172.18.0.0/16` when deployed behind reverse proxies like Caddy).
 - `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`: PostgreSQL connection credentials (falls back to local `progress.json` if unconfigured).
 
@@ -45,7 +46,7 @@
 ```mermaid
 graph TD
     User["🌐 Browser Client (Monaco IDE & Dashboard)"] -->|HTTP http://localhost:3095 or HTTPS| Proxy["🛡️ Reverse Proxy / Host Port 3095"]
-    Proxy -->|Container Forwarding :3000| Server["⚡ Node.js Express App Server"]
+    Proxy -->|Container Forwarding 127.0.0.1:3095 -> :3000| Server["⚡ Node.js Express App Server (Internal Container Port 3000)"]
     
     subgraph AppServer ["Express App Microservices"]
         Server -->|Subprocess Exec| Sandbox["🔒 Isolated Code Execution Sandbox"]

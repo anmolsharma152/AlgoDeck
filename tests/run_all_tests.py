@@ -18,14 +18,22 @@ test_scripts = [
 import urllib.request
 import time
 
-# Ensure Node server is running on port 3000 for network tests
+# Ensure Node server is running for network tests (check 3095 or 3000)
 server_proc = None
-try:
-    urllib.request.urlopen("http://localhost:3000/api/problems", timeout=1)
-except Exception:
+test_port = "3000"
+for port in ["3095", "3000"]:
+    try:
+        urllib.request.urlopen(f"http://localhost:{port}/api/problems", timeout=1)
+        test_port = port
+        os.environ["TEST_BASE_URL"] = f"http://localhost:{port}"
+        break
+    except Exception:
+        pass
+else:
     print("⚡ Starting temporary Node server on port 3000 for test suite...")
     env = dict(os.environ)
     env["PORT"] = "3000"
+    os.environ["TEST_BASE_URL"] = "http://localhost:3000"
     server_proc = subprocess.Popen([sys.executable, "-c", "import subprocess; subprocess.run(['node', 'server/server.js'])"], cwd=BASE_DIR, env=env)
     time.sleep(2)
 

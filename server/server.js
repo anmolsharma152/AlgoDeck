@@ -297,6 +297,7 @@ app.use(express.static(PUBLIC_DIR));
 app.use(express.static(CONTENT_DIR));
 app.use('/content', express.static(CONTENT_DIR));
 app.use('/docs-files', express.static(DOCS_DIR));
+app.use('/docs', express.static(DOCS_DIR));
 
 app.use((req, res) => {
     res.status(404).send("File not found");
