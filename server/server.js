@@ -177,6 +177,9 @@ function extractPythonBoilerplate(codeContent) {
         i++;
     }
 
+    while (output.length > 0 && output[0].trim() === "") {
+        output.shift();
+    }
     while (output.length > 0 && output[output.length - 1].trim() === "") {
         output.pop();
     }
@@ -303,6 +306,9 @@ function extractJsBoilerplate(codeContent) {
         i++;
     }
 
+    while (output.length > 0 && output[0].trim() === "") {
+        output.shift();
+    }
     while (output.length > 0 && output[output.length - 1].trim() === "") {
         output.pop();
     }
