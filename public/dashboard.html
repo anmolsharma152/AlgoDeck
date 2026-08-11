@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Problem Dashboard</title>
+  <title>AlgoDeck | Problem Dashboard</title>
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -318,6 +318,9 @@
         <button class="btn" data-diff="Easy">Easy</button>
         <button class="btn" data-diff="Medium">Medium</button>
         <button class="btn" data-diff="Hard">Hard</button>
+        <button class="btn" id="due-filter-btn-dash" onclick="toggleDashDueFilter()" style="display: inline-flex; align-items: center; gap: 5px;">
+          <i class="fa-solid fa-bell" style="font-size: 0.75rem;"></i> Due (<span id="dash-due-count">0</span>)
+        </button>
       </div>
 
       <div class="filter-group" id="level-filters">
@@ -442,16 +445,41 @@
       document.getElementById('progress-bar').style.width = `${pct}%`;
     }
 
+    let activeDueOnly = false;
+
+    function toggleDashDueFilter() {
+      activeDueOnly = !activeDueOnly;
+      const btn = document.getElementById("due-filter-btn-dash");
+      if (btn) {
+        btn.classList.toggle("active", activeDueOnly);
+        if (activeDueOnly) {
+          btn.style.background = "rgba(239, 68, 68, 0.25)";
+          btn.style.borderColor = "rgba(239, 68, 68, 0.5)";
+          btn.style.color = "#ef4444";
+        } else {
+          btn.style.background = "";
+          btn.style.borderColor = "";
+          btn.style.color = "";
+        }
+      }
+      render();
+    }
+
     function render() {
       const container = document.getElementById('problems-container');
       container.innerHTML = '';
+
+      const dueCount = problemsData.filter(p => p.is_due).length;
+      const dashDueEl = document.getElementById('dash-due-count');
+      if (dashDueEl) dashDueEl.innerText = dueCount;
 
       const filtered = problemsData.filter(p => {
         const matchesDiff = activeDiff === 'all' || p.difficulty === activeDiff;
         const matchesLevel = activeLevel === 'all' || p.level === parseInt(activeLevel);
         const matchesSearch = p.title.toLowerCase().includes(searchQuery) || 
                               p.pattern.toLowerCase().includes(searchQuery);
-        return matchesDiff && matchesLevel && matchesSearch;
+        const matchesDue = !activeDueOnly || p.is_due === true;
+        return matchesDiff && matchesLevel && matchesSearch && matchesDue;
       });
 
       filtered.forEach(p => {

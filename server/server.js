@@ -508,6 +508,14 @@ function rateLimiter(maxRequestsPerMin = 30) {
     };
 }
 
+function computeHash(str) {
+    let hash = 5381;
+    for (let i = 0; i < str.length; i++) {
+        hash = (hash * 33) ^ str.charCodeAt(i);
+    }
+    return (hash >>> 0).toString(16);
+}
+
 // API: Get Boilerplate
 app.get('/api/boilerplate', (req, res) => {
     const filePath = req.query.path;
@@ -526,6 +534,8 @@ app.get('/api/boilerplate', (req, res) => {
         } else if (filePath.endsWith('.js')) {
             boilerplate = extractJsBoilerplate(codeContent);
         }
+        const starterHash = computeHash(boilerplate);
+        res.setHeader('X-Starter-Hash', starterHash);
         res.type('text/plain').send(boilerplate);
     } catch (err) {
         res.status(500).send(`Error processing file: ${err.message}`);
@@ -730,18 +740,38 @@ app.use('/roadmap', express.static(PUBLIC_DIR));
 
 // Direct clean page route fallbacks
 app.get('/', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'index.html')));
-app.get('/dashboard', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'dashboard.html')));
-app.get('/dashboard.html', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'dashboard.html')));
-app.get('/editor.html', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'editor.html')));
-app.get('/roadmap.html', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'roadmap.html')));
-app.get('/docs', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'docs.html')));
+app.get(['/playground', '/editor', '/editor.html'], (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'editor.html')));
+app.get(['/dashboard', '/dashboard.html'], (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'dashboard.html')));
+app.get(['/roadmap', '/roadmap.html'], (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'roadmap.html')));
 app.get('/docs.html', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'docs.html')));
 
 app.use((req, res) => {
     res.status(404).send("File not found");
 });
 
+function cleanOrphanScratchFiles() {
+    const scratchDir = path.join(WORKSPACE_DIR, 'scratch');
+    if (fs.existsSync(scratchDir)) {
+        const now = Date.now();
+        try {
+            const files = fs.readdirSync(scratchDir);
+            files.forEach(file => {
+                if (file.startsWith('_temp_run_')) {
+                    const filePath = path.join(scratchDir, file);
+                    try {
+                        const stat = fs.statSync(filePath);
+                        if (now - stat.mtimeMs > 3600000) {
+                            fs.unlinkSync(filePath);
+                        }
+                    } catch (e) {}
+                }
+            });
+        } catch (e) {}
+    }
+}
+
 async function startServer() {
+    cleanOrphanScratchFiles();
     if (db.isPgAvailable()) {
         await db.initDb();
     }

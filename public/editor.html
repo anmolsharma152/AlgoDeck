@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coding Playground</title>
+    <title>AlgoDeck | Coding Playground</title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -780,9 +780,14 @@
                         </button>
                     </div>
                 </div>
-                <div class="problem-search">
-                    <i class="fa-solid fa-magnifying-glass text-muted"></i>
-                    <input type="text" id="search-input" placeholder="Search problems or patterns..." oninput="filterProblems()">
+                <div class="problem-search" style="display: flex; gap: 8px; align-items: center;">
+                    <div style="flex: 1; display: flex; align-items: center; gap: 8px; background: rgba(0, 0, 0, 0.2); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 6px 10px;">
+                        <i class="fa-solid fa-magnifying-glass text-muted" style="font-size: 0.8rem;"></i>
+                        <input type="text" id="search-input" placeholder="Search problems..." oninput="filterProblems()" style="background: none; border: none; outline: none; color: var(--text-main); font-size: 0.82rem; width: 100%;">
+                    </div>
+                    <button id="due-filter-btn" onclick="toggleDueFilter()" class="due-filter-btn" title="Toggle Due Today Only" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-subtle); color: var(--text-muted); padding: 6px 10px; border-radius: 8px; cursor: pointer; font-size: 0.78rem; font-weight: 600; white-space: nowrap; display: flex; align-items: center; gap: 5px; transition: all 0.2s;">
+                        <i class="fa-solid fa-bell" style="font-size: 0.75rem;"></i> <span id="due-btn-text">Due (<span id="due-count-val">0</span>)</span>
+                    </button>
                 </div>
                 <div class="problem-list" id="problem-list-container">
                     <!-- Injected dynamically -->
@@ -970,6 +975,10 @@ Terminal logs and assertion output will display here after you run code.
         let monacoEditor = null;
         let solutionEditor = null;
         let problemList = [];
+        let allCatalogProblems = [];
+        let isDueOnlyFilterActive = false;
+        let activeBoilerplateController = null;
+        let currentStarterHash = null;
         let draftSavingTimeout = null;
         let currentFontSize = parseInt(localStorage.getItem('algodeck_fontsize') || '14', 10);
         let isWordWrapOn = localStorage.getItem('algodeck_wordwrap') === 'on';
@@ -1424,12 +1433,32 @@ Terminal logs and assertion output will display here after you run code.
             });
         }
 
-        // Filter search input
+        function toggleDueFilter() {
+            isDueOnlyFilterActive = !isDueOnlyFilterActive;
+            const btn = document.getElementById("due-filter-btn");
+            if (btn) {
+                if (isDueOnlyFilterActive) {
+                    btn.style.background = "rgba(239, 68, 68, 0.2)";
+                    btn.style.borderColor = "rgba(239, 68, 68, 0.5)";
+                    btn.style.color = "#ef4444";
+                } else {
+                    btn.style.background = "rgba(255, 255, 255, 0.05)";
+                    btn.style.borderColor = "var(--border-subtle)";
+                    btn.style.color = "var(--text-muted)";
+                }
+            }
+            filterProblems();
+        }
+
+        // Filter search input & Due toggle
         function filterProblems() {
             const query = document.getElementById("search-input").value.trim().toLowerCase();
             
-            // If query is empty, restore normal list
-            if (!query) {
+            if (!allCatalogProblems || allCatalogProblems.length === 0) {
+                allCatalogProblems = problemList ? [...problemList] : [];
+            }
+            
+            if (!query && !isDueOnlyFilterActive) {
                 renderProblems();
                 return;
             }
@@ -1437,53 +1466,44 @@ Terminal logs and assertion output will display here after you run code.
             const container = document.getElementById("problem-list-container");
             container.innerHTML = "";
 
-            // Group matching problems
-            const groups = {};
-            problemList.forEach(p => {
-                const matches = p.title.toLowerCase().includes(query) || 
-                                p.pattern.toLowerCase().includes(query) || 
-                                p.difficulty.toLowerCase().includes(query);
-                if (matches) {
-                    const pat = p.pattern || "General";
-                    if (!groups[pat]) {
-                        groups[pat] = [];
-                    }
-                    groups[pat].push(p);
-                }
+            // Filter all catalog problems by query AND due status
+            const filteredProbs = allCatalogProblems.filter(p => {
+                const matchesQuery = !query || 
+                                     p.title.toLowerCase().includes(query) || 
+                                     (p.pattern && p.pattern.toLowerCase().includes(query)) || 
+                                     (p.difficulty && p.difficulty.toLowerCase().includes(query));
+                const matchesDue = !isDueOnlyFilterActive || p.is_due === true;
+                return matchesQuery && matchesDue;
             });
 
-            if (Object.keys(groups).length === 0) {
+            if (filteredProbs.length === 0) {
                 container.innerHTML = `<div style="padding: 20px; color: var(--text-muted); font-size: 0.85rem;">No matching problems found.</div>`;
                 return;
             }
 
-            // Render matching groups (all expanded)
+            // Group matching problems
+            const groups = {};
+            filteredProbs.forEach(p => {
+                const pat = p.pattern || "General";
+                if (!groups[pat]) {
+                    groups[pat] = [];
+                }
+                groups[pat].push(p);
+            });
+
+            // Render matching groups
             Object.keys(groups).forEach(pattern => {
                 const probs = groups[pattern];
-
                 const groupHeader = document.createElement("div");
                 groupHeader.className = "pattern-group-header";
-                groupHeader.innerHTML = `
-                    <span>${pattern} (${probs.length})</span>
-                    <i class="fa-solid fa-chevron-down" style="font-size:0.75rem; color:var(--text-muted); transition: transform 0.2s;"></i>
-                `;
+                groupHeader.innerHTML = `<span>${escapeHtml(pattern)} (${probs.length})</span><i class="fa-solid fa-chevron-down" style="font-size:0.75rem; color:var(--text-muted);"></i>`;
 
                 const groupContent = document.createElement("div");
                 groupContent.className = "pattern-group-content";
 
-                groupHeader.onclick = (e) => {
-                    e.stopPropagation();
-                    const nowCollapsed = groupContent.classList.toggle("collapsed");
-                    const icon = groupHeader.querySelector("i");
-                    if (icon) {
-                        icon.className = `fa-solid ${nowCollapsed ? 'fa-chevron-right' : 'fa-chevron-down'}`;
-                    }
-                };
-
                 probs.forEach(p => {
                     const isSelected = activeProblem && activeProblem.id === p.id;
                     const statusDot = p.repetitions > 0 ? "solved" : "unsolved";
-                    
                     const item = document.createElement("div");
                     item.className = `problem-item ${isSelected ? 'active' : ''}`;
                     item.onclick = (e) => {
@@ -1498,11 +1518,14 @@ Terminal logs and assertion output will display here after you run code.
                         badgeHtml = `<span class="sr-badge learning">Reviewing</span>`;
                     }
 
+                    const safeTitle = escapeHtml(p.title);
+                    const rawDiff = String(p.difficulty || '').toLowerCase();
+                    const safeDiffClass = ['easy', 'medium', 'hard'].includes(rawDiff) ? rawDiff : 'easy';
                     item.innerHTML = `
                         <div class="prob-details">
-                            <div class="prob-title" title="${p.title}">${p.title}</div>
+                            <div class="prob-title" title="${safeTitle}">${safeTitle}</div>
                             <div class="prob-meta">
-                                <span class="diff-tag ${p.difficulty.toLowerCase()}">${p.difficulty}</span>
+                                <span class="diff-tag ${safeDiffClass}">${escapeHtml(p.difficulty)}</span>
                                 ${badgeHtml}
                             </div>
                         </div>
@@ -1513,6 +1536,7 @@ Terminal logs and assertion output will display here after you run code.
                     groupContent.appendChild(item);
                 });
 
+                container.appendChild(groupHeader);
                 container.appendChild(groupContent);
             });
         }
@@ -1571,6 +1595,17 @@ Terminal logs and assertion output will display here after you run code.
                 srCard.style.display = "none";
             }
 
+            // T-105: Clear solution editor state immediately on problem change
+            if (solutionEditor) {
+                solutionEditor.setValue("");
+            }
+
+            // T-104: Cancel any previous in-flight boilerplate fetch
+            if (activeBoilerplateController) {
+                activeBoilerplateController.abort();
+            }
+            activeBoilerplateController = new AbortController();
+
             // Fetch boilerplate starter code
             const filePath = activeLanguage === "python" ? problem.pythonPath : problem.jsPath;
 
@@ -1580,42 +1615,70 @@ Terminal logs and assertion output will display here after you run code.
                 try {
                     // Read from LocalStorage draft if exists
                     const draftKey = `draft_${problem.id}_${activeLanguage}`;
-                    let savedDraft = localStorage.getItem(draftKey);
+                    let savedDraftRaw = localStorage.getItem(draftKey);
+                    let savedDraftCode = null;
+                    let savedDraftHash = null;
 
-                    // Discard invalid or legacy drafts (e.g. error pages, or old un-modernized docstrings/test blocks)
-                    if (savedDraft && (
-                        savedDraft.includes("<!DOCTYPE") || 
-                        savedDraft.includes("Error response") || 
-                        savedDraft.includes("Error code: 404") || 
-                        savedDraft.includes("Error processing file") || 
-                        savedDraft.includes("is not a function") ||
-                        savedDraft.includes('if __name__ == "__main__":') ||
-                        savedDraft.includes('if (require.main === module)') ||
-                        savedDraft.includes('Time Complexity:') ||
-                        savedDraft.includes('Space Complexity:')
-                    )) {
-                        localStorage.removeItem(draftKey);
-                        savedDraft = null;
+                    if (savedDraftRaw) {
+                        if (savedDraftRaw.startsWith("{") && savedDraftRaw.endsWith("}")) {
+                            try {
+                                const parsed = JSON.parse(savedDraftRaw);
+                                savedDraftCode = parsed.code;
+                                savedDraftHash = parsed.starterHash;
+                            } catch(e) {
+                                savedDraftCode = savedDraftRaw;
+                            }
+                        } else {
+                            savedDraftCode = savedDraftRaw;
+                        }
                     }
 
-                    if (savedDraft) {
-                        monacoEditor.setValue(savedDraft);
-                        fetchBoilerplateDocstring(filePath);
-                    } else {
-                        const response = await fetch(`${API_BASE}/api/boilerplate?path=${encodeURIComponent(filePath)}`);
-                        if (response.ok) {
-                            const code = await response.text();
-                            monacoEditor.setValue(code);
-                            if (!problem.description) {
-                                extractDescriptionFromBoilerplate(code);
-                            }
+                    // Discard invalid or legacy drafts
+                    if (savedDraftCode && (
+                        savedDraftCode.includes("<!DOCTYPE") || 
+                        savedDraftCode.includes("Error response") || 
+                        savedDraftCode.includes("Error code: 404") || 
+                        savedDraftCode.includes("Error processing file") || 
+                        savedDraftCode.includes("is not a function") ||
+                        savedDraftCode.includes('if __name__ == "__main__":') ||
+                        savedDraftCode.includes('if (require.main === module)') ||
+                        savedDraftCode.includes('Time Complexity:') ||
+                        savedDraftCode.includes('Space Complexity:')
+                    )) {
+                        localStorage.removeItem(draftKey);
+                        savedDraftCode = null;
+                    }
+
+                    const response = await fetch(`${API_BASE}/api/boilerplate?path=${encodeURIComponent(filePath)}`, {
+                        signal: activeBoilerplateController.signal
+                    });
+                    
+                    if (response.ok) {
+                        const serverStarterHash = response.headers.get('X-Starter-Hash');
+                        const code = await response.text();
+
+                        // T-109: If server starter code hash changed, invalidate outdated draft
+                        if (savedDraftHash && serverStarterHash && savedDraftHash !== serverStarterHash) {
+                            console.log("Starter stub updated on server for", problem.id);
+                            localStorage.removeItem(draftKey);
+                            savedDraftCode = null;
+                        }
+
+                        currentStarterHash = serverStarterHash;
+                        monacoEditor.setValue(savedDraftCode || code);
+
+                        if (savedDraftCode) {
+                            fetchBoilerplateDocstring(filePath);
+                        } else if (!problem.description) {
+                            extractDescriptionFromBoilerplate(code);
                         }
                     }
                     if (window.monaco && monacoEditor.getModel()) {
                         monaco.editor.setModelLanguage(monacoEditor.getModel(), activeLanguage);
                     }
                 } catch (err) {
-                    console.error("Failed to load boilerplate into Monaco:", err);
+                    if (err.name === 'AbortError') return; // Cancelled cleanly
+                    console.error("Error setting problem code:", err);
                 }
             }
 
@@ -1750,9 +1813,14 @@ Terminal logs and assertion output will display here after you run code.
 
         // Auto-save user code draft to local storage
         function saveCodeDraft() {
-            if (!activeProblem) return;
+            if (!activeProblem || !monacoEditor) return;
             const draftKey = `draft_${activeProblem.id}_${activeLanguage}`;
-            localStorage.setItem(draftKey, monacoEditor.getValue());
+            const draftObject = {
+                starterHash: currentStarterHash || null,
+                code: monacoEditor.getValue(),
+                updatedAt: Date.now()
+            };
+            localStorage.setItem(draftKey, JSON.stringify(draftObject));
         }
 
         // Compile and Run Tests
