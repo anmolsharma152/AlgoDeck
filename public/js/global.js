@@ -267,7 +267,6 @@
         const pill = document.getElementById('nav-due-nudge');
         if (pill) pill.remove();
     };
-    }
 
     // Expose navbar renderers
     window.renderGlobalNavbar = renderGlobalNavbar;

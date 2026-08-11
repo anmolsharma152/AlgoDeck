@@ -285,18 +285,18 @@ app.use((req, res, next) => {
     next();
 });
 
-// Serve static assets from public, content, & docs folders
-app.use(express.static(PUBLIC_DIR));
-app.use(express.static(CONTENT_DIR));
-app.use('/content', express.static(CONTENT_DIR));
-app.use('/docs', express.static(DOCS_DIR));
-
 // Direct clean page route fallbacks
-app.get('/', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'index.html')));
+app.get(['/', '/home', '/home.html', '/index', '/index.html'], (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'index.html')));
 app.get(['/playground', '/playground.html', '/editor', '/editor.html'], (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'playground.html')));
 app.get(['/dashboard', '/dashboard.html'], (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'dashboard.html')));
 app.get(['/roadmap', '/roadmap.html'], (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'roadmap.html')));
 app.get(['/docs', '/docs.html'], (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'docs.html')));
+
+// Serve static assets from public, content, & docs folders
+app.use(express.static(PUBLIC_DIR));
+app.use(express.static(CONTENT_DIR));
+app.use('/content', express.static(CONTENT_DIR));
+app.use('/docs-files', express.static(DOCS_DIR));
 
 app.use((req, res) => {
     res.status(404).send("File not found");
