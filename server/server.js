@@ -735,8 +735,6 @@ app.use(express.static(PUBLIC_DIR));
 app.use(express.static(CONTENT_DIR));
 app.use('/content', express.static(CONTENT_DIR));
 app.use('/docs', express.static(DOCS_DIR));
-app.use('/playground', express.static(PUBLIC_DIR));
-app.use('/roadmap', express.static(PUBLIC_DIR));
 
 // Direct clean page route fallbacks
 app.get('/', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'index.html')));
