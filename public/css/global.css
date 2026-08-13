@@ -272,7 +272,7 @@ body {
 }
 
 [data-theme="light"] p,
-[data-theme="light"] span,
+[data-theme="light"] span:not(.monaco-editor span),
 [data-theme="light"] li,
 [data-theme="light"] header p,
 [data-theme="light"] .card-desc,

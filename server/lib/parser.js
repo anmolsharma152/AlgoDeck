@@ -5,11 +5,13 @@ const path = require('path');
 // Strip out any placeholder comments (e.g. "Write your code here", "TODO", "Write solution", etc.)
 function stripPlaceholderComments(code) {
     if (!code) return "";
-    return code
+    let clean = code.replace(/^[ \t]*("""|''')[ \t]*$/gm, '');
+    return clean
         .split(/\r?\n/)
         .filter(line => {
             const stripped = line.trim();
-            if (stripped.startsWith('//') || stripped.startsWith('#')) {
+            if (stripped === '"""' || stripped === "'''") return false;
+            if (stripped.startsWith('//') || stripped.startsWith('#') || stripped.startsWith('*') || stripped.startsWith('/*')) {
                 const lower = stripped.toLowerCase();
                 if (
                     lower.includes('write your code') ||
@@ -19,7 +21,8 @@ function stripPlaceholderComments(code) {
                     lower.includes('solution goes here') ||
                     lower.includes('write solution') ||
                     lower.includes('implement your') ||
-                    lower.includes('type your code')
+                    lower.includes('type your code') ||
+                    lower.includes('code here')
                 ) {
                     return false;
                 }
