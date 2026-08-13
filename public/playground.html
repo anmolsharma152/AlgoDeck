@@ -434,13 +434,13 @@
         .code-editor-box {
             flex: 1;
             position: relative;
-            background: #1e1e1e;
+            background: var(--bg-surface);
         }
 
         /* Terminal Console */
         .terminal-panel {
             height: 250px;
-            background: #050505;
+            background: var(--terminal-bg);
             border-top: 1px solid var(--border);
             display: flex;
             flex-direction: column;
@@ -449,7 +449,7 @@
 
         .terminal-header {
             height: 40px;
-            background: #0a0a0a;
+            background: var(--bg-element);
             border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
@@ -466,9 +466,9 @@
             font-family: 'Fira Code', monospace;
             font-size: 0.85rem;
             overflow-y: auto;
-            color: var(--success);
+            color: var(--terminal-text);
             white-space: pre-wrap;
-            background: #050505;
+            background: var(--terminal-bg);
         }
 
         .terminal-body.error {
@@ -1037,12 +1037,20 @@ Terminal logs and assertion output will display here after you run code.
             window.monacoEditor = monacoEditor;
             window.solutionEditor = solutionEditor;
 
-            // Apply current stored theme to Monaco
+            // Apply current stored theme to Monaco immediately upon creation
             const activeTheme = localStorage.getItem('algodeck_theme') || 'dark';
             const targetMonacoTheme = activeTheme === 'light' ? 'vs' : 'vs-dark';
             monaco.editor.setTheme(targetMonacoTheme);
-            monacoEditor.updateOptions({ theme: targetMonacoTheme });
-            solutionEditor.updateOptions({ theme: targetMonacoTheme });
+
+            // Listen for top navbar theme toggle events for instant live theme switching
+            window.addEventListener('algodeck-theme-changed', (e) => {
+                const monacoTheme = e.detail?.monacoTheme || (e.detail?.theme === 'light' ? 'vs' : 'vs-dark');
+                if (window.monaco && window.monaco.editor) {
+                    window.monaco.editor.setTheme(monacoTheme);
+                }
+                if (monacoEditor) monacoEditor.layout();
+                if (solutionEditor) solutionEditor.layout();
+            });
 
             // Set auto-save draft behavior
             monacoEditor.onDidChangeModelContent(() => {

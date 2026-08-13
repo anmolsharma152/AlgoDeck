@@ -24,12 +24,11 @@
         if (window.monaco && window.monaco.editor) {
             window.monaco.editor.setTheme(monacoTheme);
         }
-        if (window.monacoEditor) {
-            window.monacoEditor.updateOptions({ theme: monacoTheme });
-        }
-        if (window.solutionEditor) {
-            window.solutionEditor.updateOptions({ theme: monacoTheme });
-        }
+
+        // Broadcast theme change event to all active components
+        window.dispatchEvent(new CustomEvent('algodeck-theme-changed', {
+            detail: { theme: theme, monacoTheme: monacoTheme }
+        }));
     }
 
     function toggleTheme() {
