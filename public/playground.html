@@ -865,7 +865,7 @@
                             <button class="tool-btn" onclick="zoomEditor(1)" title="Zoom In Font (A+)">A+</button>
                             <button class="tool-btn" onclick="formatCode()" title="Format Document"><i class="fa-solid fa-align-left"></i> Format</button>
                             <button class="tool-btn" id="btn-word-wrap" onclick="toggleWordWrap()" title="Toggle Word Wrap"><i class="fa-solid fa-align-justify"></i> Wrap</button>
-                            <button class="tool-btn" onclick="resetBoilerplateCode()" title="Reset Starter Code"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+                            <button class="tool-btn" id="btn-reset-ui" onclick="resetIdeFormatSettings()" title="Reset IDE Format & Zoom Settings"><i class="fa-solid fa-arrows-rotate"></i> Reset View</button>
                         </div>
                     </div>
                     <div style="font-size:0.85rem; color:var(--text-muted); font-weight:500;">
@@ -894,7 +894,7 @@ Terminal logs and assertion output will display here after you run code.
                             <i class="fa-solid fa-play"></i>
                             <span>Run Tests</span>
                         </button>
-                        <button class="editor-btn" onclick="resetToBoilerplate()" style="background: rgba(255, 82, 82, 0.1); color: #ff5252; border: 1px solid rgba(255, 82, 82, 0.2); display: flex; align-items: center; gap: 6px; padding: 10px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'Outfit';">
+                        <button class="editor-btn" onclick="resetBoilerplateCode()" style="background: rgba(255, 82, 82, 0.1); color: #ff5252; border: 1px solid rgba(255, 82, 82, 0.2); display: flex; align-items: center; gap: 6px; padding: 10px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'Outfit';">
                             <i class="fa-solid fa-rotate-left"></i>
                             <span>Reset Code</span>
                         </button>
@@ -1262,6 +1262,38 @@ Terminal logs and assertion output will display here after you run code.
             
             const wrapBtn = document.getElementById('btn-word-wrap');
             if (wrapBtn) wrapBtn.classList.toggle('active', isWordWrapOn);
+        }
+
+        // Reset IDE Format & Zoom Settings back to defaults (Font: 14px, Word Wrap: Off)
+        function resetIdeFormatSettings() {
+            currentFontSize = 14;
+            isWordWrapOn = false;
+            localStorage.setItem('algodeck_fontsize', '14');
+            localStorage.setItem('algodeck_wordwrap', 'off');
+
+            if (monacoEditor) {
+                monacoEditor.updateOptions({
+                    fontSize: 14,
+                    wordWrap: 'off'
+                });
+                monacoEditor.layout();
+            }
+            if (solutionEditor) {
+                solutionEditor.updateOptions({
+                    fontSize: 14,
+                    wordWrap: 'off'
+                });
+                solutionEditor.layout();
+            }
+
+            const wrapBtn = document.getElementById('btn-word-wrap');
+            if (wrapBtn) wrapBtn.classList.remove('active');
+
+            const terminal = document.getElementById("terminal-body");
+            if (terminal) {
+                terminal.className = "terminal-body";
+                terminal.innerText = `[${new Date().toLocaleTimeString()}] IDE format & zoom settings reset to defaults (Font: 14px, Word Wrap: Off).`;
+            }
         }
 
         // Reset Starter Code Boilerplate (clears draft cache and reloads server template)
