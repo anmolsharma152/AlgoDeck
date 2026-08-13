@@ -1388,10 +1388,10 @@ Terminal logs and assertion output will display here after you run code.
             const dueEl = document.getElementById("due-count-val");
             if (dueEl) dueEl.innerText = dueCount;
             
-            // Select requested problem from URL query or fallback to last selected problem
+            // Select requested problem from URL query
             if (!activeProblem) {
                 const urlParams = new URLSearchParams(window.location.search);
-                const targetId = urlParams.get('id') || localStorage.getItem('algodeck_last_selected_problem_id');
+                const targetId = urlParams.get('id');
                 const targetLang = urlParams.get('lang');
                 if (targetLang && (targetLang === 'python' || targetLang === 'javascript')) {
                     switchLanguage(targetLang);
@@ -1409,7 +1409,7 @@ Terminal logs and assertion output will display here after you run code.
                     }
                     const dueProbs = problemList.filter(p => p.is_due);
                     if (dueProbs.length > 0) {
-                        selectProblem(dueProbs[0]);
+                        selectProblem(dueProbs[0], true);
                     } else {
                         renderEmptyState();
                     }
@@ -1422,7 +1422,7 @@ Terminal logs and assertion output will display here after you run code.
                         (p.title && p.title.toLowerCase().replace(/[^a-z0-9]/g, '') === normTarget)
                     );
                     if (targetProb) {
-                        selectProblem(targetProb);
+                        selectProblem(targetProb, true);
                     } else {
                         renderEmptyState();
                     }
@@ -1435,6 +1435,7 @@ Terminal logs and assertion output will display here after you run code.
         // Render clean empty placeholder state when no problem is selected
         function renderEmptyState() {
             activeProblem = null;
+            expandSidebar();
             document.getElementById("doc-title").innerText = "AlgoDeck Playground";
             document.getElementById("doc-stats").innerHTML = `<span class="text-muted">Select a problem from the catalog on the left</span>`;
             const srCard = document.getElementById("sr-card");
@@ -2082,6 +2083,27 @@ New ELO Rating:    ${data.user_rating} ELO.
                 }
             } catch (err) {
                 alert(`Submission error: ${err}`);
+            }
+        }
+
+        // Expand Sidebar helper
+        function expandSidebar() {
+            const sidebar = document.getElementById("app-sidebar");
+            const toggleIcon = document.getElementById("sidebar-toggle-icon");
+            const toggleBtn = document.getElementById("sidebar-toggle-btn");
+            if (sidebar && sidebar.classList.contains("collapsed")) {
+                sidebar.classList.remove("collapsed");
+                if (toggleBtn) {
+                    toggleBtn.classList.remove("collapsed");
+                    toggleBtn.title = "Collapse Sidebar";
+                }
+                if (toggleIcon) {
+                    toggleIcon.className = "fa-solid fa-chevron-left";
+                }
+                setTimeout(() => {
+                    if (monacoEditor) monacoEditor.layout();
+                    if (solutionEditor) solutionEditor.layout();
+                }, 260);
             }
         }
 
