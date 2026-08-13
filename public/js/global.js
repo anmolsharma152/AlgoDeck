@@ -19,17 +19,17 @@
             themeBtn.title = `Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`;
         }
 
-        // Sync Monaco editor themes if initialized using monaco-light and monaco-dark
-        const monacoTheme = theme === 'light' ? 'monaco-light' : 'monaco-dark';
+        // Monaco editor is permanently dark-mode for optimal syntax legibility & zero flicker
+        const monacoTheme = 'monaco-dark';
         if (window.monaco && window.monaco.editor) {
             try {
-                window.monaco.editor.setTheme(monacoTheme);
+                window.monaco.editor.setTheme('monaco-dark');
             } catch(e) {}
         }
 
         // Broadcast theme change event to all active components
         window.dispatchEvent(new CustomEvent('algodeck-theme-changed', {
-            detail: { theme: theme, monacoTheme: monacoTheme }
+            detail: { theme: theme, monacoTheme: 'monaco-dark' }
         }));
     }
 

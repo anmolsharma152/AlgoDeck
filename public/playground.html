@@ -989,11 +989,37 @@ Terminal logs and assertion output will display here after you run code.
         let pendingProblemToSelect = null;
         let pendingSolutionCode = null;
 
+        function stripPlaceholderComments(code) {
+            if (!code) return "";
+            return code
+                .split(/\r?\n/)
+                .filter(line => {
+                    const stripped = line.trim();
+                    if (stripped.startsWith('//') || stripped.startsWith('#')) {
+                        const lower = stripped.toLowerCase();
+                        if (
+                            lower.includes('write your code') ||
+                            lower.includes('your code here') ||
+                            lower.includes('write code') ||
+                            lower.includes('todo') ||
+                            lower.includes('solution goes here') ||
+                            lower.includes('write solution') ||
+                            lower.includes('implement your') ||
+                            lower.includes('type your code')
+                        ) {
+                            return false;
+                        }
+                    }
+                    return true;
+                })
+                .join('\n');
+        }
+
         // Initialize Monaco Editors (Using Local Vendored Path for 100% Offline Capability)
         const monacoVsPath = window.location.protocol === 'file:' ? './vendor/monaco-editor/vs' : '/vendor/monaco-editor/vs';
         require.config({ paths: { vs: monacoVsPath } });
         require(['vs/editor/editor.main'], function () {
-            // Define custom high-contrast Monaco themes for AlgoDeck
+            // Define custom high-contrast dark Monaco theme for AlgoDeck
             monaco.editor.defineTheme('monaco-dark', {
                 base: 'vs-dark',
                 inherit: true,
@@ -1017,36 +1043,14 @@ Terminal logs and assertion output will display here after you run code.
                 }
             });
 
-            monaco.editor.defineTheme('monaco-light', {
-                base: 'vs',
-                inherit: true,
-                rules: [
-                    { token: 'keyword', foreground: '7e22ce', fontStyle: 'bold' },
-                    { token: 'string', foreground: '15803d' },
-                    { token: 'number', foreground: 'd97706' },
-                    { token: 'comment', foreground: '64748b', fontStyle: 'italic' },
-                    { token: 'identifier', foreground: '0f172a' },
-                    { token: 'delimiter', foreground: '334155' },
-                    { token: 'type', foreground: '0284c7' }
-                ],
-                colors: {
-                    'editor.background': '#ffffff',
-                    'editor.foreground': '#0f172a',
-                    'editorCursor.foreground': '#0284c7',
-                    'editorLineNumber.foreground': '#94a3b8',
-                    'editorLineNumber.activeForeground': '#0f172a',
-                    'editor.selectionBackground': '#e2e8f0',
-                    'editor.inactiveSelectionBackground': '#f1f5f9'
-                }
-            });
-
-            const currentMonacoTheme = (localStorage.getItem('algodeck_theme') === 'light') ? 'monaco-light' : 'monaco-dark';
+            // Monaco Editor stays in sleek dark-mode for zero flicker and optimal contrast
+            const currentMonacoTheme = 'monaco-dark';
             
             // Main coding editor
             monacoEditor = monaco.editor.create(document.getElementById('code-editor-container'), {
                 value: "# Select a problem from the catalog.",
                 language: 'python',
-                theme: currentMonacoTheme,
+                theme: 'monaco-dark',
                 fontSize: currentFontSize,
                 fontFamily: 'Fira Code, monospace',
                 automaticLayout: true,
@@ -1070,7 +1074,7 @@ Terminal logs and assertion output will display here after you run code.
             solutionEditor = monaco.editor.create(document.getElementById('solution-editor-container'), {
                 value: "// Solution will load here.",
                 language: 'python',
-                theme: currentMonacoTheme,
+                theme: 'monaco-dark',
                 readOnly: true,
                 fontSize: currentFontSize,
                 fontFamily: 'Fira Code, monospace',
@@ -1084,14 +1088,13 @@ Terminal logs and assertion output will display here after you run code.
             window.monacoEditor = monacoEditor;
             window.solutionEditor = solutionEditor;
 
-            // Apply current stored theme to Monaco immediately upon creation
-            monaco.editor.setTheme(currentMonacoTheme);
+            // Monaco Editor is permanently dark for maximum contrast & stability
+            monaco.editor.setTheme('monaco-dark');
 
-            // Listen for top navbar theme toggle events for instant live theme switching
+            // Listen for top navbar theme toggle events and maintain dark theme
             window.addEventListener('algodeck-theme-changed', (e) => {
-                const monacoTheme = e.detail?.monacoTheme || (e.detail?.theme === 'light' ? 'monaco-light' : 'monaco-dark');
                 if (window.monaco && window.monaco.editor) {
-                    window.monaco.editor.setTheme(monacoTheme);
+                    window.monaco.editor.setTheme('monaco-dark');
                 }
                 if (monacoEditor) monacoEditor.layout();
                 if (solutionEditor) solutionEditor.layout();
@@ -1769,7 +1772,7 @@ Terminal logs and assertion output will display here after you run code.
 
                         currentStarterHash = serverStarterHash;
                         const rawCode = savedDraftCode || code;
-                        const cleanCode = (rawCode || '').replace(/\/\/\s*Write your code here/gi, '').replace(/#\s*Write your code here/gi, '');
+                        const cleanCode = stripPlaceholderComments(rawCode);
                         monacoEditor.setValue(cleanCode);
 
                         if (savedDraftCode) {

@@ -2,6 +2,33 @@ const fs = require('path');
 const fsExtra = require('fs');
 const path = require('path');
 
+// Strip out any placeholder comments (e.g. "Write your code here", "TODO", "Write solution", etc.)
+function stripPlaceholderComments(code) {
+    if (!code) return "";
+    return code
+        .split(/\r?\n/)
+        .filter(line => {
+            const stripped = line.trim();
+            if (stripped.startsWith('//') || stripped.startsWith('#')) {
+                const lower = stripped.toLowerCase();
+                if (
+                    lower.includes('write your code') ||
+                    lower.includes('your code here') ||
+                    lower.includes('write code') ||
+                    lower.includes('todo') ||
+                    lower.includes('solution goes here') ||
+                    lower.includes('write solution') ||
+                    lower.includes('implement your') ||
+                    lower.includes('type your code')
+                ) {
+                    return false;
+                }
+            }
+            return true;
+        })
+        .join('\n');
+}
+
 // Compute 32-bit djb2 hash string for starter code stub versioning
 function computeHash(text) {
     if (!text) return '0';
@@ -136,7 +163,7 @@ function extractPythonBoilerplate(codeContent) {
         output.pop();
     }
     
-    return output.join("\n") + "\n";
+    return stripPlaceholderComments(output.join("\n") + "\n");
 }
 
 // Extract JavaScript starter code stub
@@ -266,7 +293,7 @@ function extractJsBoilerplate(codeContent) {
         output.pop();
     }
     
-    return output.join("\n") + "\n";
+    return stripPlaceholderComments(output.join("\n") + "\n");
 }
 
 // Safe path normalization and containment validation against directory traversal attacks

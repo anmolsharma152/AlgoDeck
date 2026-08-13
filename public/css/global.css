@@ -323,19 +323,13 @@ body {
     border-color: #cbd5e1 !important;
 }
 
-[data-theme="light"] .code-editor-box,
-[data-theme="light"] #code-editor-container,
-[data-theme="light"] #solution-editor-container,
-[data-theme="light"] .monaco-editor,
-[data-theme="light"] .monaco-editor-background,
-[data-theme="light"] .monaco-editor .margin {
-    background-color: #ffffff !important;
-}
-
+.code-editor-box,
+#code-editor-container,
+#solution-editor-container,
 .monaco-editor,
 .monaco-editor-background,
 .monaco-editor .margin {
-    background-color: var(--bg-surface) !important;
+    background-color: #0a0a0c !important;
 }
 
 [data-theme="light"] .terminal-panel {
