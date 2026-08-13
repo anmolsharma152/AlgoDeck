@@ -626,35 +626,42 @@
         }
 
         /* Sidebar collapse / single boundary edge toggle styling */
-        .sidebar {
+        .workspace {
             position: relative;
+        }
+        .sidebar {
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .sidebar.collapsed {
             width: 0px !important;
             min-width: 0px !important;
             border-right-color: transparent;
-            overflow: visible !important;
+            overflow: hidden !important;
         }
         .sidebar-toggle-btn {
             position: absolute;
-            right: -15px;
+            left: 306px;
             top: 50%;
             transform: translateY(-50%);
-            width: 30px;
-            height: 30px;
+            width: 28px;
+            height: 28px;
             background: var(--bg-surface);
             border: 1px solid var(--border);
             border-radius: 50%;
-            color: var(--text-muted);
+            color: var(--text-main);
             cursor: pointer;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
-            transition: all 0.25s ease;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+            z-index: 9999;
+            transition: left 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+        .sidebar-toggle-btn.collapsed {
+            left: 0px;
+            border-left-none: true;
+            border-radius: 0 50% 50% 0;
         }
         .sidebar-toggle-btn:hover {
             color: var(--primary);
@@ -751,11 +758,12 @@
 
     <!-- Split Screen Workspace -->
     <div class="workspace">
+        <button class="sidebar-toggle-btn" id="sidebar-toggle-btn" onclick="toggleSidebar()" title="Collapse Sidebar">
+            <i class="fa-solid fa-chevron-left" id="sidebar-toggle-icon"></i>
+        </button>
+
         <!-- Sidebar Problem Selector -->
         <div class="sidebar" id="app-sidebar">
-            <button class="sidebar-toggle-btn" id="sidebar-toggle-btn" onclick="toggleSidebar()" title="Collapse Sidebar">
-                <i class="fa-solid fa-chevron-left" id="sidebar-toggle-icon"></i>
-            </button>
             <div style="width: 320px; display: flex; flex-direction: column; height: 100%; overflow: hidden; flex-shrink: 0;">
                 <div class="sidebar-header">
                     <span>Problem Catalog</span>
@@ -2073,11 +2081,12 @@ New ELO Rating:    ${data.user_rating} ELO.
             const toggleBtn = document.getElementById("sidebar-toggle-btn");
             const isCollapsed = sidebar.classList.toggle("collapsed");
             
+            if (toggleBtn) {
+                toggleBtn.classList.toggle("collapsed", isCollapsed);
+                toggleBtn.title = isCollapsed ? "Expand Sidebar" : "Collapse Sidebar";
+            }
             if (toggleIcon) {
                 toggleIcon.className = isCollapsed ? "fa-solid fa-chevron-right" : "fa-solid fa-chevron-left";
-            }
-            if (toggleBtn) {
-                toggleBtn.title = isCollapsed ? "Expand Sidebar" : "Collapse Sidebar";
             }
             
             // Trigger Monaco layouts to adapt smoothly
