@@ -19,8 +19,8 @@
             themeBtn.title = `Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`;
         }
 
-        // Sync Monaco editor themes if initialized using standard built-in 'vs' and 'vs-dark'
-        const monacoTheme = theme === 'light' ? 'vs' : 'vs-dark';
+        // Sync Monaco editor themes if initialized using monaco-light and monaco-dark
+        const monacoTheme = theme === 'light' ? 'monaco-light' : 'monaco-dark';
         if (window.monaco && window.monaco.editor) {
             try {
                 window.monaco.editor.setTheme(monacoTheme);
