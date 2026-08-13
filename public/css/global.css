@@ -500,3 +500,38 @@ body {
     border-top-color: #cbd5e1 !important;
     border-bottom-color: #cbd5e1 !important;
 }
+
+/* Skeleton Loader Styles for Zero-CLS Dashboard Loading */
+.skeleton-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    min-height: 140px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.skeleton-line {
+    height: 14px;
+    width: 100%;
+}
+.skeleton-line.short {
+    width: 60%;
+}
+.skeleton-pulse {
+    background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+    border-radius: 6px;
+}
+@keyframes skeleton-loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+[data-theme="light"] .skeleton-pulse {
+    background: linear-gradient(90deg, rgba(0,0,0,0.04) 25%, rgba(0,0,0,0.09) 50%, rgba(0,0,0,0.04) 75%);
+    background-size: 200% 100%;
+}

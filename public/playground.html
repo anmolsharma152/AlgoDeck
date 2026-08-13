@@ -5,6 +5,13 @@
         (function() {
             var theme = localStorage.getItem('algodeck_theme') || 'dark';
             document.documentElement.setAttribute('data-theme', theme);
+
+            var params = new URLSearchParams(window.location.search);
+            if (params.has('id') || params.get('mode') === 'daily_deck') {
+                document.documentElement.classList.add('sidebar-init-collapsed');
+            } else {
+                document.documentElement.classList.add('sidebar-init-expanded');
+            }
         })();
     </script>
     <meta charset="UTF-8">
@@ -631,18 +638,32 @@
             color: var(--text-main);
         }
 
-        /* Sidebar collapse / single boundary edge toggle styling */
+        /* 50px Mini Activity Rail & Sidebar Styling */
         .workspace {
             position: relative;
+            display: flex;
+            height: calc(100vh - 56px);
+            overflow: hidden;
         }
         .sidebar {
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 320px;
+            min-width: 320px;
+            transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            position: relative;
+            z-index: 20;
+            background: var(--bg-surface);
+            border-right: 1px solid var(--border);
         }
+        html.sidebar-init-collapsed .sidebar,
         .sidebar.collapsed {
-            width: 0px !important;
-            min-width: 0px !important;
-            border-right-color: transparent;
-            overflow: hidden !important;
+            width: 50px !important;
+            min-width: 50px !important;
+        }
+        html.sidebar-init-expanded .sidebar.expanded,
+        .sidebar.expanded {
+            width: 320px !important;
+            min-width: 320px !important;
         }
         .sidebar-toggle-btn {
             position: absolute;
@@ -664,10 +685,13 @@
             transition: left 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
         }
+        html.sidebar-init-collapsed .sidebar-toggle-btn,
         .sidebar-toggle-btn.collapsed {
-            left: 0px;
-            border-left-none: true;
-            border-radius: 0 50% 50% 0;
+            left: 36px !important;
+        }
+        html.sidebar-init-expanded .sidebar-toggle-btn.expanded,
+        .sidebar-toggle-btn.expanded {
+            left: 306px !important;
         }
         .sidebar-toggle-btn:hover {
             color: var(--primary);
