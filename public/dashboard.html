@@ -330,51 +330,71 @@
       </div>
     </div>
 
-    <!-- 5-Tier Activity Matrix Summary Bar -->
-    <div class="matrix-summary-bar" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 24px;">
-      <div class="matrix-card" style="background: var(--bg-card); border: 1px solid var(--border); padding: 12px; border-radius: 12px; text-align: center;">
-        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Clean Pass</div>
-        <div id="matrix-clean-pass" style="font-size: 1.4rem; font-weight: 800; color: #10b981; margin-top: 4px;">0</div>
+    <!-- Clean 4-Tier Practice Matrix -->
+    <div class="matrix-summary-bar" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; margin-bottom: 24px;">
+      <div class="matrix-card" style="background: var(--bg-card); border: 1px solid var(--border); padding: 14px; border-radius: 12px; text-align: center;">
+        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Mastered (Clean Pass)</div>
+        <div id="matrix-clean-pass" style="font-size: 1.5rem; font-weight: 800; color: #10b981; margin-top: 4px;">0</div>
       </div>
-      <div class="matrix-card" style="background: var(--bg-card); border: 1px solid var(--border); padding: 12px; border-radius: 12px; text-align: center;">
-        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Assisted Pass</div>
-        <div id="matrix-assisted-pass" style="font-size: 1.4rem; font-weight: 800; color: #3b82f6; margin-top: 4px;">0</div>
+      <div class="matrix-card" style="background: var(--bg-card); border: 1px solid var(--border); padding: 14px; border-radius: 12px; text-align: center;">
+        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Assisted Pass</div>
+        <div id="matrix-assisted-pass" style="font-size: 1.5rem; font-weight: 800; color: #3b82f6; margin-top: 4px;">0</div>
       </div>
-      <div class="matrix-card" style="background: var(--bg-card); border: 1px solid var(--border); padding: 12px; border-radius: 12px; text-align: center;">
-        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Failed Attempt</div>
-        <div id="matrix-failed-attempt" style="font-size: 1.4rem; font-weight: 800; color: #ef4444; margin-top: 4px;">0</div>
+      <div class="matrix-card" style="background: var(--bg-card); border: 1px solid var(--border); padding: 14px; border-radius: 12px; text-align: center;">
+        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Needs Review / Failed</div>
+        <div id="matrix-failed-attempt" style="font-size: 1.5rem; font-weight: 800; color: #ef4444; margin-top: 4px;">0</div>
       </div>
-      <div class="matrix-card" style="background: var(--bg-card); border: 1px solid var(--border); padding: 12px; border-radius: 12px; text-align: center;">
-        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Interacted</div>
-        <div id="matrix-interacted" style="font-size: 1.4rem; font-weight: 800; color: #f59e0b; margin-top: 4px;">0</div>
-      </div>
-      <div class="matrix-card" style="background: var(--bg-card); border: 1px solid var(--border); padding: 12px; border-radius: 12px; text-align: center;">
-        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Untouched</div>
-        <div id="matrix-untouched" style="font-size: 1.4rem; font-weight: 800; color: var(--text-muted); margin-top: 4px;">0</div>
+      <div class="matrix-card" style="background: var(--bg-card); border: 1px solid var(--border); padding: 14px; border-radius: 12px; text-align: center;">
+        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Unsolved / New</div>
+        <div id="matrix-unsolved" style="font-size: 1.5rem; font-weight: 800; color: var(--text-muted); margin-top: 4px;">0</div>
       </div>
     </div>
 
-    <div class="filters-section">
-      <input type="text" id="search" class="search-input" placeholder="Search problems or patterns...">
+    <!-- Structured 3-Row Filter Control System -->
+    <div class="filters-section" style="display: flex; flex-direction: column; gap: 14px; background: var(--bg-card); border: 1px solid var(--border); padding: 18px; border-radius: 14px; margin-bottom: 24px;">
       
-      <div class="filter-group" id="difficulty-filters">
-        <button class="btn active" data-diff="all">All Difficulties</button>
-        <button class="btn" data-diff="Easy">Easy</button>
-        <button class="btn" data-diff="Medium">Medium</button>
-        <button class="btn" data-diff="Hard">Hard</button>
-        <button class="btn" id="due-filter-btn-dash" onclick="toggleDashDueFilter()" style="display: inline-flex; align-items: center; gap: 5px;">
-          <i class="fa-solid fa-bell" style="font-size: 0.75rem;"></i> Due (<span id="dash-due-count">0</span>)
-        </button>
+      <!-- Top Search Bar -->
+      <div style="width: 100%;">
+        <input type="text" id="search" class="search-input" placeholder="🔍 Search problems, patterns, or topics..." style="width: 100%;">
       </div>
 
-      <div class="filter-group" id="level-filters">
-        <button class="btn active" data-level="all">All Levels</button>
-        <button class="btn" data-level="1">L1: Linear</button>
-        <button class="btn" data-level="2">L2: Search/Trees</button>
-        <button class="btn" data-level="3">L3: Graphs</button>
-        <button class="btn" data-level="4">L4: DP</button>
-        <button class="btn" data-level="5">L5: CP</button>
+      <!-- Filter Row 1: Curriculum Progression (Level 1 - 5) -->
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
+        <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; min-width: 130px;">Curriculum Level:</span>
+        <div class="filter-group" id="level-filters">
+          <button class="btn active" data-level="all">All Levels</button>
+          <button class="btn" data-level="1">L1: Linear</button>
+          <button class="btn" data-level="2">L2: Search & Trees</button>
+          <button class="btn" data-level="3">L3: Graphs</button>
+          <button class="btn" data-level="4">L4: DP</button>
+          <button class="btn" data-level="5">L5: CP Patterns</button>
+        </div>
       </div>
+
+      <!-- Filter Row 2: LeetCode Difficulty -->
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
+        <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; min-width: 130px;">Difficulty Tag:</span>
+        <div class="filter-group" id="difficulty-filters">
+          <button class="btn active" data-diff="all">All Difficulties</button>
+          <button class="btn" data-diff="Easy" style="color: #10b981;">Easy</button>
+          <button class="btn" data-diff="Medium" style="color: #3b82f6;">Medium</button>
+          <button class="btn" data-diff="Hard" style="color: #ef4444;">Hard</button>
+        </div>
+      </div>
+
+      <!-- Filter Row 3: Status & Review Queue -->
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
+        <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; min-width: 130px;">Status & Review:</span>
+        <div class="filter-group" id="status-filters">
+          <button class="btn active" data-status="all">All Items</button>
+          <button class="btn" data-status="unsolved">Unsolved</button>
+          <button class="btn" data-status="solved">Solved</button>
+          <button class="btn" id="due-filter-btn-dash" onclick="toggleDashDueFilter()" style="display: inline-flex; align-items: center; gap: 5px;">
+            <i class="fa-solid fa-bell" style="font-size: 0.75rem;"></i> Due Today (<span id="dash-due-count">0</span>)
+          </button>
+        </div>
+      </div>
+
     </div>
 
     <div class="problems-grid" id="problems-container">
@@ -516,18 +536,19 @@
       render();
     }
 
+    let activeStatus = 'all';
+
     function updateActivityMatrixCounts() {
-      let cleanPass = 0, assistedPass = 0, failedAttempt = 0, interacted = 0, untouched = 0;
+      let cleanPass = 0, assistedPass = 0, failedAttempt = 0, unsolved = 0;
 
       problemsData.forEach(p => {
         const isSolved = solvedSet.has(p.id) || (p.repetitions > 0);
         const assistance = p.assistance_level || 'CLEAN';
-        const hasDraft = localStorage.getItem(`draft_${p.id}_python`) || localStorage.getItem(`draft_${p.id}_javascript`);
 
-        if (!isSolved && hasDraft) {
-          interacted++;
-        } else if (!isSolved) {
-          untouched++;
+        if (!isSolved) {
+          unsolved++;
+        } else if (p.is_due) {
+          failedAttempt++;
         } else if (assistance === 'HINT_USED' || assistance === 'SOLUTION_REVEALED') {
           assistedPass++;
         } else {
@@ -538,14 +559,12 @@
       const elClean = document.getElementById('matrix-clean-pass');
       const elAssisted = document.getElementById('matrix-assisted-pass');
       const elFailed = document.getElementById('matrix-failed-attempt');
-      const elInteracted = document.getElementById('matrix-interacted');
-      const elUntouched = document.getElementById('matrix-untouched');
+      const elUnsolved = document.getElementById('matrix-unsolved');
 
       if (elClean) elClean.innerText = cleanPass;
       if (elAssisted) elAssisted.innerText = assistedPass;
       if (elFailed) elFailed.innerText = failedAttempt;
-      if (elInteracted) elInteracted.innerText = interacted;
-      if (elUntouched) elUntouched.innerText = untouched;
+      if (elUnsolved) elUnsolved.innerText = unsolved;
     }
 
     function render() {
@@ -559,26 +578,29 @@
       if (dashDueEl) dashDueEl.innerText = dueCount;
 
       const filtered = problemsData.filter(p => {
+        const isSolved = solvedSet.has(p.id) || (p.repetitions > 0);
         const matchesDiff = activeDiff === 'all' || p.difficulty === activeDiff;
         const matchesLevel = activeLevel === 'all' || p.level === parseInt(activeLevel);
         const matchesSearch = p.title.toLowerCase().includes(searchQuery) || 
                               p.pattern.toLowerCase().includes(searchQuery);
         const matchesDue = !activeDueOnly || p.is_due === true;
-        return matchesDiff && matchesLevel && matchesSearch && matchesDue;
+        const matchesStatus = activeStatus === 'all' || 
+                              (activeStatus === 'solved' && isSolved) || 
+                              (activeStatus === 'unsolved' && !isSolved);
+        return matchesDiff && matchesLevel && matchesSearch && matchesDue && matchesStatus;
       });
 
       filtered.forEach(p => {
         const isSolved = solvedSet.has(p.id) || (p.repetitions > 0);
         const assistance = p.assistance_level || 'CLEAN';
-        const hasDraft = localStorage.getItem(`draft_${p.id}_python`) || localStorage.getItem(`draft_${p.id}_javascript`);
 
-        let activityTagHtml = `<span class="tag" style="background: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.1);">⚪ Untouched</span>`;
+        let activityTagHtml = `<span class="tag" style="background: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.1);">⚪ New / Unsolved</span>`;
         if (isSolved && (assistance === 'HINT_USED' || assistance === 'SOLUTION_REVEALED')) {
           activityTagHtml = `<span class="tag" style="background: rgba(59,130,246,0.15); color: #3b82f6; border: 1px solid rgba(59,130,246,0.3);">🔓 Assisted Pass</span>`;
         } else if (isSolved) {
-          activityTagHtml = `<span class="tag" style="background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3);">✅ Clean Pass</span>`;
-        } else if (hasDraft) {
-          activityTagHtml = `<span class="tag" style="background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3);">✏️ Interacted</span>`;
+          activityTagHtml = `<span class="tag" style="background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3);">✅ Mastered</span>`;
+        } else if (p.is_due) {
+          activityTagHtml = `<span class="tag" style="background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3);">🔔 Review Due</span>`;
         }
 
         const playgroundUrl = window.location.protocol === 'file:' 
@@ -590,7 +612,7 @@
         card.innerHTML = `
           <div>
             <div class="problem-header">
-              ${isSolved ? '<span class="solved-badge" data-id="${p.id}" title="Solved"><i class="fa-solid fa-circle-check" style="color: var(--accent-green); font-size: 1.1rem;"></i></span>' : '<span class="unsolved-badge" data-id="${p.id}" title="Not yet solved"><i class="fa-regular fa-circle" style="color: var(--text-muted); font-size: 1.1rem; opacity: 0.4;"></i></span>'}
+              ${isSolved ? `<span class="solved-badge" data-id="${p.id}" title="Solved"><i class="fa-solid fa-circle-check" style="color: var(--accent-green); font-size: 1.1rem;"></i></span>` : `<span class="unsolved-badge" data-id="${p.id}" title="Not yet solved"><i class="fa-regular fa-circle" style="color: var(--text-muted); font-size: 1.1rem; opacity: 0.4;"></i></span>`}
               <div class="problem-title-area">
                 <a href="${playgroundUrl}?id=${p.id}" class="problem-title">${p.title}</a>
                 <div class="problem-tags">
@@ -643,6 +665,18 @@
         document.querySelectorAll('#level-filters .btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         activeLevel = btn.dataset.level;
+        render();
+      });
+    });
+
+    document.querySelectorAll('#status-filters .btn').forEach(btn => {
+      if (btn.id === 'due-filter-btn-dash') return;
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#status-filters .btn').forEach(b => {
+          if (b.id !== 'due-filter-btn-dash') b.classList.remove('active');
+        });
+        btn.classList.add('active');
+        activeStatus = btn.dataset.status;
         render();
       });
     });
