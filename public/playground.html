@@ -904,13 +904,6 @@
         .sidebar-toggle-btn.collapsed {
             left: 36px !important;
         }
-        html.sidebar-init-collapsed .sidebar-toggle-btn i,
-        .sidebar-toggle-btn.collapsed i {
-            transform: rotate(180deg);
-        }
-        .sidebar-toggle-btn i {
-            transition: transform 0.25s ease;
-        }
         html.sidebar-init-expanded .sidebar-toggle-btn.expanded,
         .sidebar-toggle-btn.expanded {
             left: 306px !important;
@@ -1406,6 +1399,25 @@ Terminal logs and assertion output will display here after you run code.
                 const target = pendingProblemToSelect;
                 pendingProblemToSelect = null;
                 selectProblem(target);
+            }
+        });
+
+        // Synchronize initial toggle button arrow direction based on Frame 0 sidebar state
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleIcon = document.getElementById("sidebar-toggle-icon");
+            const toggleBtn = document.getElementById("sidebar-toggle-btn");
+            if (document.documentElement.classList.contains("sidebar-init-collapsed")) {
+                if (toggleIcon) toggleIcon.className = "fa-solid fa-chevron-right";
+                if (toggleBtn) {
+                    toggleBtn.classList.add("collapsed");
+                    toggleBtn.title = "Expand Sidebar";
+                }
+            } else {
+                if (toggleIcon) toggleIcon.className = "fa-solid fa-chevron-left";
+                if (toggleBtn) {
+                    toggleBtn.classList.add("expanded");
+                    toggleBtn.title = "Collapse Sidebar";
+                }
             }
         });
 
