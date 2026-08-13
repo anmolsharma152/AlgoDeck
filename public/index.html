@@ -581,8 +581,6 @@
                         <i class="fa-solid fa-rotate" style="font-size: 1.5rem; color: #ffffff;"></i>
                     </div>
                 </div>
-
-                <div id="avatar-label-badge" style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600; font-family: 'Fira Code', monospace; background: rgba(255,255,255,0.05); padding: 3px 10px; border-radius: 9999px; border: 1px solid var(--border);"></div>
             </div>
             <div class="dev-info">
                 <h3>About the Platform & Developer</h3>
@@ -609,13 +607,13 @@
     <script>
         (function() {
             const DEV_AVATARS = [
-                { src: '/images/new_images/IMG_20251208_174224_141.jpg', label: 'Studio HD Photo (1/7)' },
-                { src: '/images/new_images/my-notion-face-transparent.png', label: 'Notion Vector Portrait (2/7)' },
-                { src: '/images/new_images/Anmol.jpg', label: 'Anmol Sharma (3/7)' },
-                { src: '/images/new_images/headshot.jpg', label: 'Executive Headshot (4/7)' },
-                { src: '/images/new_images/my-notion-face-portrait.png', label: 'Notion Portrait (5/7)' },
-                { src: '/images/new_images/ChatGPT Image Apr 7, 2025, 12_17_20 PM.png', label: 'Neon Workstation AI (6/7)' },
-                { src: '/images/developer_profile.jpg', label: 'AlgoDeck Core Avatar (7/7)' }
+                '/images/new_images/IMG_20251208_174224_141.jpg',
+                '/images/new_images/my-notion-face-transparent.png',
+                '/images/new_images/Anmol.jpg',
+                '/images/new_images/headshot.jpg',
+                '/images/new_images/my-notion-face-portrait.png',
+                '/images/new_images/ChatGPT Image Apr 7, 2025, 12_17_20 PM.png',
+                '/images/developer_profile.jpg'
             ];
 
             let currentIndex = parseInt(localStorage.getItem('algodeck_avatar_idx') || '0', 10);
@@ -625,17 +623,14 @@
 
             function renderDevAvatar() {
                 const img = document.getElementById('dev-profile-img');
-                const label = document.getElementById('avatar-label-badge');
-                if (!img || !label) return;
+                if (!img) return;
 
-                const item = DEV_AVATARS[currentIndex];
+                const imgSrc = DEV_AVATARS[currentIndex];
                 img.style.opacity = '0.3';
                 setTimeout(() => {
-                    img.src = window.location.protocol === 'file:' ? '.' + item.src : item.src;
+                    img.src = window.location.protocol === 'file:' ? '.' + imgSrc : imgSrc;
                     img.style.opacity = '1';
                 }, 120);
-
-                label.innerText = item.label;
 
                 localStorage.setItem('algodeck_avatar_idx', currentIndex);
             }

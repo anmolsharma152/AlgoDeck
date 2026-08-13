@@ -625,52 +625,41 @@
             color: var(--text-main);
         }
 
-        /* Sidebar collapse / toggle styling */
+        /* Sidebar collapse / single boundary edge toggle styling */
+        .sidebar {
+            position: relative;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
         .sidebar.collapsed {
             width: 0px !important;
+            min-width: 0px !important;
             border-right-color: transparent;
+            overflow: visible !important;
         }
         .sidebar-toggle-btn {
-            background: transparent;
-            border: none;
+            position: absolute;
+            right: -14px;
+            top: 14px;
+            width: 28px;
+            height: 28px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 50%;
             color: var(--text-muted);
             cursor: pointer;
-            font-size: 0.95rem;
-            padding: 4px 8px;
-            border-radius: 4px;
-            transition: all 0.2s;
+            font-size: 0.8rem;
             display: flex;
             align-items: center;
             justify-content: center;
+            z-index: 100;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
         }
         .sidebar-toggle-btn:hover {
             color: var(--primary);
-            background: rgba(255, 255, 255, 0.05);
-        }
-        .sidebar-expand-trigger {
-            position: fixed;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 20px;
-            height: 60px;
-            background: var(--bg-surface);
-            border: 1px solid var(--border);
-            border-left: none;
-            border-radius: 0 8px 8px 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 100;
-            color: var(--text-muted);
-            transition: all 0.2s;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
-        }
-        .sidebar-expand-trigger:hover {
-            color: var(--primary);
-            width: 24px;
+            border-color: var(--primary);
             background: var(--bg-element);
+            transform: scale(1.1);
         }
 
         .tool-btn {
@@ -759,15 +748,13 @@
     <!-- Header Navigation -->
     <div id="app-header"></div>
 
-    <!-- Floating Sidebar Expand Button (visible only when collapsed) -->
-    <div id="sidebar-expand-trigger" class="sidebar-expand-trigger" onclick="toggleSidebar()" style="display:none;" title="Expand Sidebar">
-        <i class="fa-solid fa-chevron-right"></i>
-    </div>
-
     <!-- Split Screen Workspace -->
     <div class="workspace">
         <!-- Sidebar Problem Selector -->
         <div class="sidebar" id="app-sidebar">
+            <button class="sidebar-toggle-btn" id="sidebar-toggle-btn" onclick="toggleSidebar()" title="Collapse Sidebar">
+                <i class="fa-solid fa-chevron-left" id="sidebar-toggle-icon"></i>
+            </button>
             <div style="width: 320px; display: flex; flex-direction: column; height: 100%; overflow: hidden; flex-shrink: 0;">
                 <div class="sidebar-header">
                     <span>Problem Catalog</span>
@@ -775,9 +762,6 @@
                         <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-main); background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12); padding: 3px 10px; border-radius: 9999px; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;" title="Coding ELO Rating">
                             <i class="fa-solid fa-trophy" style="color: #ffb020;"></i> <span id="user-rating-val">1200</span> <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">ELO</span>
                         </span>
-                        <button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="Collapse Sidebar">
-                            <i class="fa-solid fa-chevron-left"></i>
-                        </button>
                     </div>
                 </div>
                 <div class="problem-search" style="display: flex; gap: 8px; align-items: center;">
@@ -2081,16 +2065,18 @@ New ELO Rating:    ${data.user_rating} ELO.
             }
         }
 
-        // Toggle Sidebar display
+        // Toggle Sidebar display (Single Boundary Edge Handle)
         function toggleSidebar() {
             const sidebar = document.getElementById("app-sidebar");
-            const expandTrigger = document.getElementById("sidebar-expand-trigger");
+            const toggleIcon = document.getElementById("sidebar-toggle-icon");
+            const toggleBtn = document.getElementById("sidebar-toggle-btn");
             const isCollapsed = sidebar.classList.toggle("collapsed");
             
-            if (isCollapsed) {
-                expandTrigger.style.display = "flex";
-            } else {
-                expandTrigger.style.display = "none";
+            if (toggleIcon) {
+                toggleIcon.className = isCollapsed ? "fa-solid fa-chevron-right" : "fa-solid fa-chevron-left";
+            }
+            if (toggleBtn) {
+                toggleBtn.title = isCollapsed ? "Expand Sidebar" : "Collapse Sidebar";
             }
             
             // Trigger Monaco layouts to adapt smoothly
