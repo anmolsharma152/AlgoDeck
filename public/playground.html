@@ -864,7 +864,6 @@
                             <button class="tool-btn" onclick="zoomEditor(-1)" title="Zoom Out Font (A-)">A-</button>
                             <button class="tool-btn" onclick="zoomEditor(1)" title="Zoom In Font (A+)">A+</button>
                             <button class="tool-btn" onclick="formatCode()" title="Format Document"><i class="fa-solid fa-align-left"></i> Format</button>
-                            <button class="tool-btn" id="btn-word-wrap" onclick="toggleWordWrap()" title="Toggle Word Wrap"><i class="fa-solid fa-align-justify"></i> Wrap</button>
                             <button class="tool-btn" id="btn-reset-ui" onclick="resetIdeFormatSettings()" title="Reset IDE Format & Zoom Settings"><i class="fa-solid fa-arrows-rotate"></i> Reset View</button>
                         </div>
                     </div>
@@ -982,8 +981,8 @@ Terminal logs and assertion output will display here after you run code.
         let currentAssistanceLevel = "CLEAN";
         let isDailyDeckMode = false;
         let draftSavingTimeout = null;
+        let isProgrammaticChange = false;
         let currentFontSize = parseInt(localStorage.getItem('algodeck_fontsize') || '14', 10);
-        let isWordWrapOn = localStorage.getItem('algodeck_wordwrap') === 'on';
 
         let isMonacoReady = false;
         let pendingProblemToSelect = null;
@@ -1063,7 +1062,7 @@ Terminal logs and assertion output will display here after you run code.
                 lineHeight: 22,
                 tabSize: 4,
                 padding: { top: 16 },
-                wordWrap: isWordWrapOn ? 'on' : 'off',
+                wordWrap: 'off',
                 bracketPairColorization: { enabled: true },
                 guides: { indentation: true, bracketPairs: true },
                 folding: true,
@@ -1083,7 +1082,7 @@ Terminal logs and assertion output will display here after you run code.
                 fontFamily: 'Fira Code, monospace',
                 automaticLayout: true,
                 minimap: { enabled: false },
-                wordWrap: isWordWrapOn ? 'on' : 'off',
+                wordWrap: 'off',
                 bracketPairColorization: { enabled: true }
             });
 
@@ -1103,27 +1102,24 @@ Terminal logs and assertion output will display here after you run code.
                 if (solutionEditor) solutionEditor.layout();
             });
 
-            // Set auto-save draft behavior
+            // Set auto-save draft behavior (guarded against programmatic updates)
             monacoEditor.onDidChangeModelContent(() => {
-                if (activeProblem) {
+                if (activeProblem && !isProgrammaticChange) {
                     clearTimeout(draftSavingTimeout);
                     draftSavingTimeout = setTimeout(saveCodeDraft, 1000);
                 }
             });
 
             // Self-healing migration to clear old corrupted drafts and legacy placeholders
-            if (localStorage.getItem('algodeck_version') !== '3.2') {
+            if (localStorage.getItem('algodeck_version') !== '3.5') {
                 for (let i = localStorage.length - 1; i >= 0; i--) {
                     const key = localStorage.key(i);
                     if (key && key.startsWith('draft_')) {
-                        const val = localStorage.getItem(key);
-                        if (val && val.includes('Write your code here')) {
-                            localStorage.removeItem(key);
-                        }
+                        localStorage.removeItem(key);
                     }
                 }
-                localStorage.setItem('algodeck_version', '3.2');
-                console.log("AlgoDeck: Cleared legacy drafts cache.");
+                localStorage.setItem('algodeck_version', '3.5');
+                console.log("AlgoDeck: Migrated to v3.5, cleared legacy draft cache.");
             }
 
             // Sync Wrap Button Active UI state
@@ -1257,47 +1253,24 @@ Terminal logs and assertion output will display here after you run code.
             return formatted.join("\n");
         }
 
-        // Toggle Word Wrap
-        function toggleWordWrap() {
-            isWordWrapOn = !isWordWrapOn;
-            localStorage.setItem('algodeck_wordwrap', isWordWrapOn ? 'on' : 'off');
-            const wrapState = isWordWrapOn ? 'on' : 'off';
-            if (monacoEditor) monacoEditor.updateOptions({ wordWrap: wrapState });
-            if (solutionEditor) solutionEditor.updateOptions({ wordWrap: wrapState });
-            
-            const wrapBtn = document.getElementById('btn-word-wrap');
-            if (wrapBtn) wrapBtn.classList.toggle('active', isWordWrapOn);
-        }
-
-        // Reset IDE Format & Zoom Settings back to defaults (Font: 14px, Word Wrap: Off)
+        // Reset IDE Format & Zoom Settings back to defaults (Font: 14px)
         function resetIdeFormatSettings() {
             currentFontSize = 14;
-            isWordWrapOn = false;
             localStorage.setItem('algodeck_fontsize', '14');
-            localStorage.setItem('algodeck_wordwrap', 'off');
 
             if (monacoEditor) {
-                monacoEditor.updateOptions({
-                    fontSize: 14,
-                    wordWrap: 'off'
-                });
+                monacoEditor.updateOptions({ fontSize: 14 });
                 monacoEditor.layout();
             }
             if (solutionEditor) {
-                solutionEditor.updateOptions({
-                    fontSize: 14,
-                    wordWrap: 'off'
-                });
+                solutionEditor.updateOptions({ fontSize: 14 });
                 solutionEditor.layout();
             }
-
-            const wrapBtn = document.getElementById('btn-word-wrap');
-            if (wrapBtn) wrapBtn.classList.remove('active');
 
             const terminal = document.getElementById("terminal-body");
             if (terminal) {
                 terminal.className = "terminal-body";
-                terminal.innerText = `[${new Date().toLocaleTimeString()}] IDE format & zoom settings reset to defaults (Font: 14px, Word Wrap: Off).`;
+                terminal.innerText = `[${new Date().toLocaleTimeString()}] IDE format & zoom settings reset to default font size (14px).`;
             }
         }
 
@@ -1310,9 +1283,35 @@ Terminal logs and assertion output will display here after you run code.
             
             if (confirm(`Reset code for "${activeProblem.title}" to its clean starter boilerplate? Your unsaved draft will be lost.`)) {
                 const draftKey = `draft_${activeProblem.id}_${activeLanguage}`;
+                
+                // Remove draft from local storage immediately
                 localStorage.removeItem(draftKey);
                 
-                await selectProblem(activeProblem);
+                // Set programmatic change flag to prevent model change listener from re-saving draft
+                isProgrammaticChange = true;
+                clearTimeout(draftSavingTimeout);
+
+                // Fetch fresh clean boilerplate stub from server
+                const filePath = (activeLanguage === "python" ? activeProblem.pythonPath : activeProblem.jsPath) || "";
+                if (filePath) {
+                    try {
+                        const response = await fetch(`${API_BASE}/api/boilerplate?path=${encodeURIComponent(filePath)}`);
+                        if (response.ok) {
+                            const code = await response.text();
+                            const cleanCode = stripPlaceholderComments(code);
+                            if (monacoEditor) {
+                                monacoEditor.setValue(cleanCode);
+                            }
+                        }
+                    } catch (err) {
+                        console.error("Error fetching boilerplate during reset:", err);
+                    }
+                }
+                
+                // Ensure draft key stays deleted and reset programmatic flag after a brief tick
+                localStorage.removeItem(draftKey);
+                clearTimeout(draftSavingTimeout);
+                setTimeout(() => { isProgrammaticChange = false; }, 200);
 
                 const terminal = document.getElementById("terminal-body");
                 if (terminal) {
