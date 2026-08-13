@@ -904,6 +904,13 @@
         .sidebar-toggle-btn.collapsed {
             left: 36px !important;
         }
+        html.sidebar-init-collapsed .sidebar-toggle-btn i,
+        .sidebar-toggle-btn.collapsed i {
+            transform: rotate(180deg);
+        }
+        .sidebar-toggle-btn i {
+            transition: transform 0.25s ease;
+        }
         html.sidebar-init-expanded .sidebar-toggle-btn.expanded,
         .sidebar-toggle-btn.expanded {
             left: 306px !important;
@@ -1022,45 +1029,9 @@
                     <span class="rail-icon-badge" id="rail-due-count-badge" style="display: none;">0</span>
                 </button>
                 <div style="width: 24px; height: 1px; background: var(--border); margin: 2px 0;"></div>
-                <button class="rail-icon-btn pattern-rail-btn" data-pattern="Arrays & Hashing" onclick="expandAndFilterPattern('Arrays & Hashing')" title="Arrays & Hashing">
-                    <i class="fa-solid fa-layer-group"></i>
-                </button>
-                <button class="rail-icon-btn pattern-rail-btn" data-pattern="Two Pointers" onclick="expandAndFilterPattern('Two Pointers')" title="Two Pointers">
-                    <i class="fa-solid fa-arrows-left-right"></i>
-                </button>
-                <button class="rail-icon-btn pattern-rail-btn" data-pattern="Sliding Window" onclick="expandAndFilterPattern('Sliding Window')" title="Sliding Window">
-                    <i class="fa-solid fa-border-all"></i>
-                </button>
-                <button class="rail-icon-btn pattern-rail-btn" data-pattern="Stack" onclick="expandAndFilterPattern('Stack')" title="Stack">
-                    <i class="fa-solid fa-bars-staggered"></i>
-                </button>
-                <button class="rail-icon-btn pattern-rail-btn" data-pattern="Binary Search" onclick="expandAndFilterPattern('Binary Search')" title="Binary Search">
-                    <i class="fa-solid fa-magnifying-glass-chart"></i>
-                </button>
-                <button class="rail-icon-btn pattern-rail-btn" data-pattern="Linked List" onclick="expandAndFilterPattern('Linked List')" title="Linked List">
-                    <i class="fa-solid fa-link"></i>
-                </button>
-                <button class="rail-icon-btn pattern-rail-btn" data-pattern="Trees" onclick="expandAndFilterPattern('Trees')" title="Trees">
-                    <i class="fa-solid fa-diagram-project"></i>
-                </button>
-                <button class="rail-icon-btn pattern-rail-btn" data-pattern="Heap / Priority Queue" onclick="expandAndFilterPattern('Heap / Priority Queue')" title="Heap / Priority Queue">
-                    <i class="fa-solid fa-arrow-up-wide-short"></i>
-                </button>
-                <button class="rail-icon-btn pattern-rail-btn" data-pattern="Backtracking" onclick="expandAndFilterPattern('Backtracking')" title="Backtracking">
-                    <i class="fa-solid fa-rotate-left"></i>
-                </button>
-                <button class="rail-icon-btn pattern-rail-btn" data-pattern="Graphs" onclick="expandAndFilterPattern('Graphs')" title="Graphs">
-                    <i class="fa-solid fa-network-wired"></i>
-                </button>
-                <button class="rail-icon-btn pattern-rail-btn" data-pattern="1D Dynamic Programming" onclick="expandAndFilterPattern('1D Dynamic Programming')" title="Dynamic Programming">
-                    <i class="fa-solid fa-bolt"></i>
-                </button>
-                <button class="rail-icon-btn pattern-rail-btn" data-pattern="Bit Manipulation" onclick="expandAndFilterPattern('Bit Manipulation')" title="Bit Manipulation">
-                    <i class="fa-solid fa-microchip"></i>
-                </button>
-                <button class="rail-icon-btn pattern-rail-btn" data-pattern="Math & Geometry" onclick="expandAndFilterPattern('Math & Geometry')" title="Math & Geometry">
-                    <i class="fa-solid fa-shapes"></i>
-                </button>
+                <div id="rail-patterns-container" style="display: flex; flex-direction: column; gap: 10px; align-items: center; width: 100%;">
+                    <!-- Dynamically populated for all 19 patterns -->
+                </div>
             </div>
 
             <!-- Full 320px Catalog View -->
@@ -1674,8 +1645,9 @@ Terminal logs and assertion output will display here after you run code.
                 });
             }
 
-            // Guaranteed rendering of problem cards
+            // Guaranteed rendering of problem cards & 50px mini rail pattern buttons
             renderProblems();
+            renderRailCategoryButtons();
 
             // Compute due count & update rail due indicator
             const dueCount = problemList.filter(p => p.is_due).length;
@@ -1770,6 +1742,50 @@ Terminal logs and assertion output will display here after you run code.
         // Track collapsed states of groups globally to persist them across selections
         const collapsedGroups = {};
 
+        const PATTERN_ICONS = {
+            "Arrays & Hashing": { icon: "fa-layer-group", color: "var(--primary)" },
+            "Two Pointers": { icon: "fa-arrows-left-right", color: "#38bdf8" },
+            "Sliding Window": { icon: "fa-border-all", color: "#0284c7" },
+            "Stack": { icon: "fa-bars-staggered", color: "#a855f7" },
+            "Binary Search": { icon: "fa-magnifying-glass-chart", color: "#f59e0b" },
+            "Linked List": { icon: "fa-link", color: "#10b981" },
+            "Trees": { icon: "fa-diagram-project", color: "#22c55e" },
+            "Heap / Priority Queue": { icon: "fa-arrow-up-wide-short", color: "#eab308" },
+            "Backtracking": { icon: "fa-rotate-left", color: "#ec4899" },
+            "Tries": { icon: "fa-network-wired", color: "#06b6d4" },
+            "Graphs": { icon: "fa-diagram-next", color: "#8b5cf6" },
+            "Advanced Graphs": { icon: "fa-route", color: "#6366f1" },
+            "1D Dynamic Programming": { icon: "fa-bolt", color: "#eab308" },
+            "2D Dynamic Programming": { icon: "fa-chart-area", color: "#f97316" },
+            "Greedy": { icon: "fa-coins", color: "#84cc16" },
+            "Intervals": { icon: "fa-ruler-horizontal", color: "#14b8a6" },
+            "Math & Geometry": { icon: "fa-shapes", color: "#3b82f6" },
+            "Bit Manipulation": { icon: "fa-microchip", color: "#a855f7" },
+            "Advanced CP Patterns": { icon: "fa-trophy", color: "#f59e0b" }
+        };
+
+        function renderRailCategoryButtons() {
+            const container = document.getElementById("rail-patterns-container");
+            if (!container || !problemList) return;
+            container.innerHTML = "";
+
+            const uniquePatterns = [...new Set(problemList.map(p => p.pattern || "General"))];
+            uniquePatterns.forEach(pattern => {
+                const iconInfo = PATTERN_ICONS[pattern] || { icon: "fa-folder", color: "var(--primary)" };
+                const btn = document.createElement("button");
+                btn.className = "rail-icon-btn pattern-rail-btn";
+                btn.setAttribute("data-pattern", pattern);
+                btn.title = pattern;
+                btn.onclick = () => expandAndFilterPattern(pattern);
+                btn.innerHTML = `<i class="fa-solid ${iconInfo.icon}"></i>`;
+                
+                if (activeProblem && activeProblem.pattern === pattern) {
+                    btn.classList.add("active");
+                }
+                container.appendChild(btn);
+            });
+        }
+
         // Render Sidebar Problem Selector grouped by pattern
         function renderProblems() {
             const container = document.getElementById("problem-list-container");
@@ -1810,8 +1826,14 @@ Terminal logs and assertion output will display here after you run code.
                     groupHeader.style.borderLeftColor = "var(--accent-green)";
                 }
 
+                const patIconInfo = PATTERN_ICONS[pattern] || { icon: "fa-folder", color: "var(--primary)" };
+
                 groupHeader.innerHTML = `
-                    <span>${escapeHtml(pattern)} (${probs.length})</span>
+                    <span style="display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid ${patIconInfo.icon}" style="font-size: 0.85rem; color: ${patIconInfo.color};"></i>
+                        <span>${escapeHtml(pattern)}</span>
+                        <span style="color: var(--text-muted); font-size: 0.75rem; font-weight: 600;">(${probs.length})</span>
+                    </span>
                     <i class="fa-solid ${isGroupCollapsed ? 'fa-chevron-right' : 'fa-chevron-down'}" style="font-size:0.75rem; color:var(--text-muted); transition: transform 0.2s;"></i>
                 `;
 
