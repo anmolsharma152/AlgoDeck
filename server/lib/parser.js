@@ -164,7 +164,7 @@ function extractJsBoilerplate(codeContent) {
         const stripped = line.trim();
         const currentIndent = line.length - line.trimStart().length;
 
-        if (stripped === "if (require.main === module) {" || stripped === "// Test Cases" || stripped.startsWith("if (require.main === module)")) {
+        if (stripped.startsWith("if (require.main") || stripped.startsWith("// Test") || stripped.startsWith("const assert") || stripped.startsWith("let assert") || stripped.startsWith("var assert")) {
             break;
         }
 
@@ -199,14 +199,14 @@ function extractJsBoilerplate(codeContent) {
                     output.push(lines[i]);
                 }
             }
-            output.push("    // Write your code here");
+            output.push("    ");
             output.push("}");
 
             i++;
             while (i < lines.length) {
                 const nextStripped = lines[i].trim();
                 const nextIndent = lines[i].length - lines[i].trimStart().length;
-                if (nextStripped === "if (require.main === module) {" || nextStripped === "// Test Cases" || nextStripped.startsWith("if (require.main === module)")) {
+                if (nextStripped.startsWith("if (require.main") || nextStripped.startsWith("// Test") || nextStripped.startsWith("const assert") || nextStripped.startsWith("let assert") || nextStripped.startsWith("var assert")) {
                     break;
                 }
                 if (nextStripped === "}" && nextIndent === 0) {
@@ -226,7 +226,7 @@ function extractJsBoilerplate(codeContent) {
                     output.push(lines[i]);
                 }
             }
-            output.push("        // Write your code here");
+            output.push("        ");
             output.push("    }");
 
             i++;

@@ -20,11 +20,15 @@
         }
 
         // Sync Monaco editor themes if initialized
+        const monacoTheme = theme === 'light' ? 'vs' : 'vs-dark';
+        if (window.monaco && window.monaco.editor) {
+            window.monaco.editor.setTheme(monacoTheme);
+        }
         if (window.monacoEditor) {
-            window.monacoEditor.updateOptions({ theme: theme === 'light' ? 'vs' : 'vs-dark' });
+            window.monacoEditor.updateOptions({ theme: monacoTheme });
         }
         if (window.solutionEditor) {
-            window.solutionEditor.updateOptions({ theme: theme === 'light' ? 'vs' : 'vs-dark' });
+            window.solutionEditor.updateOptions({ theme: monacoTheme });
         }
     }
 

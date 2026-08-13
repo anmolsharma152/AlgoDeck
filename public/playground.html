@@ -1033,6 +1033,17 @@ Terminal logs and assertion output will display here after you run code.
                 bracketPairColorization: { enabled: true }
             });
 
+            // Expose editors globally for theme management & navbar sync
+            window.monacoEditor = monacoEditor;
+            window.solutionEditor = solutionEditor;
+
+            // Apply current stored theme to Monaco
+            const activeTheme = localStorage.getItem('algodeck_theme') || 'dark';
+            const targetMonacoTheme = activeTheme === 'light' ? 'vs' : 'vs-dark';
+            monaco.editor.setTheme(targetMonacoTheme);
+            monacoEditor.updateOptions({ theme: targetMonacoTheme });
+            solutionEditor.updateOptions({ theme: targetMonacoTheme });
+
             // Set auto-save draft behavior
             monacoEditor.onDidChangeModelContent(() => {
                 if (activeProblem) {
