@@ -993,7 +993,54 @@ Terminal logs and assertion output will display here after you run code.
         const monacoVsPath = window.location.protocol === 'file:' ? './vendor/monaco-editor/vs' : '/vendor/monaco-editor/vs';
         require.config({ paths: { vs: monacoVsPath } });
         require(['vs/editor/editor.main'], function () {
-            const currentMonacoTheme = (localStorage.getItem('algodeck_theme') === 'light') ? 'vs' : 'vs-dark';
+            // Define custom high-contrast Monaco themes for AlgoDeck
+            monaco.editor.defineTheme('algodeck-dark', {
+                base: 'vs-dark',
+                inherit: true,
+                rules: [
+                    { token: 'keyword', foreground: 'c084fc', fontStyle: 'bold' },
+                    { token: 'string', foreground: '4ade80' },
+                    { token: 'number', foreground: 'f59e0b' },
+                    { token: 'comment', foreground: '64748b', fontStyle: 'italic' },
+                    { token: 'identifier', foreground: 'f8fafc' },
+                    { token: 'delimiter', foreground: '94a3b8' },
+                    { token: 'type', foreground: '38bdf8' }
+                ],
+                colors: {
+                    'editor.background': '#0a0a0c',
+                    'editor.foreground': '#f8fafc',
+                    'editorCursor.foreground': '#38bdf8',
+                    'editorLineNumber.foreground': '#475569',
+                    'editorLineNumber.activeForeground': '#f8fafc',
+                    'editor.selectionBackground': '#334155',
+                    'editor.inactiveSelectionBackground': '#1e293b'
+                }
+            });
+
+            monaco.editor.defineTheme('algodeck-light', {
+                base: 'vs',
+                inherit: true,
+                rules: [
+                    { token: 'keyword', foreground: '7e22ce', fontStyle: 'bold' },
+                    { token: 'string', foreground: '15803d' },
+                    { token: 'number', foreground: 'd97706' },
+                    { token: 'comment', foreground: '64748b', fontStyle: 'italic' },
+                    { token: 'identifier', foreground: '0f172a' },
+                    { token: 'delimiter', foreground: '334155' },
+                    { token: 'type', foreground: '0284c7' }
+                ],
+                colors: {
+                    'editor.background': '#ffffff',
+                    'editor.foreground': '#0f172a',
+                    'editorCursor.foreground': '#0284c7',
+                    'editorLineNumber.foreground': '#94a3b8',
+                    'editorLineNumber.activeForeground': '#0f172a',
+                    'editor.selectionBackground': '#e2e8f0',
+                    'editor.inactiveSelectionBackground': '#f1f5f9'
+                }
+            });
+
+            const currentMonacoTheme = (localStorage.getItem('algodeck_theme') === 'light') ? 'algodeck-light' : 'algodeck-dark';
             
             // Main coding editor
             monacoEditor = monaco.editor.create(document.getElementById('code-editor-container'), {
@@ -1038,13 +1085,11 @@ Terminal logs and assertion output will display here after you run code.
             window.solutionEditor = solutionEditor;
 
             // Apply current stored theme to Monaco immediately upon creation
-            const activeTheme = localStorage.getItem('algodeck_theme') || 'dark';
-            const targetMonacoTheme = activeTheme === 'light' ? 'vs' : 'vs-dark';
-            monaco.editor.setTheme(targetMonacoTheme);
+            monaco.editor.setTheme(currentMonacoTheme);
 
             // Listen for top navbar theme toggle events for instant live theme switching
             window.addEventListener('algodeck-theme-changed', (e) => {
-                const monacoTheme = e.detail?.monacoTheme || (e.detail?.theme === 'light' ? 'vs' : 'vs-dark');
+                const monacoTheme = e.detail?.monacoTheme || (e.detail?.theme === 'light' ? 'algodeck-light' : 'algodeck-dark');
                 if (window.monaco && window.monaco.editor) {
                     window.monaco.editor.setTheme(monacoTheme);
                 }
@@ -1294,10 +1339,10 @@ Terminal logs and assertion output will display here after you run code.
             const dueEl = document.getElementById("due-count-val");
             if (dueEl) dueEl.innerText = dueCount;
             
-            // Select requested problem ONLY if target ID or daily_deck mode is passed in URL query
+            // Select requested problem from URL query or fallback to last selected problem
             if (!activeProblem) {
                 const urlParams = new URLSearchParams(window.location.search);
-                const targetId = urlParams.get('id');
+                const targetId = urlParams.get('id') || localStorage.getItem('algodeck_last_selected_problem_id');
                 const targetLang = urlParams.get('lang');
                 if (targetLang && (targetLang === 'python' || targetLang === 'javascript')) {
                     switchLanguage(targetLang);
@@ -1587,6 +1632,16 @@ Terminal logs and assertion output will display here after you run code.
             if (problem.pattern) {
                 collapsedGroups[problem.pattern] = false; // ensure pattern group stays expanded
             }
+
+            // Persist selected problem ID in localStorage & URL params to preserve selection across theme toggles & reloads
+            try {
+                localStorage.setItem('algodeck_last_selected_problem_id', problem.id);
+                const currentUrl = new URL(window.location.href);
+                if (currentUrl.searchParams.get('id') !== problem.id) {
+                    currentUrl.searchParams.set('id', problem.id);
+                    history.replaceState(null, '', currentUrl.toString());
+                }
+            } catch(e) {}
             
             // Update active state selection in UI without re-rendering
             document.querySelectorAll('.pattern-group-header').forEach(header => {

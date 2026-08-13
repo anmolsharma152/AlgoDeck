@@ -20,7 +20,7 @@
         }
 
         // Sync Monaco editor themes if initialized
-        const monacoTheme = theme === 'light' ? 'vs' : 'vs-dark';
+        const monacoTheme = theme === 'light' ? 'algodeck-light' : 'algodeck-dark';
         if (window.monaco && window.monaco.editor) {
             window.monaco.editor.setTheme(monacoTheme);
         }
