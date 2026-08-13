@@ -2255,20 +2255,26 @@ New ELO Rating:    ${data.user_rating} ELO.
             const sidebar = document.getElementById("app-sidebar");
             const toggleIcon = document.getElementById("sidebar-toggle-icon");
             const toggleBtn = document.getElementById("sidebar-toggle-btn");
-            if (sidebar && sidebar.classList.contains("collapsed")) {
+            
+            document.documentElement.classList.remove("sidebar-init-collapsed");
+            document.documentElement.classList.add("sidebar-init-expanded");
+            
+            if (sidebar) {
                 sidebar.classList.remove("collapsed");
-                if (toggleBtn) {
-                    toggleBtn.classList.remove("collapsed");
-                    toggleBtn.title = "Collapse Sidebar";
-                }
-                if (toggleIcon) {
-                    toggleIcon.className = "fa-solid fa-chevron-left";
-                }
-                setTimeout(() => {
-                    if (monacoEditor) monacoEditor.layout();
-                    if (solutionEditor) solutionEditor.layout();
-                }, 260);
+                sidebar.classList.add("expanded");
             }
+            if (toggleBtn) {
+                toggleBtn.classList.remove("collapsed");
+                toggleBtn.classList.add("expanded");
+                toggleBtn.title = "Collapse Sidebar";
+            }
+            if (toggleIcon) {
+                toggleIcon.className = "fa-solid fa-chevron-left";
+            }
+            setTimeout(() => {
+                if (monacoEditor) monacoEditor.layout();
+                if (solutionEditor) solutionEditor.layout();
+            }, 260);
         }
 
         // Collapse Sidebar helper
@@ -2276,20 +2282,26 @@ New ELO Rating:    ${data.user_rating} ELO.
             const sidebar = document.getElementById("app-sidebar");
             const toggleIcon = document.getElementById("sidebar-toggle-icon");
             const toggleBtn = document.getElementById("sidebar-toggle-btn");
-            if (sidebar && !sidebar.classList.contains("collapsed")) {
+            
+            document.documentElement.classList.remove("sidebar-init-expanded");
+            document.documentElement.classList.add("sidebar-init-collapsed");
+            
+            if (sidebar) {
+                sidebar.classList.remove("expanded");
                 sidebar.classList.add("collapsed");
-                if (toggleBtn) {
-                    toggleBtn.classList.add("collapsed");
-                    toggleBtn.title = "Expand Sidebar";
-                }
-                if (toggleIcon) {
-                    toggleIcon.className = "fa-solid fa-chevron-right";
-                }
-                setTimeout(() => {
-                    if (monacoEditor) monacoEditor.layout();
-                    if (solutionEditor) solutionEditor.layout();
-                }, 260);
             }
+            if (toggleBtn) {
+                toggleBtn.classList.remove("expanded");
+                toggleBtn.classList.add("collapsed");
+                toggleBtn.title = "Expand Sidebar";
+            }
+            if (toggleIcon) {
+                toggleIcon.className = "fa-solid fa-chevron-right";
+            }
+            setTimeout(() => {
+                if (monacoEditor) monacoEditor.layout();
+                if (solutionEditor) solutionEditor.layout();
+            }, 260);
         }
 
         // Expand sidebar and focus search input
@@ -2297,30 +2309,52 @@ New ELO Rating:    ${data.user_rating} ELO.
             expandSidebar();
             setTimeout(() => {
                 const searchInput = document.getElementById("search-input");
-                if (searchInput) searchInput.focus();
-            }, 100);
-        }
-
-        // Expand sidebar and filter by specific pattern
-        function expandAndFilterPattern(patternName) {
-            expandSidebar();
-            setTimeout(() => {
-                const searchInput = document.getElementById("search-input");
                 if (searchInput) {
-                    searchInput.value = patternName;
+                    searchInput.value = "";
                     filterProblems();
                     searchInput.focus();
                 }
             }, 100);
         }
 
+        // Expand sidebar, expand targeted pattern group, and scroll to it
+        function expandAndFilterPattern(patternName) {
+            expandSidebar();
+            
+            const searchInput = document.getElementById("search-input");
+            if (searchInput) searchInput.value = "";
+            isDueOnlyFilterActive = false;
+            
+            const dueBtn = document.getElementById("due-filter-btn");
+            if (dueBtn) {
+                dueBtn.style.background = "rgba(255, 255, 255, 0.05)";
+                dueBtn.style.borderColor = "var(--border-subtle)";
+                dueBtn.style.color = "var(--text-muted)";
+            }
+
+            // Collapse all other pattern groups except the targeted pattern
+            Object.keys(collapsedGroups).forEach(k => {
+                collapsedGroups[k] = (k !== patternName);
+            });
+
+            // Re-render problem catalog with only target pattern open
+            renderProblems();
+
+            // Smooth scroll to the target pattern header
+            setTimeout(() => {
+                const headers = document.querySelectorAll('.pattern-group-header');
+                headers.forEach(h => {
+                    if (h.innerText.includes(patternName)) {
+                        h.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            }, 150);
+        }
+
         // Toggle Sidebar display (Single Boundary Edge Handle)
         function toggleSidebar() {
             const sidebar = document.getElementById("app-sidebar");
-            const toggleIcon = document.getElementById("sidebar-toggle-icon");
-            const toggleBtn = document.getElementById("sidebar-toggle-btn");
-            
-            const isCurrentlyCollapsed = sidebar.classList.contains("collapsed") || document.documentElement.classList.contains("sidebar-init-collapsed");
+            const isCurrentlyCollapsed = (sidebar && sidebar.classList.contains("collapsed")) || document.documentElement.classList.contains("sidebar-init-collapsed");
             if (isCurrentlyCollapsed) {
                 expandSidebar();
             } else {
