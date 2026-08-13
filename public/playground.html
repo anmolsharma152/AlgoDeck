@@ -1281,44 +1281,58 @@ Terminal logs and assertion output will display here after you run code.
                 return;
             }
             
-            if (confirm(`Reset code for "${activeProblem.title}" to its clean starter boilerplate? Your unsaved draft will be lost.`)) {
-                const draftKey = `draft_${activeProblem.id}_${activeLanguage}`;
-                
-                // Remove draft from local storage immediately
-                localStorage.removeItem(draftKey);
-                
-                // Set programmatic change flag to prevent model change listener from re-saving draft
-                isProgrammaticChange = true;
-                clearTimeout(draftSavingTimeout);
+            const isConfirmed = confirm(`Reset code for "${activeProblem.title}" to its clean starter boilerplate? Your unsaved draft will be lost.`);
+            if (!isConfirmed) return;
 
-                // Fetch fresh clean boilerplate stub from server
-                const filePath = (activeLanguage === "python" ? activeProblem.pythonPath : activeProblem.jsPath) || "";
-                if (filePath) {
-                    try {
-                        const response = await fetch(`${API_BASE}/api/boilerplate?path=${encodeURIComponent(filePath)}`);
-                        if (response.ok) {
-                            const code = await response.text();
-                            const cleanCode = stripPlaceholderComments(code);
-                            if (monacoEditor) {
-                                monacoEditor.setValue(cleanCode);
-                            }
-                        }
-                    } catch (err) {
-                        console.error("Error fetching boilerplate during reset:", err);
+            // Purge all draft variants for this problem from localStorage
+            for (let i = localStorage.length - 1; i >= 0; i--) {
+                const key = localStorage.key(i);
+                if (key && key.includes(`draft_${activeProblem.id}`)) {
+                    localStorage.removeItem(key);
+                }
+            }
+
+            // Set programmatic change flag to prevent model change listener from re-saving draft
+            isProgrammaticChange = true;
+            clearTimeout(draftSavingTimeout);
+
+            // Fetch fresh clean boilerplate stub from server
+            const filePath = activeLanguage === "python" 
+                ? (activeProblem.pythonPath || activeProblem.python_file) 
+                : (activeProblem.jsPath || activeProblem.js_file);
+            
+            let cleanCode = "";
+            if (filePath) {
+                try {
+                    const response = await fetch(`${API_BASE}/api/boilerplate?path=${encodeURIComponent(filePath)}`);
+                    if (response.ok) {
+                        const code = await response.text();
+                        cleanCode = stripPlaceholderComments(code);
                     }
+                } catch (err) {
+                    console.error("Error fetching boilerplate during reset:", err);
                 }
-                
-                // Ensure draft key stays deleted and reset programmatic flag after a brief tick
-                localStorage.removeItem(draftKey);
-                clearTimeout(draftSavingTimeout);
-                setTimeout(() => { isProgrammaticChange = false; }, 200);
+            }
 
-                const terminal = document.getElementById("terminal-body");
-                if (terminal) {
-                    terminal.className = "terminal-body";
-                    terminal.innerText = `[${new Date().toLocaleTimeString()}] Starter code reset successfully for ${activeProblem.title} (${activeLanguage}).`;
-                    document.getElementById("term-status").innerText = "Ready";
+            if (monacoEditor && cleanCode) {
+                monacoEditor.setValue(cleanCode);
+            }
+
+            // Ensure draft keys stay deleted and reset programmatic flag after a brief tick
+            for (let i = localStorage.length - 1; i >= 0; i--) {
+                const key = localStorage.key(i);
+                if (key && key.includes(`draft_${activeProblem.id}`)) {
+                    localStorage.removeItem(key);
                 }
+            }
+            clearTimeout(draftSavingTimeout);
+            setTimeout(() => { isProgrammaticChange = false; }, 300);
+
+            const terminal = document.getElementById("terminal-body");
+            if (terminal) {
+                terminal.className = "terminal-body";
+                terminal.innerText = `[${new Date().toLocaleTimeString()}] Starter code reset successfully for ${activeProblem.title} (${activeLanguage}).`;
+                document.getElementById("term-status").innerText = "Ready";
             }
         }
 
