@@ -431,7 +431,11 @@ body {
 [data-theme="light"] .pattern-group-header {
     background-color: #f8fafc !important;
     color: #0f172a !important;
+    border-left: 3px solid #cbd5e1;
     border-bottom-color: #cbd5e1 !important;
+}
+.pattern-group-header.active {
+    border-left-color: var(--accent-green) !important;
 }
 
 [data-theme="light"] .modal-content,

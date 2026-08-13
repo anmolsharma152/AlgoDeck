@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <script>
-        (function() {
+        (function () {
             var theme = localStorage.getItem('algodeck_theme') || 'dark';
             document.documentElement.setAttribute('data-theme', theme);
 
@@ -25,7 +26,9 @@
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Manrope:wght@200;300;400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Manrope:wght@200;300;400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/global.css?v=5.0">
     <script src="/js/global.js?v=5.0" defer></script>
@@ -34,8 +37,6 @@
     <script src="/vendor/monaco-editor/vs/loader.js"></script>
 
     <style>
-
-
         * {
             box-sizing: border-box;
             margin: 0;
@@ -176,9 +177,18 @@
         .diff-tag {
             text-transform: capitalize;
         }
-        .diff-tag.easy { color: var(--easy); }
-        .diff-tag.medium { color: var(--medium); }
-        .diff-tag.hard { color: var(--hard); }
+
+        .diff-tag.easy {
+            color: var(--easy);
+        }
+
+        .diff-tag.medium {
+            color: var(--medium);
+        }
+
+        .diff-tag.hard {
+            color: var(--hard);
+        }
 
         .sr-badge {
             padding: 2px 6px;
@@ -187,11 +197,13 @@
             font-weight: 600;
             text-transform: uppercase;
         }
+
         .sr-badge.due {
             background: rgba(255, 82, 82, 0.2);
             color: var(--danger);
             border: 1px solid rgba(255, 82, 82, 0.3);
         }
+
         .sr-badge.learning {
             background: rgba(138, 63, 252, 0.2);
             color: #d1b3ff;
@@ -209,9 +221,18 @@
             height: 8px;
             border-radius: 50%;
         }
-        .status-dot.solved { background-color: var(--success); }
-        .status-dot.review { background-color: var(--warning); }
-        .status-dot.unsolved { background-color: var(--border); }
+
+        .status-dot.solved {
+            background-color: var(--success);
+        }
+
+        .status-dot.review {
+            background-color: var(--warning);
+        }
+
+        .status-dot.unsolved {
+            background-color: var(--border);
+        }
 
         /* Left Pane: Code & Problem Details Split */
         .main-workspace {
@@ -297,16 +318,21 @@
             font-family: inherit;
             word-wrap: break-word;
         }
+
         .doc-desc p {
             margin-bottom: 0.75rem;
         }
-        .doc-desc ul, .doc-desc ol {
+
+        .doc-desc ul,
+        .doc-desc ol {
             margin-left: 1.5rem;
             margin-bottom: 0.8rem;
         }
+
         .doc-desc li {
             margin-bottom: 0.3rem;
         }
+
         .doc-desc code {
             font-family: 'Fira Code', monospace;
             background: rgba(255, 255, 255, 0.1);
@@ -316,6 +342,7 @@
             font-size: 0.85rem;
             white-space: nowrap;
         }
+
         .doc-desc pre {
             background: rgba(0, 0, 0, 0.35);
             border: 1px solid var(--border);
@@ -326,18 +353,21 @@
             line-height: 1.5;
             font-size: 0.88rem;
         }
+
         .doc-desc pre code {
             background: transparent;
             padding: 0;
             color: var(--text-main);
             white-space: pre;
         }
+
         .doc-desc strong.example {
             display: inline-block;
             font-size: 0.95rem;
             color: var(--text-main);
             margin-top: 0.5rem;
         }
+
         .doc-desc .example-block {
             background: rgba(255, 255, 255, 0.025);
             border-left: 3px solid var(--accent-blue);
@@ -345,28 +375,34 @@
             margin-bottom: 1rem;
             border-radius: 0 8px 8px 0;
         }
+
         .doc-desc .example-block p {
             margin-bottom: 0.4rem;
         }
+
         .doc-desc .example-io {
             font-family: 'Fira Code', monospace;
             color: #a5d6ff;
             font-size: 0.88rem;
         }
+
         .doc-desc sup {
             font-size: 0.7em;
             vertical-align: super;
             line-height: 0;
         }
+
         .doc-desc img {
             max-width: 100%;
             border-radius: 8px;
             margin: 0.5rem 0;
         }
+
         .doc-desc a {
             color: var(--accent-blue);
             text-decoration: none;
         }
+
         .doc-desc a:hover {
             text-decoration: underline;
         }
@@ -526,6 +562,7 @@
             border: 1px solid rgba(255, 255, 255, 0.15);
             color: #e5e5e5;
         }
+
         .editor-btn.run:hover {
             background: #e5e5e5;
             color: #050505;
@@ -537,6 +574,7 @@
             color: #050505;
             border: 1px solid #e5e5e5;
         }
+
         .editor-btn.submit:hover {
             background: transparent;
             color: #e5e5e5;
@@ -634,6 +672,7 @@
             margin-top: 8px;
             transition: color 0.2s ease;
         }
+
         .modal-cancel:hover {
             color: var(--text-main);
         }
@@ -645,6 +684,7 @@
             height: calc(100vh - 56px);
             overflow: hidden;
         }
+
         .sidebar {
             width: 320px;
             min-width: 320px;
@@ -657,11 +697,13 @@
             display: flex;
             flex-direction: row;
         }
+
         html.sidebar-init-collapsed .sidebar,
         .sidebar.collapsed {
             width: 50px !important;
             min-width: 50px !important;
         }
+
         html.sidebar-init-expanded .sidebar.expanded,
         .sidebar.expanded {
             width: 320px !important;
@@ -683,9 +725,11 @@
             scrollbar-width: none;
             flex-shrink: 0;
         }
+
         .sidebar-rail-content::-webkit-scrollbar {
             display: none;
         }
+
         .rail-icon-btn {
             width: 34px;
             height: 34px;
@@ -702,23 +746,27 @@
             position: relative;
             flex-shrink: 0;
         }
+
         .rail-icon-btn:hover {
             background: var(--bg-element);
             color: var(--primary);
             border-color: var(--primary);
             transform: scale(1.1);
         }
+
         .rail-icon-btn.active {
             background: rgba(168, 85, 247, 0.18) !important;
             border-color: var(--primary) !important;
             color: var(--primary) !important;
             box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
         }
+
         [data-theme="light"] .rail-icon-btn.active {
             background: rgba(147, 51, 234, 0.12) !important;
             border-color: #9333ea !important;
             color: #9333ea !important;
         }
+
         .rail-icon-badge {
             position: absolute;
             top: -4px;
@@ -746,6 +794,7 @@
         .sidebar.collapsed .sidebar-full-content {
             display: none !important;
         }
+
         html.sidebar-init-collapsed .sidebar-rail-content,
         .sidebar.collapsed .sidebar-rail-content {
             display: flex !important;
@@ -755,6 +804,7 @@
         .sidebar.expanded .sidebar-rail-content {
             display: none !important;
         }
+
         html.sidebar-init-expanded .sidebar-full-content,
         .sidebar.expanded .sidebar-full-content {
             display: flex !important;
@@ -900,14 +950,17 @@
             transition: left 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
         }
+
         html.sidebar-init-collapsed .sidebar-toggle-btn,
         .sidebar-toggle-btn.collapsed {
             left: 36px !important;
         }
+
         html.sidebar-init-expanded .sidebar-toggle-btn.expanded,
         .sidebar-toggle-btn.expanded {
             left: 306px !important;
         }
+
         .sidebar-toggle-btn:hover {
             color: var(--primary);
             border-color: var(--primary);
@@ -930,11 +983,13 @@
             gap: 5px;
             font-family: 'Manrope', sans-serif;
         }
+
         .tool-btn:hover {
             background: rgba(255, 255, 255, 0.08);
             color: var(--text-main);
             border-color: rgba(255, 255, 255, 0.2);
         }
+
         .tool-btn.active {
             background: rgba(255, 255, 255, 0.12);
             color: #ffffff;
@@ -951,14 +1006,16 @@
             z-index: 10;
             flex-shrink: 0;
         }
-        .resizer:hover, .resizer.dragging {
+
+        .resizer:hover,
+        .resizer.dragging {
             background: var(--primary);
         }
 
         /* Collapsible Pattern Grouping CSS */
         .pattern-group-header {
             background: rgba(255, 255, 255, 0.02);
-            border-left: 3px solid var(--primary);
+            border-left: 3px solid var(--border);
             padding: 10px 14px;
             font-size: 0.82rem;
             font-weight: 700;
@@ -974,10 +1031,12 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
+
         .pattern-group-header:hover {
             background: rgba(255, 255, 255, 0.05);
             color: var(--primary);
         }
+
         .pattern-group-content {
             display: flex;
             flex-direction: column;
@@ -987,15 +1046,17 @@
             padding-left: 4px;
             flex-shrink: 0;
         }
+
         .pattern-group-content.collapsed {
             display: none !important;
         }
+
         .problem-item {
             flex-shrink: 0;
         }
-
     </style>
 </head>
+
 <body>
 
     <!-- Header Navigation -->
@@ -1011,18 +1072,13 @@
         <div class="sidebar" id="app-sidebar">
             <!-- Dedicated 50px Mini Activity Rail View -->
             <div class="sidebar-rail-content" id="sidebar-rail-content">
-                <button class="rail-icon-btn" onclick="expandSidebar()" title="Catalog & User ELO Rating">
-                    <i class="fa-solid fa-trophy" style="color: #ffb020;"></i>
-                </button>
-                <button class="rail-icon-btn" onclick="expandSidebarAndSearch()" title="Search Problems (Click to open)">
+                <button class="rail-icon-btn" onclick="expandSidebarAndSearch()"
+                    title="Search Problems (Click to open)">
                     <i class="fa-solid fa-magnifying-glass"></i>
                 </button>
-                <button class="rail-icon-btn" onclick="toggleDueFilter()" title="Due Today Reviews">
-                    <i class="fa-solid fa-bell" id="rail-due-icon" style="color: var(--text-muted);"></i>
-                    <span class="rail-icon-badge" id="rail-due-count-badge" style="display: none;">0</span>
-                </button>
                 <div style="width: 24px; height: 1px; background: var(--border); margin: 2px 0;"></div>
-                <div id="rail-patterns-container" style="display: flex; flex-direction: column; gap: 10px; align-items: center; width: 100%;">
+                <div id="rail-patterns-container"
+                    style="display: flex; flex-direction: column; gap: 10px; align-items: center; width: 100%;">
                     <!-- Dynamically populated for all 19 patterns -->
                 </div>
             </div>
@@ -1032,18 +1088,25 @@
                 <div class="sidebar-header">
                     <span>Problem Catalog</span>
                     <div style="display: flex; gap: 8px; align-items: center;">
-                        <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-main); background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12); padding: 3px 10px; border-radius: 9999px; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;" title="Coding ELO Rating">
-                            <i class="fa-solid fa-trophy" style="color: #ffb020;"></i> <span id="user-rating-val">1200</span> <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">ELO</span>
+                        <span
+                            style="font-size: 0.75rem; font-weight: 700; color: var(--text-main); background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12); padding: 3px 10px; border-radius: 9999px; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;"
+                            title="Coding ELO Rating">
+                            <i class="fa-solid fa-trophy" style="color: #ffb020;"></i> <span
+                                id="user-rating-val">1200</span> <span
+                                style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">ELO</span>
                         </span>
                     </div>
                 </div>
                 <div class="problem-search">
                     <div class="search-input-wrapper">
                         <i class="fa-solid fa-magnifying-glass"></i>
-                        <input type="text" id="search-input" placeholder="Search problems or patterns..." oninput="filterProblems()">
+                        <input type="text" id="search-input" placeholder="Search problems or patterns..."
+                            oninput="filterProblems()">
                     </div>
-                    <button id="due-filter-btn" onclick="toggleDueFilter()" class="due-filter-btn" title="Toggle Due Today Only">
-                        <i class="fa-solid fa-bell" style="font-size: 0.75rem;"></i> <span id="due-btn-text">Due (<span id="due-count-val">0</span>)</span>
+                    <button id="due-filter-btn" onclick="toggleDueFilter()" class="due-filter-btn"
+                        title="Toggle Due Today Only">
+                        <i class="fa-solid fa-bell" style="font-size: 0.75rem;"></i> <span id="due-btn-text">Due (<span
+                                id="due-count-val">0</span>)</span>
                     </button>
                 </div>
                 <div class="problem-list" id="problem-list-container">
@@ -1058,9 +1121,10 @@
             <div class="problem-description-pane">
                 <div class="tabs-header">
                     <button class="tab-btn active" onclick="switchTab('description')">Description</button>
-                    <button class="tab-btn" id="solution-tab-header" onclick="switchTab('solution')">Reference Solution</button>
+                    <button class="tab-btn" id="solution-tab-header" onclick="switchTab('solution')">Reference
+                        Solution</button>
                 </div>
-                
+
                 <div class="tab-content-container">
                     <!-- Description Tab -->
                     <div class="tab-content active" id="tab-description">
@@ -1068,38 +1132,51 @@
                         <div class="doc-stats" id="doc-stats">
                             <!-- Injected -->
                         </div>
-                        <div class="doc-desc" id="doc-desc">Choose a problem from the left sidebar to start coding.</div>
-                        
+                        <div class="doc-desc" id="doc-desc">Choose a problem from the left sidebar to start coding.
+                        </div>
+
                         <!-- Spaced Repetition card -->
                         <div class="sr-card" id="sr-card" style="display:none;">
                             <div class="sr-card-title">
                                 <i class="fa-solid fa-brain"></i>
                                 <span>Spaced Repetition Review Profile</span>
                             </div>
-                            <div style="font-size:0.85rem; color:var(--text-muted); display:flex; flex-direction:column; gap:4px;">
-                                <div>Interval: <span id="sr-interval" style="color:var(--text-main); font-weight:600;">-</span> days</div>
-                                <div>Next Review Date: <span id="sr-next-review" style="color:var(--text-main); font-weight:600;">-</span></div>
-                                <div>Consecutive reviews: <span id="sr-reps" style="color:var(--text-main); font-weight:600;">-</span></div>
+                            <div
+                                style="font-size:0.85rem; color:var(--text-muted); display:flex; flex-direction:column; gap:4px;">
+                                <div>Interval: <span id="sr-interval"
+                                        style="color:var(--text-main); font-weight:600;">-</span> days</div>
+                                <div>Next Review Date: <span id="sr-next-review"
+                                        style="color:var(--text-main); font-weight:600;">-</span></div>
+                                <div>Consecutive reviews: <span id="sr-reps"
+                                        style="color:var(--text-main); font-weight:600;">-</span></div>
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Solution Tab -->
                     <div class="tab-content" id="tab-solution" style="height:100%; position: relative;">
                         <!-- Lock Overlay -->
-                        <div id="solution-lock-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-surface); backdrop-filter: blur(8px); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; border-radius: 8px; border: 1px solid var(--border); padding: 2rem; text-align: center;">
-                            <div style="font-size: 2.5rem; margin-bottom: 1rem; color: #ffb020; text-shadow: 0 0 10px rgba(255, 176, 32, 0.3);">
+                        <div id="solution-lock-overlay"
+                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-surface); backdrop-filter: blur(8px); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; border-radius: 8px; border: 1px solid var(--border); padding: 2rem; text-align: center;">
+                            <div
+                                style="font-size: 2.5rem; margin-bottom: 1rem; color: #ffb020; text-shadow: 0 0 10px rgba(255, 176, 32, 0.3);">
                                 <i class="fa-solid fa-lock"></i>
                             </div>
-                            <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-main); font-family: 'Outfit';">Reference Solution Locked</h3>
-                            <p style="font-size: 0.85rem; color: var(--text-muted); max-width: 280px; margin-bottom: 1.5rem; line-height: 1.5; font-family: 'Outfit';">
-                                Try to solve the challenge first! If you are stuck or want to compare implementations, reveal the reference solution.
+                            <h3
+                                style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-main); font-family: 'Outfit';">
+                                Reference Solution Locked</h3>
+                            <p
+                                style="font-size: 0.85rem; color: var(--text-muted); max-width: 280px; margin-bottom: 1.5rem; line-height: 1.5; font-family: 'Outfit';">
+                                Try to solve the challenge first! If you are stuck or want to compare implementations,
+                                reveal the reference solution.
                             </p>
-                            <button onclick="revealSolution()" style="background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue)); color: #fff; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 15px rgba(0, 242, 254, 0.2); font-family: 'Outfit'; display: flex; align-items: center; gap: 8px;">
+                            <button onclick="revealSolution()"
+                                style="background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue)); color: #fff; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 15px rgba(0, 242, 254, 0.2); font-family: 'Outfit'; display: flex; align-items: center; gap: 8px;">
                                 <i class="fa-solid fa-eye"></i> Reveal Solution
                             </button>
                         </div>
-                        <div id="solution-editor-container" style="height:100%; border:1px solid var(--border); border-radius:8px; overflow:hidden;">
+                        <div id="solution-editor-container"
+                            style="height:100%; border:1px solid var(--border); border-radius:8px; overflow:hidden;">
                             <!-- Injected solution editor -->
                         </div>
                     </div>
@@ -1114,14 +1191,19 @@
                 <div class="editor-header-bar">
                     <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
                         <div class="lang-select-group">
-                            <button class="lang-btn active" id="btn-lang-python" onclick="switchLanguage('python')">Python</button>
-                            <button class="lang-btn" id="btn-lang-js" onclick="switchLanguage('javascript')">JavaScript</button>
+                            <button class="lang-btn active" id="btn-lang-python"
+                                onclick="switchLanguage('python')">Python</button>
+                            <button class="lang-btn" id="btn-lang-js"
+                                onclick="switchLanguage('javascript')">JavaScript</button>
                         </div>
                         <div class="editor-action-tools" style="display: flex; gap: 6px; align-items: center;">
                             <button class="tool-btn" onclick="zoomEditor(-1)" title="Zoom Out Font (A-)">A-</button>
                             <button class="tool-btn" onclick="zoomEditor(1)" title="Zoom In Font (A+)">A+</button>
-                            <button class="tool-btn" onclick="formatCode()" title="Format Document"><i class="fa-solid fa-align-left"></i> Format</button>
-                            <button class="tool-btn" id="btn-reset-ui" onclick="resetIdeFormatSettings()" title="Reset IDE Format & Zoom Settings"><i class="fa-solid fa-arrows-rotate"></i> Reset View</button>
+                            <button class="tool-btn" onclick="formatCode()" title="Format Document"><i
+                                    class="fa-solid fa-align-left"></i> Format</button>
+                            <button class="tool-btn" id="btn-reset-ui" onclick="resetIdeFormatSettings()"
+                                title="Reset IDE Format & Zoom Settings"><i class="fa-solid fa-arrows-rotate"></i> Reset
+                                View</button>
                         </div>
                     </div>
                     <div style="font-size:0.85rem; color:var(--text-muted); font-weight:500;">
@@ -1139,7 +1221,7 @@
                         <span id="term-status" style="font-size:0.8rem;">Ready</span>
                     </div>
                     <div class="terminal-body" id="terminal-body">
-Terminal logs and assertion output will display here after you run code.
+                        Terminal logs and assertion output will display here after you run code.
                     </div>
                 </div>
 
@@ -1150,7 +1232,8 @@ Terminal logs and assertion output will display here after you run code.
                             <i class="fa-solid fa-play"></i>
                             <span>Run Tests</span>
                         </button>
-                        <button class="editor-btn" onclick="resetBoilerplateCode()" style="background: rgba(255, 82, 82, 0.1); color: #ff5252; border: 1px solid rgba(255, 82, 82, 0.2); display: flex; align-items: center; gap: 6px; padding: 10px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'Outfit';">
+                        <button class="editor-btn" onclick="resetBoilerplateCode()"
+                            style="background: rgba(255, 82, 82, 0.1); color: #ff5252; border: 1px solid rgba(255, 82, 82, 0.2); display: flex; align-items: center; gap: 6px; padding: 10px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'Outfit';">
                             <i class="fa-solid fa-rotate-left"></i>
                             <span>Reset Code</span>
                         </button>
@@ -1169,7 +1252,8 @@ Terminal logs and assertion output will display here after you run code.
         <div class="rating-modal">
             <h2 class="modal-title">Self-Evaluation Review Quality</h2>
             <p style="font-size:0.85rem; color:var(--text-muted); text-align:center;">
-                Assign a score from 0 to 5 based on how successfully you recalled and coded the algorithm. This directly adjusts your Chess-style ELO and schedules the next review date!
+                Assign a score from 0 to 5 based on how successfully you recalled and coded the algorithm. This directly
+                adjusts your Chess-style ELO and schedules the next review date!
             </p>
             <div class="rating-options">
                 <button class="rating-btn" onclick="submitPerformance(5)">
@@ -1209,7 +1293,7 @@ Terminal logs and assertion output will display here after you run code.
 
     <script>
         const API_BASE = window.location.origin;
-        
+
         function escapeHtml(str) {
             if (!str) return '';
             return String(str)
@@ -1219,7 +1303,7 @@ Terminal logs and assertion output will display here after you run code.
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#039;');
         }
-        
+
         function renderHeader() {
             if (window.renderGlobalNavbar) {
                 window.renderGlobalNavbar();
@@ -1304,7 +1388,7 @@ Terminal logs and assertion output will display here after you run code.
 
             // Monaco Editor stays in sleek dark-mode for zero flicker and optimal contrast
             const currentMonacoTheme = 'monaco-dark';
-            
+
             // Main coding editor
             monacoEditor = monaco.editor.create(document.getElementById('code-editor-container'), {
                 value: "# Select a problem from the catalog.",
@@ -1468,7 +1552,7 @@ Terminal logs and assertion output will display here after you run code.
             const lines = code.split("\n");
             const formatted = [];
             let indentLevel = 0;
-            
+
             for (let i = 0; i < lines.length; i++) {
                 let line = lines[i].trim();
                 if (!line) {
@@ -1477,7 +1561,7 @@ Terminal logs and assertion output will display here after you run code.
                     }
                     continue;
                 }
-                
+
                 if (line.startsWith("else:") || line.startsWith("elif ") || line.startsWith("except:") || line.startsWith("except ") || line.startsWith("finally:")) {
                     const currentIndent = Math.max(0, indentLevel - 1);
                     formatted.push("    ".repeat(currentIndent) + line);
@@ -1488,10 +1572,10 @@ Terminal logs and assertion output will display here after you run code.
                 if (line.endsWith(":") && !line.startsWith("#")) {
                     indentLevel++;
                 }
-                
+
                 if (line === "pass" || line === "break" || line.startsWith("return ")) {
-                    if (i + 1 < lines.length && lines[i+1].trim() !== "" && !lines[i+1].trim().startsWith("#")) {
-                        const nextLine = lines[i+1].trim();
+                    if (i + 1 < lines.length && lines[i + 1].trim() !== "" && !lines[i + 1].trim().startsWith("#")) {
+                        const nextLine = lines[i + 1].trim();
                         if (nextLine.startsWith("def ") || nextLine.startsWith("class ")) {
                             indentLevel = 0;
                         }
@@ -1506,7 +1590,7 @@ Terminal logs and assertion output will display here after you run code.
             const lines = code.split("\n");
             const formatted = [];
             let indent = 0;
-            
+
             for (let i = 0; i < lines.length; i++) {
                 let line = lines[i].trim();
                 if (!line) {
@@ -1515,13 +1599,13 @@ Terminal logs and assertion output will display here after you run code.
                     }
                     continue;
                 }
-                
+
                 if (line.startsWith("}") || line.startsWith("]")) {
                     indent = Math.max(0, indent - 1);
                 }
-                
+
                 formatted.push("    ".repeat(indent) + line);
-                
+
                 if (line.endsWith("{") || line.endsWith("[")) {
                     indent++;
                 }
@@ -1556,7 +1640,7 @@ Terminal logs and assertion output will display here after you run code.
                 alert("Select a problem from the Problem Catalog on the left first.");
                 return;
             }
-            
+
             try {
                 const isConfirmed = window.confirm(`Reset code for "${activeProblem.title}" to its clean starter boilerplate? Your unsaved draft will be lost.`);
                 if (!isConfirmed) return;
@@ -1577,10 +1661,10 @@ Terminal logs and assertion output will display here after you run code.
             clearTimeout(draftSavingTimeout);
 
             // Fetch fresh clean boilerplate stub from server
-            const filePath = activeLanguage === "python" 
-                ? (activeProblem.pythonPath || activeProblem.python_file) 
+            const filePath = activeLanguage === "python"
+                ? (activeProblem.pythonPath || activeProblem.python_file)
                 : (activeProblem.jsPath || activeProblem.js_file);
-            
+
             let cleanCode = "";
             if (filePath) {
                 try {
@@ -1665,7 +1749,7 @@ Terminal logs and assertion output will display here after you run code.
             const dueCount = problemList.filter(p => p.is_due).length;
             const dueEl = document.getElementById("due-count-val");
             if (dueEl) dueEl.innerText = dueCount;
-            
+
             const railDueIcon = document.getElementById("rail-due-icon");
             const railDueBadge = document.getElementById("rail-due-count-badge");
             if (dueCount > 0) {
@@ -1680,7 +1764,7 @@ Terminal logs and assertion output will display here after you run code.
                     railDueBadge.style.display = "none";
                 }
             }
-            
+
             // Select requested problem from URL query
             if (!activeProblem) {
                 const urlParams = new URLSearchParams(window.location.search);
@@ -1689,7 +1773,7 @@ Terminal logs and assertion output will display here after you run code.
                 if (targetLang && (targetLang === 'python' || targetLang === 'javascript')) {
                     switchLanguage(targetLang);
                 }
-                
+
                 if (urlParams.get('mode') === 'daily_deck') {
                     isDailyDeckMode = true;
                     isDueOnlyFilterActive = true;
@@ -1708,8 +1792,8 @@ Terminal logs and assertion output will display here after you run code.
                     }
                 } else if (targetId && problemList.length > 0) {
                     const normTarget = targetId.toLowerCase().replace(/[^a-z0-9]/g, '');
-                    const targetProb = problemList.find(p => 
-                        p.id === targetId || 
+                    const targetProb = problemList.find(p =>
+                        p.id === targetId ||
                         p.id.toLowerCase().replace(/[^a-z0-9]/g, '') === normTarget ||
                         (p.pythonPath && p.pythonPath.toLowerCase().includes(normTarget)) ||
                         (p.title && p.title.toLowerCase().replace(/[^a-z0-9]/g, '') === normTarget)
@@ -1767,8 +1851,8 @@ Terminal logs and assertion output will display here after you run code.
             "Tries": { icon: "fa-network-wired", color: "#06b6d4" },
             "Graphs": { icon: "fa-diagram-next", color: "#8b5cf6" },
             "Advanced Graphs": { icon: "fa-route", color: "#6366f1" },
-            "1D Dynamic Programming": { icon: "fa-bolt", color: "#eab308" },
-            "2D Dynamic Programming": { icon: "fa-chart-area", color: "#f97316" },
+            "1D DP": { icon: "fa-bolt", color: "#eab308" },
+            "2D DP": { icon: "fa-chart-area", color: "#f97316" },
             "Greedy": { icon: "fa-coins", color: "#84cc16" },
             "Intervals": { icon: "fa-ruler-horizontal", color: "#14b8a6" },
             "Math & Geometry": { icon: "fa-shapes", color: "#3b82f6" },
@@ -1790,7 +1874,7 @@ Terminal logs and assertion output will display here after you run code.
                 btn.title = pattern;
                 btn.onclick = () => expandAndFilterPattern(pattern);
                 btn.innerHTML = `<i class="fa-solid ${iconInfo.icon}"></i>`;
-                
+
                 if (activeProblem && activeProblem.pattern === pattern) {
                     btn.classList.add("active");
                 }
@@ -1818,15 +1902,16 @@ Terminal logs and assertion output will display here after you run code.
                 groups[pat].push(p);
             });
 
-            // Ensure active problem group or first pattern group is expanded by default
-            if (activeProblem && activeProblem.pattern) {
-                collapsedGroups[activeProblem.pattern] = false;
-            } else if (Object.keys(collapsedGroups).length === 0 && Object.keys(groups).length > 0) {
-                const firstPattern = Object.keys(groups)[0];
-                collapsedGroups[firstPattern] = false;
+            // Strict Single Accordion State Management:
+            // Default: ALL groups collapsed (true).
+            // If activeProblem exists and no pattern filter is active, expand ONLY activeProblem.pattern.
+            if (activeProblem && activeProblem.pattern && !isPatternFiltering) {
+                if (collapsedGroups[activeProblem.pattern] === undefined) {
+                    collapsedGroups[activeProblem.pattern] = false;
+                }
             }
 
-            // Render each pattern group (COLLAPSED by default unless active or expanded)
+            // Render each pattern group (COLLAPSED by default unless explicitly expanded)
             Object.keys(groups).forEach(pattern => {
                 const probs = groups[pattern];
                 const isGroupCollapsed = collapsedGroups[pattern] !== false;
@@ -1849,23 +1934,27 @@ Terminal logs and assertion output will display here after you run code.
                         <span>${escapeHtml(pattern)}</span>
                         <span style="color: var(--text-muted); font-size: 0.75rem; font-weight: 600;">(${probs.length})</span>
                     </span>
-                    <i class="fa-solid ${isGroupCollapsed ? 'fa-chevron-right' : 'fa-chevron-down'}" style="font-size:0.75rem; color:var(--text-muted); transition: transform 0.2s;"></i>
+                    <i class="chevron-arrow fa-solid ${isGroupCollapsed ? 'fa-chevron-right' : 'fa-chevron-down'}" style="font-size:0.75rem; color:var(--text-muted); transition: transform 0.2s;"></i>
                 `;
 
                 // Group Content Container
                 const groupContent = document.createElement("div");
                 groupContent.className = `pattern-group-content ${isGroupCollapsed ? 'collapsed' : ''}`;
 
-                // Toggle click on Group Header
+                // Toggle click on Group Header (Strict Single-Accordion UX)
                 groupHeader.onclick = (e) => {
                     e.stopPropagation();
-                    const nowCollapsed = !groupContent.classList.contains("collapsed");
-                    collapsedGroups[pattern] = nowCollapsed;
-                    groupContent.classList.toggle("collapsed", nowCollapsed);
-                    const icon = groupHeader.querySelector("i");
-                    if (icon) {
-                        icon.className = `fa-solid ${nowCollapsed ? 'fa-chevron-right' : 'fa-chevron-down'}`;
-                    }
+                    const isCurrentlyExpanded = !groupContent.classList.contains("collapsed");
+
+                    // Collapse ALL pattern groups first
+                    Object.keys(groups).forEach(k => {
+                        collapsedGroups[k] = true;
+                    });
+
+                    // Toggle target group (expand if it was collapsed, collapse if it was expanded)
+                    collapsedGroups[pattern] = isCurrentlyExpanded;
+
+                    renderProblems();
                 };
 
                 // Render problem cards inside this group
@@ -1879,7 +1968,7 @@ Terminal logs and assertion output will display here after you run code.
 
                     item.onclick = (e) => {
                         e.stopPropagation();
-                        selectProblem(p);
+                        selectProblem(p, true);
                     };
 
                     let badgeHtml = "";
@@ -1912,15 +2001,21 @@ Terminal logs and assertion output will display here after you run code.
             });
         }
 
+        let isPatternFiltering = false;
+
         function toggleDueFilter() {
             isDueOnlyFilterActive = !isDueOnlyFilterActive;
+            expandSidebar();
+
             const btn = document.getElementById("due-filter-btn");
-            if (btn) {
-                if (isDueOnlyFilterActive) {
-                    btn.style.background = "rgba(239, 68, 68, 0.2)";
+            if (isDueOnlyFilterActive) {
+                if (btn) {
+                    btn.style.background = "rgba(239, 68, 68, 0.25)";
                     btn.style.borderColor = "rgba(239, 68, 68, 0.5)";
                     btn.style.color = "#ef4444";
-                } else {
+                }
+            } else {
+                if (btn) {
                     btn.style.background = "rgba(255, 255, 255, 0.05)";
                     btn.style.borderColor = "var(--border-subtle)";
                     btn.style.color = "var(--text-muted)";
@@ -1932,11 +2027,11 @@ Terminal logs and assertion output will display here after you run code.
         // Filter search input & Due toggle
         function filterProblems() {
             const query = document.getElementById("search-input").value.trim().toLowerCase();
-            
+
             if (!allCatalogProblems || allCatalogProblems.length === 0) {
                 allCatalogProblems = problemList ? [...problemList] : [];
             }
-            
+
             if (!query && !isDueOnlyFilterActive) {
                 renderProblems();
                 return;
@@ -1947,10 +2042,10 @@ Terminal logs and assertion output will display here after you run code.
 
             // Filter all catalog problems by query AND due status
             const filteredProbs = allCatalogProblems.filter(p => {
-                const matchesQuery = !query || 
-                                     p.title.toLowerCase().includes(query) || 
-                                     (p.pattern && p.pattern.toLowerCase().includes(query)) || 
-                                     (p.difficulty && p.difficulty.toLowerCase().includes(query));
+                const matchesQuery = !query ||
+                    p.title.toLowerCase().includes(query) ||
+                    (p.pattern && p.pattern.toLowerCase().includes(query)) ||
+                    (p.difficulty && p.difficulty.toLowerCase().includes(query));
                 const matchesDue = !isDueOnlyFilterActive || p.is_due === true;
                 return matchesQuery && matchesDue;
             });
@@ -2031,7 +2126,10 @@ Terminal logs and assertion output will display here after you run code.
             }
 
             if (problem.pattern) {
-                collapsedGroups[problem.pattern] = false; // ensure pattern group stays expanded
+                Object.keys(collapsedGroups).forEach(k => {
+                    collapsedGroups[k] = true;
+                });
+                collapsedGroups[problem.pattern] = false; // ensure ONLY active pattern group stays expanded
             }
 
             // Persist selected problem ID in localStorage & URL params to preserve selection across theme toggles & reloads
@@ -2042,38 +2140,66 @@ Terminal logs and assertion output will display here after you run code.
                     currentUrl.searchParams.set('id', problem.id);
                     history.replaceState(null, '', currentUrl.toString());
                 }
-            } catch(e) {}
-            
-            // Update active state selection in UI without re-rendering
+            } catch (e) { }
+
+            // Enforce single-accordion DOM state sync: collapse all non-targeted category containers
             document.querySelectorAll('.pattern-group-header').forEach(header => {
-                header.style.borderLeftColor = "transparent";
-            });
-            document.querySelectorAll('.problem-item').forEach(el => {
-                el.classList.remove('active');
-                if (el.getAttribute('data-problem-id') === problem.id) {
-                    el.classList.add('active');
-                    const content = el.closest('.pattern-group-content');
-                    if (content) {
-                        content.classList.remove('collapsed');
-                    }
-                    const header = content?.previousElementSibling;
-                    if (header && header.classList.contains('pattern-group-header')) {
-                        header.style.borderLeftColor = "var(--accent-green)";
-                        const icon = header.querySelector('i');
-                        if (icon) icon.className = "fa-solid fa-chevron-down";
-                    }
+                const headerPattern = header.getAttribute('data-pattern');
+                const isTarget = problem.pattern && (headerPattern === problem.pattern);
+
+                header.classList.toggle('active', isTarget);
+                header.style.borderLeftColor = isTarget ? "var(--accent-green)" : "";
+
+                const icon = header.querySelector('i.chevron-arrow');
+                if (icon) {
+                    icon.className = `chevron-arrow fa-solid ${isTarget ? 'fa-chevron-down' : 'fa-chevron-right'}`;
+                }
+
+                const content = header.nextElementSibling;
+                if (content && content.classList.contains('pattern-group-content')) {
+                    content.classList.toggle('collapsed', !isTarget);
                 }
             });
 
-            // Highlight current problem's pattern icon on 50px Mini Rail
+            document.querySelectorAll('.problem-item').forEach(el => {
+                const isItemActive = el.getAttribute('data-problem-id') === problem.id;
+                el.classList.toggle('active', isItemActive);
+            });
+
+            // Highlight current problem's pattern icon on 50px Mini Rail (Exact Match Only)
             document.querySelectorAll('.pattern-rail-btn').forEach(btn => {
                 const btnPattern = btn.getAttribute('data-pattern');
-                const isMatch = problem.pattern && btnPattern && 
-                    (problem.pattern.toLowerCase() === btnPattern.toLowerCase() ||
-                     problem.pattern.toLowerCase().includes(btnPattern.toLowerCase().replace('1d ', '').replace('2d ', '')));
+                const isMatch = problem.pattern && btnPattern &&
+                    (problem.pattern.toLowerCase() === btnPattern.toLowerCase());
                 btn.classList.toggle('active', !!isMatch);
             });
-            
+
+            // State-aware Auto-Scrolling:
+            const sidebarEl = document.getElementById("app-sidebar");
+            const isSidebarCollapsed = sidebarEl && sidebarEl.classList.contains("collapsed");
+
+            if (isSidebarCollapsed) {
+                // Collapsed state: scroll the 50px mini rail to center the active rail button
+                const activeRailBtn = document.querySelector('.pattern-rail-btn.active');
+                if (activeRailBtn) {
+                    activeRailBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            } else {
+                // Expanded state: scroll #problem-list-container to position the active category header at the top
+                setTimeout(() => {
+                    const listContainer = document.getElementById("problem-list-container");
+                    const activeHeader = document.querySelector('.pattern-group-header.active');
+                    const activeItem = document.querySelector('.problem-item.active');
+                    const targetEl = activeHeader || activeItem;
+                    if (listContainer && targetEl) {
+                        listContainer.scrollTo({
+                            top: Math.max(0, targetEl.offsetTop - 10),
+                            behavior: 'smooth'
+                        });
+                    }
+                }, 200);
+            }
+
             // Set basic details
             document.getElementById("doc-title").innerText = problem.title;
             document.getElementById("doc-stats").innerHTML = `
@@ -2129,7 +2255,7 @@ Terminal logs and assertion output will display here after you run code.
                                 const parsed = JSON.parse(savedDraftRaw);
                                 savedDraftCode = parsed.code;
                                 savedDraftHash = parsed.starterHash;
-                            } catch(e) {
+                            } catch (e) {
                                 savedDraftCode = savedDraftRaw;
                             }
                         } else {
@@ -2139,10 +2265,10 @@ Terminal logs and assertion output will display here after you run code.
 
                     // Discard invalid or legacy drafts
                     if (savedDraftCode && (
-                        savedDraftCode.includes("<!DOCTYPE") || 
-                        savedDraftCode.includes("Error response") || 
-                        savedDraftCode.includes("Error code: 404") || 
-                        savedDraftCode.includes("Error processing file") || 
+                        savedDraftCode.includes("<!DOCTYPE") ||
+                        savedDraftCode.includes("Error response") ||
+                        savedDraftCode.includes("Error code: 404") ||
+                        savedDraftCode.includes("Error processing file") ||
                         savedDraftCode.includes("is not a function") ||
                         savedDraftCode.includes('if __name__ == "__main__":') ||
                         savedDraftCode.includes('if (require.main === module)') ||
@@ -2157,7 +2283,7 @@ Terminal logs and assertion output will display here after you run code.
                     const response = await fetch(`${API_BASE}/api/boilerplate?path=${encodeURIComponent(filePath)}`, {
                         signal: activeBoilerplateController.signal
                     });
-                    
+
                     if (response.ok) {
                         const serverStarterHash = response.headers.get('X-Starter-Hash');
                         const code = await response.text();
@@ -2197,7 +2323,7 @@ Terminal logs and assertion output will display here after you run code.
             if (overlay) {
                 overlay.style.display = "flex";
             }
-            
+
             // Clear console
             const terminal = document.getElementById("terminal-body");
             if (terminal) {
@@ -2219,7 +2345,7 @@ Terminal logs and assertion output will display here after you run code.
                     const code = await response.text();
                     extractDescriptionFromBoilerplate(code);
                 }
-            } catch (err) {}
+            } catch (err) { }
         }
 
         // Helper to extract top comments and show them as description
@@ -2294,7 +2420,7 @@ Terminal logs and assertion output will display here after you run code.
         function switchLanguage(lang) {
             if (activeLanguage === lang) return;
             activeLanguage = lang;
-            
+
             document.getElementById("btn-lang-python").classList.toggle("active", lang === "python");
             document.getElementById("btn-lang-js").classList.toggle("active", lang === "javascript");
 
@@ -2335,7 +2461,7 @@ Terminal logs and assertion output will display here after you run code.
         async function runTests() {
             if (!activeProblem) return;
             saveCodeDraft();
-            
+
             const terminal = document.getElementById("terminal-body");
             document.getElementById("term-status").innerText = "Executing...";
             terminal.className = "terminal-body";
@@ -2353,7 +2479,7 @@ Terminal logs and assertion output will display here after you run code.
                 });
 
                 const data = await response.json();
-                
+
                 if (data.exit_code === 0) {
                     terminal.className = "terminal-body";
                     terminal.innerText = data.stdout || "Success! All unit test assertions passed successfully.";
@@ -2408,10 +2534,10 @@ Terminal logs and assertion output will display here after you run code.
                 // Show submission result in terminal
                 const terminal = document.getElementById("terminal-body");
                 terminal.className = "terminal-body";
-                
+
                 const nextDateStr = new Date(data.next_review * 1000).toLocaleDateString();
                 const sign = data.elo_change >= 0 ? "+" : "";
-                
+
                 terminal.innerText = `
 Submission Logged Successfully!
 ------------------------------------
@@ -2446,10 +2572,10 @@ New ELO Rating:    ${data.user_rating} ELO.
             const sidebar = document.getElementById("app-sidebar");
             const toggleIcon = document.getElementById("sidebar-toggle-icon");
             const toggleBtn = document.getElementById("sidebar-toggle-btn");
-            
+
             document.documentElement.classList.remove("sidebar-init-collapsed");
             document.documentElement.classList.add("sidebar-init-expanded");
-            
+
             if (sidebar) {
                 sidebar.classList.remove("collapsed");
                 sidebar.classList.add("expanded");
@@ -2473,10 +2599,10 @@ New ELO Rating:    ${data.user_rating} ELO.
             const sidebar = document.getElementById("app-sidebar");
             const toggleIcon = document.getElementById("sidebar-toggle-icon");
             const toggleBtn = document.getElementById("sidebar-toggle-btn");
-            
+
             document.documentElement.classList.remove("sidebar-init-expanded");
             document.documentElement.classList.add("sidebar-init-collapsed");
-            
+
             if (sidebar) {
                 sidebar.classList.remove("expanded");
                 sidebar.classList.add("collapsed");
@@ -2511,11 +2637,11 @@ New ELO Rating:    ${data.user_rating} ELO.
         // Expand sidebar, expand targeted pattern group, and scroll to it
         function expandAndFilterPattern(patternName) {
             expandSidebar();
-            
+
             const searchInput = document.getElementById("search-input");
             if (searchInput) searchInput.value = "";
             isDueOnlyFilterActive = false;
-            
+
             const dueBtn = document.getElementById("due-filter-btn");
             if (dueBtn) {
                 dueBtn.style.background = "rgba(255, 255, 255, 0.05)";
@@ -2524,6 +2650,7 @@ New ELO Rating:    ${data.user_rating} ELO.
             }
 
             // Expand targeted pattern group and collapse all other pattern groups
+            isPatternFiltering = true;
             if (problemList) {
                 const uniquePatterns = [...new Set(problemList.map(p => p.pattern || "General"))];
                 uniquePatterns.forEach(k => {
@@ -2537,16 +2664,24 @@ New ELO Rating:    ${data.user_rating} ELO.
 
             // Re-render problem catalog with only target pattern open
             renderProblems();
+            isPatternFiltering = false;
 
-            // Smooth scroll to the target pattern header
+            // Smooth scroll to the target pattern header directly on #problem-list-container
             setTimeout(() => {
+                const listContainer = document.getElementById("problem-list-container");
                 const headers = document.querySelectorAll('.pattern-group-header');
                 headers.forEach(h => {
-                    if (h.innerText.includes(patternName)) {
-                        h.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    const hPattern = h.getAttribute('data-pattern');
+                    if (hPattern === patternName || h.innerText.includes(patternName)) {
+                        if (listContainer) {
+                            listContainer.scrollTo({
+                                top: Math.max(0, h.offsetTop - 10),
+                                behavior: 'smooth'
+                            });
+                        }
                     }
                 });
-            }, 150);
+            }, 200);
         }
 
         // Toggle Sidebar display (Single Boundary Edge Handle)
@@ -2571,60 +2706,60 @@ New ELO Rating:    ${data.user_rating} ELO.
             const resizer = document.getElementById("workspace-resizer");
             const leftPane = document.querySelector(".problem-description-pane");
             const mainWorkspace = document.querySelector(".main-workspace");
-            
+
             if (!resizer || !leftPane || !mainWorkspace) return;
-            
+
             let isDragging = false;
-            
+
             resizer.addEventListener("mousedown", (e) => {
                 isDragging = true;
                 resizer.classList.add("dragging");
-                
+
                 // Add temporary class to body or direct styles to disable text selection and pointer events
                 document.body.style.userSelect = "none";
                 document.body.style.cursor = "col-resize";
-                
+
                 const editorBox = document.getElementById("code-editor-container");
                 if (editorBox) editorBox.style.pointerEvents = "none";
-                
+
                 const solBox = document.getElementById("solution-editor-container");
                 if (solBox) solBox.style.pointerEvents = "none";
-                
+
                 e.preventDefault();
             });
-            
+
             document.addEventListener("mousemove", (e) => {
                 if (!isDragging) return;
-                
+
                 const rect = mainWorkspace.getBoundingClientRect();
                 const offsetLeft = e.clientX - rect.left;
                 let percentage = (offsetLeft / rect.width) * 100;
-                
+
                 // Keep splitting boundary within reasonable limits (20% - 80%)
                 if (percentage < 20) percentage = 20;
                 if (percentage > 80) percentage = 80;
-                
+
                 leftPane.style.width = `${percentage}%`;
-                
+
                 // Trigger real-time layout resizing for Monaco Editors
                 if (monacoEditor) monacoEditor.layout();
                 if (solutionEditor) solutionEditor.layout();
             });
-            
+
             document.addEventListener("mouseup", () => {
                 if (!isDragging) return;
                 isDragging = false;
                 resizer.classList.remove("dragging");
-                
+
                 document.body.style.userSelect = "";
                 document.body.style.cursor = "";
-                
+
                 const editorBox = document.getElementById("code-editor-container");
                 if (editorBox) editorBox.style.pointerEvents = "auto";
-                
+
                 const solBox = document.getElementById("solution-editor-container");
                 if (solBox) solBox.style.pointerEvents = "auto";
-                
+
                 // Final layout adjustments
                 if (monacoEditor) monacoEditor.layout();
                 if (solutionEditor) solutionEditor.layout();
@@ -2632,4 +2767,5 @@ New ELO Rating:    ${data.user_rating} ELO.
         });
     </script>
 </body>
+
 </html>
