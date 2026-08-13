@@ -1281,8 +1281,12 @@ Terminal logs and assertion output will display here after you run code.
                 return;
             }
             
-            const isConfirmed = confirm(`Reset code for "${activeProblem.title}" to its clean starter boilerplate? Your unsaved draft will be lost.`);
-            if (!isConfirmed) return;
+            try {
+                const isConfirmed = window.confirm(`Reset code for "${activeProblem.title}" to its clean starter boilerplate? Your unsaved draft will be lost.`);
+                if (!isConfirmed) return;
+            } catch (e) {
+                // Proceed if window.confirm is unavailable or blocked in environment
+            }
 
             // Purge all draft variants for this problem from localStorage
             for (let i = localStorage.length - 1; i >= 0; i--) {
@@ -1314,7 +1318,7 @@ Terminal logs and assertion output will display here after you run code.
                 }
             }
 
-            if (monacoEditor && cleanCode) {
+            if (monacoEditor) {
                 monacoEditor.setValue(cleanCode);
             }
 
