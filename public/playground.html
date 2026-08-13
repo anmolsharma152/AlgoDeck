@@ -1634,7 +1634,7 @@ Terminal logs and assertion output will display here after you run code.
                     item.className = `problem-item ${isSelected ? 'active' : ''}`;
                     item.onclick = (e) => {
                         e.stopPropagation();
-                        selectProblem(p);
+                        selectProblem(p, true);
                     };
 
                     let badgeHtml = "";
@@ -1668,10 +1668,15 @@ Terminal logs and assertion output will display here after you run code.
         }
 
         // Select active problem and pull boilerplate from server
-        async function selectProblem(problem) {
+        async function selectProblem(problem, autoCollapse = false) {
             if (!problem) return;
             activeProblem = problem;
             currentAssistanceLevel = "CLEAN";
+
+            if (autoCollapse) {
+                collapseSidebar();
+            }
+
             if (problem.pattern) {
                 collapsedGroups[problem.pattern] = false; // ensure pattern group stays expanded
             }
@@ -2071,6 +2076,27 @@ New ELO Rating:    ${data.user_rating} ELO.
                 }
             } catch (err) {
                 alert(`Submission error: ${err}`);
+            }
+        }
+
+        // Collapse Sidebar helper
+        function collapseSidebar() {
+            const sidebar = document.getElementById("app-sidebar");
+            const toggleIcon = document.getElementById("sidebar-toggle-icon");
+            const toggleBtn = document.getElementById("sidebar-toggle-btn");
+            if (sidebar && !sidebar.classList.contains("collapsed")) {
+                sidebar.classList.add("collapsed");
+                if (toggleBtn) {
+                    toggleBtn.classList.add("collapsed");
+                    toggleBtn.title = "Expand Sidebar";
+                }
+                if (toggleIcon) {
+                    toggleIcon.className = "fa-solid fa-chevron-right";
+                }
+                setTimeout(() => {
+                    if (monacoEditor) monacoEditor.layout();
+                    if (solutionEditor) solutionEditor.layout();
+                }, 260);
             }
         }
 
