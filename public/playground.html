@@ -748,6 +748,127 @@
         .sidebar.expanded .sidebar-full-content {
             display: flex !important;
         }
+
+        /* Premium Themed Search & Filter Component */
+        .problem-search {
+            padding: 10px 14px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-surface);
+        }
+
+        .search-input-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-element);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 7px 11px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .search-input-wrapper:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.18), inset 0 1px 2px rgba(0, 0, 0, 0.05);
+            background: var(--bg-surface);
+        }
+
+        .search-input-wrapper i {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            transition: color 0.2s ease;
+        }
+
+        .search-input-wrapper:focus-within i {
+            color: var(--primary);
+        }
+
+        .search-input-wrapper input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-main);
+            font-size: 0.82rem;
+            font-weight: 500;
+            width: 100%;
+        }
+
+        .search-input-wrapper input::placeholder {
+            color: var(--text-muted);
+            opacity: 0.7;
+        }
+
+        .due-filter-btn {
+            background: var(--bg-element);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 7px 11px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.78rem;
+            font-weight: 600;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .due-filter-btn:hover {
+            border-color: var(--primary);
+            color: var(--text-main);
+            background: var(--bg-surface);
+        }
+
+        .due-filter-btn.active {
+            background: rgba(239, 68, 68, 0.15) !important;
+            border-color: rgba(239, 68, 68, 0.5) !important;
+            color: #ef4444 !important;
+        }
+
+        /* Light Theme Search Overrides */
+        [data-theme="light"] .search-input-wrapper {
+            background: #f1f5f9 !important;
+            border-color: #cbd5e1 !important;
+        }
+
+        [data-theme="light"] .search-input-wrapper:focus-within {
+            background: #ffffff !important;
+            border-color: #9333ea !important;
+            box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.15) !important;
+        }
+
+        [data-theme="light"] .search-input-wrapper input {
+            color: #0f172a !important;
+        }
+
+        [data-theme="light"] .search-input-wrapper input::placeholder {
+            color: #64748b !important;
+        }
+
+        [data-theme="light"] .due-filter-btn {
+            background: #f1f5f9 !important;
+            border-color: #cbd5e1 !important;
+            color: #475569 !important;
+        }
+
+        [data-theme="light"] .due-filter-btn:hover {
+            background: #ffffff !important;
+            border-color: #9333ea !important;
+            color: #0f172a !important;
+        }
+
+        [data-theme="light"] .due-filter-btn.active {
+            background: rgba(239, 68, 68, 0.1) !important;
+            border-color: #dc2626 !important;
+            color: #dc2626 !important;
+        }
+
         .sidebar-toggle-btn {
             position: absolute;
             left: 306px;
@@ -941,12 +1062,12 @@
                         </span>
                     </div>
                 </div>
-                <div class="problem-search" style="display: flex; gap: 8px; align-items: center;">
-                    <div style="flex: 1; display: flex; align-items: center; gap: 8px; background: rgba(0, 0, 0, 0.2); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 6px 10px;">
-                        <i class="fa-solid fa-magnifying-glass text-muted" style="font-size: 0.8rem;"></i>
-                        <input type="text" id="search-input" placeholder="Search problems..." oninput="filterProblems()" style="background: none; border: none; outline: none; color: var(--text-main); font-size: 0.82rem; width: 100%;">
+                <div class="problem-search">
+                    <div class="search-input-wrapper">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="search-input" placeholder="Search problems or patterns..." oninput="filterProblems()">
                     </div>
-                    <button id="due-filter-btn" onclick="toggleDueFilter()" class="due-filter-btn" title="Toggle Due Today Only" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-subtle); color: var(--text-muted); padding: 6px 10px; border-radius: 8px; cursor: pointer; font-size: 0.78rem; font-weight: 600; white-space: nowrap; display: flex; align-items: center; gap: 5px; transition: all 0.2s;">
+                    <button id="due-filter-btn" onclick="toggleDueFilter()" class="due-filter-btn" title="Toggle Due Today Only">
                         <i class="fa-solid fa-bell" style="font-size: 0.75rem;"></i> <span id="due-btn-text">Due (<span id="due-count-val">0</span>)</span>
                     </button>
                 </div>
