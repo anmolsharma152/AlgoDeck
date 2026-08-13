@@ -1806,9 +1806,12 @@ Terminal logs and assertion output will display here after you run code.
                 groups[pat].push(p);
             });
 
-            // If an active problem exists, ensure its pattern group is expanded
+            // Ensure active problem group or first pattern group is expanded by default
             if (activeProblem && activeProblem.pattern) {
                 collapsedGroups[activeProblem.pattern] = false;
+            } else if (Object.keys(collapsedGroups).length === 0 && Object.keys(groups).length > 0) {
+                const firstPattern = Object.keys(groups)[0];
+                collapsedGroups[firstPattern] = false;
             }
 
             // Render each pattern group (COLLAPSED by default unless active or expanded)
@@ -2506,10 +2509,17 @@ New ELO Rating:    ${data.user_rating} ELO.
                 dueBtn.style.color = "var(--text-muted)";
             }
 
-            // Collapse all other pattern groups except the targeted pattern
-            Object.keys(collapsedGroups).forEach(k => {
-                collapsedGroups[k] = (k !== patternName);
-            });
+            // Expand targeted pattern group and collapse all other pattern groups
+            if (problemList) {
+                const uniquePatterns = [...new Set(problemList.map(p => p.pattern || "General"))];
+                uniquePatterns.forEach(k => {
+                    collapsedGroups[k] = (k !== patternName);
+                });
+            } else {
+                Object.keys(collapsedGroups).forEach(k => {
+                    collapsedGroups[k] = (k !== patternName);
+                });
+            }
 
             // Re-render problem catalog with only target pattern open
             renderProblems();
