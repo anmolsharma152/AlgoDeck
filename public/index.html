@@ -582,18 +582,26 @@
         <div class="dev-container">
             <div class="dev-avatar-wrapper" style="display: flex; flex-direction: column; align-items: center; gap: 12px; flex-shrink: 0;">
                 <div class="dev-avatar" onclick="cycleDevAvatar(1)" title="Click to switch photo" style="cursor: pointer; position: relative;">
-                    <img id="dev-profile-img" src="/images/new_images/IMG_20251208_174224_141.jpg" alt="Developer Profile" style="transition: opacity 0.3s ease;">
+                    <img id="dev-profile-img" src="/images/Anmol.jpg" alt="Developer Profile" style="transition: opacity 0.3s ease;">
                     <script>
                         (function() {
                             try {
                                 var avatars = [
-                                    '/images/new_images/IMG_20251208_174224_141.jpg',
-                                    '/images/new_images/my-notion-face-transparent.png',
-                                    '/images/new_images/Anmol.jpg',
-                                    '/images/new_images/headshot.jpg',
-                                    '/images/new_images/my-notion-face-portrait.png',
-                                    '/images/new_images/ChatGPT Image Apr 7, 2025, 12_17_20 PM.png',
-                                    '/images/developer_profile.jpg'
+                                    '/images/Anmol.jpg',
+                                    '/images/Anmol_2.jpg',
+                                    '/images/AnmolGoa.png',
+                                    '/images/notion-face-portrait.png',
+                                    '/images/headshot.jpg',
+                                    '/images/chatgpt_portrait.png',
+                                    '/images/chatgpt_portrait_2.png',
+                                    '/images/AI.png',
+                                    '/images/AI_2.png',
+                                    '/images/image.jpg',
+                                    '/images/image_2.jpg',
+                                    '/images/image_3.jpg',
+                                    '/images/pepe-the-frog.jpg',
+                                    '/images/developer_profile.jpg',
+                                    '/images/developer_profile.png'
                                 ];
                                 var idx = parseInt(localStorage.getItem('algodeck_avatar_idx') || '0', 10);
                                 if (!isNaN(idx) && idx >= 0 && idx < avatars.length) {
@@ -633,13 +641,21 @@
     <script>
         (function() {
             const DEV_AVATARS = [
-                '/images/new_images/IMG_20251208_174224_141.jpg',
-                '/images/new_images/my-notion-face-transparent.png',
-                '/images/new_images/Anmol.jpg',
-                '/images/new_images/headshot.jpg',
-                '/images/new_images/my-notion-face-portrait.png',
-                '/images/new_images/ChatGPT Image Apr 7, 2025, 12_17_20 PM.png',
-                '/images/developer_profile.jpg'
+                '/images/Anmol.jpg',
+                '/images/Anmol_2.jpg',
+                '/images/AnmolGoa.png',
+                '/images/notion-face-portrait.png',
+                '/images/headshot.jpg',
+                '/images/chatgpt_portrait.png',
+                '/images/chatgpt_portrait_2.png',
+                '/images/AI.png',
+                '/images/AI_2.png',
+                '/images/image.jpg',
+                '/images/image_2.jpg',
+                '/images/image_3.jpg',
+                '/images/pepe-the-frog.jpg',
+                '/images/developer_profile.jpg',
+                '/images/developer_profile.png'
             ];
 
             let currentIndex = parseInt(localStorage.getItem('algodeck_avatar_idx') || '0', 10);
