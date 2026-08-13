@@ -326,6 +326,8 @@ body {
 .code-editor-box,
 #code-editor-container,
 #solution-editor-container,
+#monaco-editor,
+#solution-editor,
 .monaco-editor,
 .monaco-editor-background,
 .monaco-editor .margin {
