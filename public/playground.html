@@ -1105,10 +1105,18 @@ Terminal logs and assertion output will display here after you run code.
                 }
             });
 
-            // Self-healing migration to clear old corrupted drafts
-            if (localStorage.getItem('algodeck_version') !== '3.0') {
-                localStorage.clear();
-                localStorage.setItem('algodeck_version', '3.0');
+            // Self-healing migration to clear old corrupted drafts and legacy placeholders
+            if (localStorage.getItem('algodeck_version') !== '3.2') {
+                for (let i = localStorage.length - 1; i >= 0; i--) {
+                    const key = localStorage.key(i);
+                    if (key && key.startsWith('draft_')) {
+                        const val = localStorage.getItem(key);
+                        if (val && val.includes('Write your code here')) {
+                            localStorage.removeItem(key);
+                        }
+                    }
+                }
+                localStorage.setItem('algodeck_version', '3.2');
                 console.log("AlgoDeck: Cleared legacy drafts cache.");
             }
 
@@ -1737,7 +1745,8 @@ Terminal logs and assertion output will display here after you run code.
                         savedDraftCode.includes('if __name__ == "__main__":') ||
                         savedDraftCode.includes('if (require.main === module)') ||
                         savedDraftCode.includes('Time Complexity:') ||
-                        savedDraftCode.includes('Space Complexity:')
+                        savedDraftCode.includes('Space Complexity:') ||
+                        savedDraftCode.includes('Write your code here')
                     )) {
                         localStorage.removeItem(draftKey);
                         savedDraftCode = null;
