@@ -26,9 +26,13 @@ const DOCS_DIR = path.join(PROJECT_ROOT, 'docs');
 app.use(cors());
 app.use(express.json());
 
-// Disable browser caching for all API routes
-app.use('/api', (req, res, next) => {
-    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+// Disable browser caching for all HTML, JS, CSS, and API routes
+app.use((req, res, next) => {
+    if (!req.path.startsWith('/vendor/')) {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+    }
     next();
 });
 
