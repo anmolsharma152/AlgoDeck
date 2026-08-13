@@ -1168,18 +1168,23 @@ Terminal logs and assertion output will display here after you run code.
         function formatCode() {
             if (!monacoEditor) return;
             try {
-                if (activeLanguage === "javascript") {
+                const val = monacoEditor.getValue();
+                if (activeLanguage === "python") {
+                    monacoEditor.setValue(formatPythonCode(val));
+                } else {
                     const action = monacoEditor.getAction('editor.action.formatDocument');
                     if (action) {
-                        action.run();
+                        action.run().catch(() => {
+                            monacoEditor.setValue(formatJsCode(val));
+                        });
                     } else {
-                        const val = monacoEditor.getValue();
                         monacoEditor.setValue(formatJsCode(val));
                     }
-                } else {
-                    const val = monacoEditor.getValue();
-                    const formatted = formatPythonCode(val);
-                    monacoEditor.setValue(formatted);
+                }
+                const terminal = document.getElementById("terminal-body");
+                if (terminal) {
+                    terminal.className = "terminal-body";
+                    terminal.innerText = `[${new Date().toLocaleTimeString()}] Formatted ${activeLanguage} document cleanly.`;
                 }
             } catch (err) {
                 console.warn("Formatting failed:", err);
@@ -1307,31 +1312,13 @@ Terminal logs and assertion output will display here after you run code.
                 const draftKey = `draft_${activeProblem.id}_${activeLanguage}`;
                 localStorage.removeItem(draftKey);
                 
-                const filePath = (activeLanguage === "python" ? activeProblem.pythonPath : activeProblem.jsPath) || "";
-                if (!filePath) {
-                    console.error("No file path found for problem", activeProblem);
-                    return;
-                }
-                
-                try {
-                    const response = await fetch(`${API_BASE}/api/boilerplate?path=${encodeURIComponent(filePath)}`);
-                    if (response.ok) {
-                        const code = await response.text();
-                        if (monacoEditor) {
-                            monacoEditor.setValue(code);
-                        }
-                        const terminal = document.getElementById("terminal-body");
-                        if (terminal) {
-                            terminal.className = "terminal-body";
-                            terminal.innerText = `[${new Date().toLocaleTimeString()}] Starter code reset successfully for ${activeProblem.title} (${activeLanguage}).`;
-                            document.getElementById("term-status").innerText = "Ready";
-                        }
-                    } else {
-                        alert("Failed to load starter boilerplate from server.");
-                    }
-                } catch (err) {
-                    console.error("Error resetting boilerplate:", err);
-                    alert("Error connecting to server to reset code.");
+                await selectProblem(activeProblem);
+
+                const terminal = document.getElementById("terminal-body");
+                if (terminal) {
+                    terminal.className = "terminal-body";
+                    terminal.innerText = `[${new Date().toLocaleTimeString()}] Starter code reset successfully for ${activeProblem.title} (${activeLanguage}).`;
+                    document.getElementById("term-status").innerText = "Ready";
                 }
             }
         }
