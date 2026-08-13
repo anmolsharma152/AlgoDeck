@@ -654,6 +654,8 @@
             z-index: 20;
             background: var(--bg-surface);
             border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: row;
         }
         html.sidebar-init-collapsed .sidebar,
         .sidebar.collapsed {
@@ -664,6 +666,87 @@
         .sidebar.expanded {
             width: 320px !important;
             min-width: 320px !important;
+        }
+
+        /* Dedicated 50px Mini Rail Bar */
+        .sidebar-rail-content {
+            width: 50px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 14px 0;
+            gap: 12px;
+            background: var(--bg-surface);
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: none;
+            flex-shrink: 0;
+        }
+        .sidebar-rail-content::-webkit-scrollbar {
+            display: none;
+        }
+        .rail-icon-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .rail-icon-btn:hover {
+            background: var(--bg-element);
+            color: var(--primary);
+            border-color: var(--primary);
+            transform: scale(1.1);
+        }
+        .rail-icon-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #ef4444;
+            color: #ffffff;
+            font-size: 0.6rem;
+            font-weight: 800;
+            padding: 2px 4px;
+            border-radius: 9999px;
+            line-height: 1;
+        }
+
+        .sidebar-full-content {
+            width: 320px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        /* Toggle Display between Rail & Full Content */
+        html.sidebar-init-collapsed .sidebar-full-content,
+        .sidebar.collapsed .sidebar-full-content {
+            display: none !important;
+        }
+        html.sidebar-init-collapsed .sidebar-rail-content,
+        .sidebar.collapsed .sidebar-rail-content {
+            display: flex !important;
+        }
+
+        html.sidebar-init-expanded .sidebar-rail-content,
+        .sidebar.expanded .sidebar-rail-content {
+            display: none !important;
+        }
+        html.sidebar-init-expanded .sidebar-full-content,
+        .sidebar.expanded .sidebar-full-content {
+            display: flex !important;
         }
         .sidebar-toggle-btn {
             position: absolute;
@@ -794,7 +877,62 @@
 
         <!-- Sidebar Problem Selector -->
         <div class="sidebar" id="app-sidebar">
-            <div style="width: 320px; display: flex; flex-direction: column; height: 100%; overflow: hidden; flex-shrink: 0;">
+            <!-- Dedicated 50px Mini Activity Rail View -->
+            <div class="sidebar-rail-content" id="sidebar-rail-content">
+                <button class="rail-icon-btn" onclick="expandSidebar()" title="Catalog & User ELO Rating">
+                    <i class="fa-solid fa-trophy" style="color: #ffb020;"></i>
+                </button>
+                <button class="rail-icon-btn" onclick="expandSidebarAndSearch()" title="Search Problems (Click to open)">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+                <button class="rail-icon-btn" onclick="toggleDueFilter()" title="Due Today Reviews">
+                    <i class="fa-solid fa-bell" style="color: #ef4444;"></i>
+                    <span class="rail-icon-badge" id="rail-due-count-badge">0</span>
+                </button>
+                <div style="width: 24px; height: 1px; background: var(--border); margin: 2px 0;"></div>
+                <button class="rail-icon-btn" onclick="expandAndFilterPattern('Arrays & Hashing')" title="Arrays & Hashing">
+                    <i class="fa-solid fa-layer-group"></i>
+                </button>
+                <button class="rail-icon-btn" onclick="expandAndFilterPattern('Two Pointers')" title="Two Pointers">
+                    <i class="fa-solid fa-arrows-left-right"></i>
+                </button>
+                <button class="rail-icon-btn" onclick="expandAndFilterPattern('Sliding Window')" title="Sliding Window">
+                    <i class="fa-solid fa-border-all"></i>
+                </button>
+                <button class="rail-icon-btn" onclick="expandAndFilterPattern('Stack')" title="Stack">
+                    <i class="fa-solid fa-bars-staggered"></i>
+                </button>
+                <button class="rail-icon-btn" onclick="expandAndFilterPattern('Binary Search')" title="Binary Search">
+                    <i class="fa-solid fa-magnifying-glass-chart"></i>
+                </button>
+                <button class="rail-icon-btn" onclick="expandAndFilterPattern('Linked List')" title="Linked List">
+                    <i class="fa-solid fa-link"></i>
+                </button>
+                <button class="rail-icon-btn" onclick="expandAndFilterPattern('Trees')" title="Trees">
+                    <i class="fa-solid fa-diagram-project"></i>
+                </button>
+                <button class="rail-icon-btn" onclick="expandAndFilterPattern('Heap / Priority Queue')" title="Heap / Priority Queue">
+                    <i class="fa-solid fa-arrow-up-wide-short"></i>
+                </button>
+                <button class="rail-icon-btn" onclick="expandAndFilterPattern('Backtracking')" title="Backtracking">
+                    <i class="fa-solid fa-rotate-left"></i>
+                </button>
+                <button class="rail-icon-btn" onclick="expandAndFilterPattern('Graphs')" title="Graphs">
+                    <i class="fa-solid fa-network-wired"></i>
+                </button>
+                <button class="rail-icon-btn" onclick="expandAndFilterPattern('1D Dynamic Programming')" title="Dynamic Programming">
+                    <i class="fa-solid fa-bolt"></i>
+                </button>
+                <button class="rail-icon-btn" onclick="expandAndFilterPattern('Bit Manipulation')" title="Bit Manipulation">
+                    <i class="fa-solid fa-microchip"></i>
+                </button>
+                <button class="rail-icon-btn" onclick="expandAndFilterPattern('Math & Geometry')" title="Math & Geometry">
+                    <i class="fa-solid fa-shapes"></i>
+                </button>
+            </div>
+
+            <!-- Full 320px Catalog View -->
+            <div class="sidebar-full-content" id="sidebar-full-content">
                 <div class="sidebar-header">
                     <span>Problem Catalog</span>
                     <div style="display: flex; gap: 8px; align-items: center;">
@@ -1411,6 +1549,8 @@ Terminal logs and assertion output will display here after you run code.
             const dueCount = problemList.filter(p => p.is_due).length;
             const dueEl = document.getElementById("due-count-val");
             if (dueEl) dueEl.innerText = dueCount;
+            const railDueBadge = document.getElementById("rail-due-count-badge");
+            if (railDueBadge) railDueBadge.innerText = dueCount;
             
             // Select requested problem from URL query
             if (!activeProblem) {
@@ -2152,26 +2292,40 @@ New ELO Rating:    ${data.user_rating} ELO.
             }
         }
 
+        // Expand sidebar and focus search input
+        function expandSidebarAndSearch() {
+            expandSidebar();
+            setTimeout(() => {
+                const searchInput = document.getElementById("search-input");
+                if (searchInput) searchInput.focus();
+            }, 100);
+        }
+
+        // Expand sidebar and filter by specific pattern
+        function expandAndFilterPattern(patternName) {
+            expandSidebar();
+            setTimeout(() => {
+                const searchInput = document.getElementById("search-input");
+                if (searchInput) {
+                    searchInput.value = patternName;
+                    filterProblems();
+                    searchInput.focus();
+                }
+            }, 100);
+        }
+
         // Toggle Sidebar display (Single Boundary Edge Handle)
         function toggleSidebar() {
             const sidebar = document.getElementById("app-sidebar");
             const toggleIcon = document.getElementById("sidebar-toggle-icon");
             const toggleBtn = document.getElementById("sidebar-toggle-btn");
-            const isCollapsed = sidebar.classList.toggle("collapsed");
             
-            if (toggleBtn) {
-                toggleBtn.classList.toggle("collapsed", isCollapsed);
-                toggleBtn.title = isCollapsed ? "Expand Sidebar" : "Collapse Sidebar";
+            const isCurrentlyCollapsed = sidebar.classList.contains("collapsed") || document.documentElement.classList.contains("sidebar-init-collapsed");
+            if (isCurrentlyCollapsed) {
+                expandSidebar();
+            } else {
+                collapseSidebar();
             }
-            if (toggleIcon) {
-                toggleIcon.className = isCollapsed ? "fa-solid fa-chevron-right" : "fa-solid fa-chevron-left";
-            }
-            
-            // Trigger Monaco layouts to adapt smoothly
-            setTimeout(() => {
-                if (monacoEditor) monacoEditor.layout();
-                if (solutionEditor) solutionEditor.layout();
-            }, 260);
         }
 
         // Spotlight cursor tracking
