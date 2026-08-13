@@ -200,7 +200,7 @@ async function runForcedFailTest() {
     }
 
     const pgHost = process.env.POSTGRES_HOST || '127.0.0.1';
-    const pgPort = process.env.POSTGRES_PORT || 5432;
+    const pgPort = process.env.POSTGRES_PORT || 5433;
     const pgUser = process.env.POSTGRES_USER || 'postgres';
     const pgPass = process.env.POSTGRES_PASSWORD || 'algodeck_secure_pass';
 
@@ -287,7 +287,7 @@ verify_cmd = [
     async function verify() {{
         const client = new Client({{
             host: process.env.POSTGRES_HOST || '127.0.0.1',
-            port: process.env.POSTGRES_PORT || 5432,
+            port: process.env.POSTGRES_PORT || 5433,
             user: process.env.POSTGRES_USER || 'postgres',
             password: process.env.POSTGRES_PASSWORD || 'algodeck_secure_pass',
             database: 'postgres'
