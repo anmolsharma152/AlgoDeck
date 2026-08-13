@@ -993,54 +993,7 @@ Terminal logs and assertion output will display here after you run code.
         const monacoVsPath = window.location.protocol === 'file:' ? './vendor/monaco-editor/vs' : '/vendor/monaco-editor/vs';
         require.config({ paths: { vs: monacoVsPath } });
         require(['vs/editor/editor.main'], function () {
-            // Define custom high-contrast Monaco themes for AlgoDeck
-            monaco.editor.defineTheme('algodeck-dark', {
-                base: 'vs-dark',
-                inherit: true,
-                rules: [
-                    { token: 'keyword', foreground: 'c084fc', fontStyle: 'bold' },
-                    { token: 'string', foreground: '4ade80' },
-                    { token: 'number', foreground: 'f59e0b' },
-                    { token: 'comment', foreground: '64748b', fontStyle: 'italic' },
-                    { token: 'identifier', foreground: 'f8fafc' },
-                    { token: 'delimiter', foreground: '94a3b8' },
-                    { token: 'type', foreground: '38bdf8' }
-                ],
-                colors: {
-                    'editor.background': '#0a0a0c',
-                    'editor.foreground': '#f8fafc',
-                    'editorCursor.foreground': '#38bdf8',
-                    'editorLineNumber.foreground': '#475569',
-                    'editorLineNumber.activeForeground': '#f8fafc',
-                    'editor.selectionBackground': '#334155',
-                    'editor.inactiveSelectionBackground': '#1e293b'
-                }
-            });
-
-            monaco.editor.defineTheme('algodeck-light', {
-                base: 'vs',
-                inherit: true,
-                rules: [
-                    { token: 'keyword', foreground: '7e22ce', fontStyle: 'bold' },
-                    { token: 'string', foreground: '15803d' },
-                    { token: 'number', foreground: 'd97706' },
-                    { token: 'comment', foreground: '64748b', fontStyle: 'italic' },
-                    { token: 'identifier', foreground: '0f172a' },
-                    { token: 'delimiter', foreground: '334155' },
-                    { token: 'type', foreground: '0284c7' }
-                ],
-                colors: {
-                    'editor.background': '#ffffff',
-                    'editor.foreground': '#0f172a',
-                    'editorCursor.foreground': '#0284c7',
-                    'editorLineNumber.foreground': '#94a3b8',
-                    'editorLineNumber.activeForeground': '#0f172a',
-                    'editor.selectionBackground': '#e2e8f0',
-                    'editor.inactiveSelectionBackground': '#f1f5f9'
-                }
-            });
-
-            const currentMonacoTheme = (localStorage.getItem('algodeck_theme') === 'light') ? 'algodeck-light' : 'algodeck-dark';
+            const currentMonacoTheme = (localStorage.getItem('algodeck_theme') === 'light') ? 'vs' : 'vs-dark';
             
             // Main coding editor
             monacoEditor = monaco.editor.create(document.getElementById('code-editor-container'), {
@@ -1089,9 +1042,10 @@ Terminal logs and assertion output will display here after you run code.
 
             // Listen for top navbar theme toggle events for instant live theme switching
             window.addEventListener('algodeck-theme-changed', (e) => {
-                const monacoTheme = e.detail?.monacoTheme || (e.detail?.theme === 'light' ? 'algodeck-light' : 'algodeck-dark');
+                const isLight = e.detail?.theme === 'light' || e.detail?.monacoTheme === 'vs' || localStorage.getItem('algodeck_theme') === 'light';
+                const targetTheme = isLight ? 'vs' : 'vs-dark';
                 if (window.monaco && window.monaco.editor) {
-                    window.monaco.editor.setTheme(monacoTheme);
+                    window.monaco.editor.setTheme(targetTheme);
                 }
                 if (monacoEditor) monacoEditor.layout();
                 if (solutionEditor) solutionEditor.layout();
@@ -1768,7 +1722,9 @@ Terminal logs and assertion output will display here after you run code.
                         }
 
                         currentStarterHash = serverStarterHash;
-                        monacoEditor.setValue(savedDraftCode || code);
+                        const rawCode = savedDraftCode || code;
+                        const cleanCode = (rawCode || '').replace(/\/\/\s*Write your code here/gi, '').replace(/#\s*Write your code here/gi, '');
+                        monacoEditor.setValue(cleanCode);
 
                         if (savedDraftCode) {
                             fetchBoilerplateDocstring(filePath);

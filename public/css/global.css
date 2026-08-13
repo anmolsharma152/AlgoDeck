@@ -325,8 +325,17 @@ body {
 
 [data-theme="light"] .code-editor-box,
 [data-theme="light"] #code-editor-container,
-[data-theme="light"] #solution-editor-container {
+[data-theme="light"] #solution-editor-container,
+[data-theme="light"] .monaco-editor,
+[data-theme="light"] .monaco-editor-background,
+[data-theme="light"] .monaco-editor .margin {
     background-color: #ffffff !important;
+}
+
+.monaco-editor,
+.monaco-editor-background,
+.monaco-editor .margin {
+    background-color: var(--bg-surface) !important;
 }
 
 [data-theme="light"] .terminal-panel {

@@ -19,10 +19,12 @@
             themeBtn.title = `Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`;
         }
 
-        // Sync Monaco editor themes if initialized
-        const monacoTheme = theme === 'light' ? 'algodeck-light' : 'algodeck-dark';
+        // Sync Monaco editor themes if initialized using standard built-in 'vs' and 'vs-dark'
+        const monacoTheme = theme === 'light' ? 'vs' : 'vs-dark';
         if (window.monaco && window.monaco.editor) {
-            window.monaco.editor.setTheme(monacoTheme);
+            try {
+                window.monaco.editor.setTheme(monacoTheme);
+            } catch(e) {}
         }
 
         // Broadcast theme change event to all active components
