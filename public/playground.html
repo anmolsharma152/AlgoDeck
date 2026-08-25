@@ -1054,6 +1054,113 @@
         .problem-item {
             flex-shrink: 0;
         }
+
+        /* Mobile Responsive Workspace Overrides (< 768px) */
+        @media (max-width: 768px) {
+            body {
+                overflow-y: auto !important;
+                height: auto !important;
+                min-height: 100vh !important;
+            }
+
+            .workspace {
+                flex-direction: column !important;
+                height: auto !important;
+                overflow: visible !important;
+            }
+
+            .sidebar-toggle-btn {
+                display: none !important;
+            }
+
+            /* On mobile, sidebar is a fixed slide-out drawer */
+            .sidebar {
+                position: fixed !important;
+                top: 56px !important;
+                left: 0 !important;
+                bottom: 0 !important;
+                height: calc(100vh - 56px) !important;
+                width: 300px !important;
+                min-width: 300px !important;
+                z-index: 1000 !important;
+                transform: translateX(-100%) !important;
+                transition: transform 0.25s ease !important;
+                box-shadow: 0 0 30px rgba(0, 0, 0, 0.7) !important;
+            }
+
+            .sidebar.mobile-drawer-open {
+                transform: translateX(0) !important;
+            }
+
+            .sidebar-rail-content {
+                display: none !important;
+            }
+
+            .sidebar-full-content {
+                display: flex !important;
+                width: 100% !important;
+            }
+
+            .resizer {
+                display: none !important;
+            }
+
+            .main-workspace {
+                flex-direction: column !important;
+                width: 100% !important;
+                overflow: visible !important;
+            }
+
+            .problem-description-pane {
+                width: 100% !important;
+                max-height: none !important;
+                border-right: none !important;
+                border-bottom: 1px solid var(--border) !important;
+                padding: 16px 12px !important;
+            }
+
+            .mobile-catalog-btn {
+                display: inline-flex !important;
+            }
+
+            .editor-container-pane {
+                width: 100% !important;
+                height: auto !important;
+            }
+
+            .code-editor-box {
+                min-height: 300px !important;
+                height: 360px !important;
+            }
+
+            .terminal-panel {
+                height: 180px !important;
+            }
+
+            .editor-header-bar {
+                padding: 8px 12px !important;
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 8px !important;
+            }
+
+            .editor-footer {
+                padding: 10px 14px !important;
+                flex-wrap: wrap !important;
+                gap: 8px !important;
+            }
+
+            .footer-left {
+                width: 100% !important;
+                display: flex !important;
+                gap: 8px !important;
+            }
+
+            .editor-btn {
+                flex: 1 !important;
+                justify-content: center !important;
+            }
+        }
     </style>
 </head>
 
@@ -1119,10 +1226,14 @@
         <div class="main-workspace">
             <!-- Left Pane: Problem Details / Solutions -->
             <div class="problem-description-pane">
-                <div class="tabs-header">
-                    <button class="tab-btn active" onclick="switchTab('description')">Description</button>
-                    <button class="tab-btn" id="solution-tab-header" onclick="switchTab('solution')">Reference
-                        Solution</button>
+                <div class="tabs-header" style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <button class="tab-btn active" onclick="switchTab('description')">Description</button>
+                        <button class="tab-btn" id="solution-tab-header" onclick="switchTab('solution')">Reference Solution</button>
+                    </div>
+                    <button class="mobile-catalog-btn" onclick="toggleMobileSidebar()" style="display: none; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 6px; background: var(--bg-element); border: 1px solid var(--border); color: var(--text-main); font-size: 0.8rem; font-weight: 700; cursor: pointer;">
+                        <i class="fa-solid fa-list-ul"></i> Problems
+                    </button>
                 </div>
 
                 <div class="tab-content-container">
@@ -2115,11 +2226,23 @@
             });
         }
 
+        window.toggleMobileSidebar = function() {
+            const sidebar = document.getElementById('app-sidebar');
+            if (sidebar) {
+                sidebar.classList.toggle('mobile-drawer-open');
+            }
+        };
+
         // Select active problem and pull boilerplate from server
         async function selectProblem(problem, autoCollapse = false) {
             if (!problem) return;
             activeProblem = problem;
             currentAssistanceLevel = "CLEAN";
+
+            const sidebar = document.getElementById('app-sidebar');
+            if (sidebar) {
+                sidebar.classList.remove('mobile-drawer-open');
+            }
 
             if (autoCollapse) {
                 collapseSidebar();

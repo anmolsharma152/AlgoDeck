@@ -478,6 +478,175 @@
             background: var(--accent-green);
             color: #000000;
         }
+
+        /* Light Mode High Contrast Overrides */
+        [data-theme="light"] .hero-title {
+            background: linear-gradient(135deg, #0f172a 30%, #334155 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+        }
+
+        [data-theme="light"] .hero-subtitle,
+        [data-theme="light"] .dev-bio {
+            color: #475569 !important;
+        }
+
+        [data-theme="light"] .btn-primary {
+            background: #0f172a !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.15) !important;
+        }
+
+        [data-theme="light"] .btn-secondary {
+            background: #ffffff !important;
+            color: #0f172a !important;
+            border-color: #cbd5e1 !important;
+        }
+
+        [data-theme="light"] .stat-card,
+        [data-theme="light"] .feature-card {
+            background: #ffffff !important;
+            border-color: #e2e8f0 !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04) !important;
+        }
+
+        [data-theme="light"] .stat-number,
+        [data-theme="light"] .feature-card h3,
+        [data-theme="light"] .dev-info h3,
+        [data-theme="light"] .section-header h2 {
+            color: #0f172a !important;
+        }
+
+        [data-theme="light"] .dev-role {
+            color: #059669 !important;
+        }
+
+        [data-theme="light"] .developer-section {
+            background: #f8fafc !important;
+            border-color: #e2e8f0 !important;
+        }
+
+        [data-theme="light"] .feature-code-box {
+            background: #f1f5f9 !important;
+            border-color: #cbd5e1 !important;
+            color: #0f172a !important;
+        }
+
+        /* Mobile Responsive Overrides (< 768px) */
+        @media (max-width: 768px) {
+            .spotlight-bg {
+                display: none !important;
+            }
+
+            .hero-section {
+                padding: 40px 16px 30px 16px !important;
+            }
+
+            .hero-title {
+                font-size: 2.1rem !important;
+                line-height: 1.25 !important;
+                margin-bottom: 16px !important;
+            }
+
+            .hero-subtitle {
+                font-size: 0.95rem !important;
+                line-height: 1.6 !important;
+                margin-bottom: 24px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 10px !important;
+            }
+
+            .btn-primary,
+            .btn-secondary {
+                justify-content: center !important;
+                width: 100% !important;
+                padding: 12px 20px !important;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 12px !important;
+                margin-top: 36px !important;
+            }
+
+            .stat-card {
+                padding: 16px 12px !important;
+            }
+
+            .stat-number {
+                font-size: 1.6rem !important;
+            }
+
+            .section-container {
+                margin: 50px auto !important;
+                padding: 0 16px !important;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr !important;
+                gap: 16px !important;
+            }
+
+            .developer-section {
+                padding: 50px 16px !important;
+            }
+
+            .dev-container {
+                flex-direction: column !important;
+                text-align: center !important;
+                gap: 20px !important;
+            }
+
+            .dev-avatar-wrapper {
+                margin: 0 auto !important;
+            }
+
+            .dev-avatar {
+                width: 120px !important;
+                height: 120px !important;
+            }
+
+            .dev-info {
+                width: 100% !important;
+                text-align: center !important;
+            }
+
+            .dev-info h3 {
+                font-size: 1.4rem !important;
+            }
+
+            .dev-bio {
+                text-align: left !important;
+                font-size: 0.9rem !important;
+                line-height: 1.6 !important;
+            }
+
+            .dev-socials {
+                justify-content: center !important;
+            }
+
+            footer {
+                flex-direction: column !important;
+                text-align: center !important;
+                gap: 16px !important;
+                padding: 30px 16px !important;
+            }
+
+            footer div {
+                text-align: center !important;
+                line-height: 1.6 !important;
+            }
+
+            footer div[style*="display: flex"] {
+                justify-content: center !important;
+                flex-wrap: wrap !important;
+                gap: 12px !important;
+            }
+        }
     </style>
 </head>
 <body>
