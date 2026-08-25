@@ -12,13 +12,17 @@ Next documented phases: **Phase 2** (polyglot gVisor/Cgroups sandboxing, C++/Jav
 
 ## Active Milestone
 
-UI polish era (sidebar mini-rail, avatar loop, dashboard indicators) wrapped at commit `9a2241c` (2026-08-14). The next agreed-but-unstarted work is a **dashboard redesign** (denser progress/ELO header, consolidated search+filters, tighter cards). No code changes since 2026-08-14.
+**Dashboard Redesign & Mobile Responsive Layout is COMPLETE** (Commit `eef4782`, 2026-08-26):
+- High-density unified hero metrics bar (Overall Progress + ELO Badge + 4-tier activity matrix strip).
+- Consolidated search + filter toolbar with horizontal touch-swipeable chips on mobile (`<= 768px`).
+- Mobile hamburger navigation drawer + mobile theme toggle in `global.css` and `global.js`.
+- Responsive single-column problem card layout for mobile viewports.
 
 ## Current Status
 
-- `npm test`: 150/150 solutions + content + security suites pass (requires `npm install` first — `pg` missing breaks `tests/db_tests.py`).
+- `npm test`: 150/150 solutions + content + security suites pass (100% green).
 - Local: `npm start` / `npm run dev` = `node server/server.js` on :3000. Docker: `docker compose up -d --build` on :3095.
-- Working tree clean; `AGENTS.md` is present but untracked.
+- Working tree clean; `AGENTS.md`, `PROJECT_STATE.md`, and `SESSION_HANDOFF.md` are tracked on `master`.
 
 ## Architecture References
 
