@@ -216,13 +216,21 @@
                     <i class="fa-solid fa-layer-group brand-logo"></i>
                     <span class="brand-name serif italic">AlgoDeck</span>
                 </a>
-                <nav class="header-nav">
+                <div class="mobile-header-actions">
+                    <button class="mobile-theme-btn" onclick="window.toggleTheme()" title="Toggle Light/Dark Theme" style="background: var(--bg-element); color: var(--nav-text); border: 1px solid var(--border); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                        ${themeIcon}
+                    </button>
+                    <button class="mobile-menu-btn" onclick="window.toggleMobileNav()" title="Toggle Navigation Menu">
+                        <i class="fa-solid fa-bars" id="mobile-menu-icon"></i>
+                    </button>
+                </div>
+                <nav class="header-nav" id="header-nav-menu">
                     <a href="${getUrl('index.html')}" class="nav-item ${isHome ? 'active' : ''}"><i class="fa-solid fa-house"></i> Home</a>
                     <a href="${getUrl('dashboard.html')}" class="nav-item ${isDash ? 'active' : ''}"><i class="fa-solid fa-chart-simple"></i> Dashboard</a>
                     <a href="${getUrl('playground.html')}" class="nav-item ${isPlayground ? 'active' : ''}"><i class="fa-solid fa-terminal"></i> Playground</a>
                     <a href="${getUrl('roadmap.html')}" class="nav-item ${isRoadmap ? 'active' : ''}"><i class="fa-solid fa-diagram-project"></i> Roadmap</a>
                     <a href="${getUrl('docs.html')}" class="nav-item ${isDocs ? 'active' : ''}"><i class="fa-solid fa-book"></i> Docs</a>
-                    <button id="btn-theme-toggle" onclick="window.toggleTheme()" title="Toggle Light/Dark Theme" style="background: var(--bg-element); color: var(--nav-text); border: 1px solid var(--border); width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;">
+                    <button id="btn-theme-toggle" class="desktop-theme-btn" onclick="window.toggleTheme()" title="Toggle Light/Dark Theme" style="background: var(--bg-element); color: var(--nav-text); border: 1px solid var(--border); width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;">
                         ${themeIcon}
                     </button>
                     <button class="btn-auth" onclick="window.openAuthModal()" style="background: var(--bg-element); color: var(--nav-text); border: 1px solid var(--border); padding: 7px 16px; border-radius: 9999px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
@@ -236,6 +244,17 @@
             fetchDueNudge();
         }
     }
+
+    window.toggleMobileNav = function() {
+        const nav = document.getElementById('header-nav-menu');
+        const icon = document.getElementById('mobile-menu-icon');
+        if (nav) {
+            nav.classList.toggle('mobile-open');
+            if (icon) {
+                icon.className = nav.classList.contains('mobile-open') ? 'fa-solid fa-xmark' : 'fa-solid fa-bars';
+            }
+        }
+    };
 
     async function fetchDueNudge() {
         const snoozeUntil = parseInt(localStorage.getItem('algodeck_snooze_until') || '0', 10);
