@@ -12,11 +12,12 @@ Next documented phases: **Phase 2** (polyglot gVisor/Cgroups sandboxing, C++/Jav
 
 ## Active Milestone
 
-**Dashboard Redesign & Mobile Responsive Layout is COMPLETE** (Commit `eef4782`, 2026-08-26):
-- High-density unified hero metrics bar (Overall Progress + ELO Badge + 4-tier activity matrix strip).
-- Consolidated search + filter toolbar with horizontal touch-swipeable chips on mobile (`<= 768px`).
-- Mobile hamburger navigation drawer + mobile theme toggle in `global.css` and `global.js`.
-- Responsive single-column problem card layout for mobile viewports.
+**Platform-Wide Mobile Overhaul & High-Contrast Light Mode is COMPLETE** (Commits `eef4782` & `1af29c0`, 2026-08-26):
+- **Home Page (`index.html`)**: Developer avatar rotator stacked centered above full-width bio on mobile; clean vertical stacked footer; high-contrast light mode typography; disabled spotlight radial shader on touchscreens.
+- **Documentation (`docs.html`)**: Responsive horizontal swipeable chip selector for docs; comfortable mobile text/table rendering.
+- **Roadmap (`roadmap.html`)**: Responsive complexity matrix and curriculum progression on mobile viewports.
+- **Playground (`playground.html`)**: Mobile study & SM-2 review mode with slide-out drawer problem catalog, full-width problem statement, reference solutions, and touch grading.
+- **Dashboard (`dashboard.html`)**: High-density hero metrics + swipeable chips + responsive single-column cards.
 
 ## Current Status
 
