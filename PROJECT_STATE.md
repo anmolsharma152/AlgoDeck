@@ -27,10 +27,10 @@ Next documented phases: **Phase 2** (polyglot gVisor/Cgroups sandboxing, C++/Jav
 
 ## Architecture References
 
+- `ARCHITECTURE.md` — Authoritative system architecture, component deep-dives, and trade-offs specification.
+- `TASKS.md` — Master operational task matrix, active workstreams, and roadmap from Phase 1 to Phase 4.
 - `AGENTS.md` — commands, gotchas, problem-adding contract, security-audit constraints (read first).
 - `server/lib/parser.js` — boilerplate extraction (strips test blocks, wraps top-level py funcs in `class Solution:`); `sandbox.js` (5s/512KB, `server/scratch/_temp_run_*`); `security.js` (rate limit 30/min, scratch sweep).
-- `docs/architecture.md` — SM-2/ELO math, schema, sandbox design.
-- `docs/MASTER_ROADMAP_AND_ARCHITECTURE.md` — phase roadmap + task matrix.
 - `public/tracker.json` + `server/descriptions.json` + `content/` — the 3 data stores that must stay in sync.
 
 ## Core Constraints
