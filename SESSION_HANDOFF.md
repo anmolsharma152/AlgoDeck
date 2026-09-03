@@ -2,47 +2,48 @@
 
 ## Current Work Session
 
-No code changes this session. Work: (1) repository audit and roadmap-status verification, (2) creation of `AGENTS.md` (new, untracked), `PROJECT_STATE.md`, `SESSION_HANDOFF.md`, (3) product discussion on mobile mode and desktop engagement engines. Last code commit: `9a2241c` (2026-08-14).
+Work completed:
+1. **Dashboard Redesign** (`public/dashboard.html`): High-density hero metrics bar (Progress + ELO + 4-tier activity matrix strip) + consolidated search & touch-swipeable chips.
+2. **Platform-Wide Mobile Overhaul**:
+   - `index.html`: Centered avatar rotator above full-width bio, vertical clean footer, disabled spotlight shader on touchscreens.
+   - `playground.html`: Mobile study & SM-2 review mode with slide-out drawer problem catalog (`[ 📑 Problems ]`).
+   - `docs.html`: Horizontal swipeable doc selector chips and fluid mobile text/table layout.
+   - `roadmap.html`: Responsive container padding and complexity cheatsheet scrolling.
+3. **Terminal Console Fix** (`public/playground.html`): Removed HTML indentation whitespace in `terminal-body` so initial text is flush left with 16px padding.
+4. **Master Architectural Synthesis**: Created and committed `ARCHITECTURE.md` (authoritative architecture & trade-offs spec) and `TASKS.md` (master roadmap from Phase 1 to Phase 4).
+5. **Docker Rebuild**: Container `algodeck_app` rebuilt and running live on `http://localhost:3095`.
 
 ## What Was Completed
 
-- Verified `npm test` green — requires `npm install` first; missing `pg` fails only `tests/db_tests.py`, easy to miss.
-- Confirmed **all** Phase 1 roadmap items (T-101→T-110) implemented; roadmap is ahead only on Phases 2/3/4.
-- Authored `AGENTS.md` (commands, problem-adding contract, security-audit constraints).
-- Decision: **mobile mode = review-only, deferred until SaaS phase** (full Monaco on mobile isn't worth it).
+- `npm test` 100% green across all 150 twin solutions, security audit, and database test suites.
+- All Phase 1 tasks (T-101→T-114) fully verified and committed to `master`.
+- Clean atomic commits pushed to `origin/master` (latest: `259ff28`).
 
-## What Is In Progress
+## What Is In Progress / Awaiting User Decision
 
-Nothing code-wise. Two pending decisions awaiting the user:
-1. Execute the **dashboard redesign** (denser stats header, consolidated filter bar, tighter cards) — previously agreed as next UI work.
-2. Which expansion phase to start (polyglot runners vs. 75→150 problem pool vs. auth/cloud).
+No active blockers. The project is at a major milestone boundary, ready for the next phase. Pending user decision between:
+1. **Phase 2 (Polyglot C++ Runner & Parser)**: Implement C++ compilation (`g++ -O3`) in `server/lib/sandbox.js` and AST boilerplate extractor in `server/lib/parser.js`.
+2. **Cloud Deployment (Render + Supabase)**: Follow `docs/deployment_plan.md` to deploy AlgoDeck on Render (Docker) + Supabase (PostgreSQL) for a live portfolio and resume HTTPS URL.
+3. **Phase 3 (Curriculum Expansion)**: Expand problem catalog from 75 to 100+ problems across 19 patterns.
 
 ## Files Touched Recently
 
-- `AGENTS.md` (created this session — **untracked, needs committing**)
-- `PROJECT_STATE.md`, `SESSION_HANDOFF.md` (created this session)
-- Prior session (committed): `public/playground.html`, `public/dashboard.html`, `public/index.html`, `public/css/global.css`, `public/js/global.js`, `public/js/tracker.js`, `server/server.js`
+- `ARCHITECTURE.md` (new, committed)
+- `TASKS.md` (new, committed)
+- `PROJECT_STATE.md` (updated & tracked)
+- `SESSION_HANDOFF.md` (updated & tracked)
+- `public/playground.html`
+- `public/dashboard.html`
+- `public/index.html`
+- `public/docs.html`
+- `public/roadmap.html`
 
-## Important Decisions
+## Important Decisions & Constraints
 
-- Scoped mobile: review/daily-deck only; playground stays desktop; gate behind Phase 4 SaaS.
-- Recommended desktop engagement engines: adaptive next-problem queue (uses existing SM-2/ELO data) + focus/deep-work sessions. Contests/leaderboards deferred to multi-tenant phase.
-- Commits go directly to `master`, conventional-commit style (`feat(ui):`, `fix(playground):`). Docker stack rebuilt after changes (`docker compose up -d --build`, live on :3095).
-
-## Current Blockers
-
-None technical. Blocked on the user's phase/priority decision. Note: `docker compose` needs the external `homelab` network; no postgres service exists (app falls back to JSON).
+- **Mobile Mode**: Optimized as a study, reference solution, and SM-2 review tool on phones; full Monaco IDE and live execution optimized for desktop.
+- **Strict String Audit Rules**: Never remove or rename literals checked by `tests/security_tests.py` (`problem_id: problem.id`, `res.ok`, `checkbox.checked = isCurrentlySolved`, `data-id="${p.id}"`, `ALLOWED_DOCS`, `/vendor/monaco-editor/vs/loader.js`).
+- **Conventional Commits**: Direct to `master` with conventional prefixes (`feat:`, `fix:`, `docs:`), followed by `docker compose up -d --build app`.
 
 ## Immediate Next Action
 
-Get the user's go/no-go on the dashboard redesign, then implement it (no further code changes were authorized).
-
-## First Prompt For The Next Agent
-
-"Implement the dashboard redesign: ELO/progress/due stats in one compact header row, search + filters merged into one control bar, tighter cards. Preserve the strings `security_tests.py` audits in `dashboard.html` (`problem_id: problem.id`, `res.ok`, `checkbox.checked = isCurrentlySolved`, `data-id="${p.id}"`), keep `npm test` green, commit `feat(ui):`, rebuild docker."
-
-## Roadmap Review
-
-- `future_plan.md` was referenced in a prior session's summary but **does not exist** in `docs/` — treat `MASTER_ROADMAP_AND_ARCHITECTURE.md` + `implementation_plan.md` + `distribution_plan.md` as canonical.
-- README claims compose provides Postgres; it does not (mismatch, already noted in `AGENTS.md`).
-- `server/descriptions.json` holds orphan key `01-16` (not in `tracker.json`) — likely a removed problem; confirm before renumbering.
+Ask the user whether to begin **Phase 2 (Polyglot C++ Execution)**, **Cloud Deployment (Render + Supabase)**, or **Phase 3 (Curriculum Expansion to 100+ questions)**.

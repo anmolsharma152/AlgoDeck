@@ -46,15 +46,21 @@ All Phase 1 items (T-101→T-110, verified in code): due-filter toggle, `AlgoDec
 
 ## Features In Progress
 
-None code-wise. In design discussion: **dashboard redesign** (agreed next UI work); **scoped mobile review mode** (recommended: review-only, defer until SaaS); **desktop engagement engines** (recommended: adaptive next-problem queue + focus sessions).
+None. Phase 1 and the UI/mobile responsiveness overhaul are 100% complete. Ready for Phase 2 or Cloud Deployment.
 
 ## Pending Features
 
-Phase 2: polyglot runners (C++/Java/Go/Rust), parser extension for foreign signatures, gVisor/Cgroups isolation (`--network none`, RAM/CPU/PID caps). Phase 3: expand to 100–150 problems with twin multi-language solutions. Phase 4: JWT + guest UUID auth, CI/CD, Caddy SSL, `/api/health` + `/api/metrics`, OpenAPI docs, GitHub-style heatmaps, leaderboards, execution timing/"beats %", Tauri/Electron desktop wrapper.
+- **Phase 2 (Active Next)**: Polyglot runners (C++, Java, Go, Rust in `sandbox.js`), AST parser expansion for polyglot starter stubs in `parser.js`, Linux Cgroups/gVisor container resource quotas.
+- **Phase 3**: Expand curriculum from 75 to 100–150 problems across 19 patterns with twin solutions and structured descriptions.
+- **Phase 4**: Cloud deployment (Render + Supabase Postgres), JWT + guest UUID auth, CI/CD pipeline, and Caddy SSL.
 
 ## Recently Modified Areas
 
-Sidebar collapsed activity rail + spacing (`playground.html`), avatar consolidation to `/public/images/` + rotation loop (`index.html`), dashboard status indicators + matrix filters (`dashboard.html`), DP pattern title shortening, light-mode indicators (`global.css`), no-cache headers (`server.js`), draft-version bump 3.5.
+- `ARCHITECTURE.md` and `TASKS.md` created and committed to root.
+- Terminal console text alignment fixed (`playground.html`).
+- Platform-wide mobile responsiveness across `index.html`, `dashboard.html`, `playground.html`, `docs.html`, and `roadmap.html`.
+- High-contrast light mode typography and card styling.
+- Compact hero metrics bar and consolidated filter toolbar (`dashboard.html`).
 
 ## Technical Debt
 
@@ -63,16 +69,14 @@ Sidebar collapsed activity rail + spacing (`playground.html`), avatar consolidat
 - `public/dsa-roadmap.png` ~20MB committed.
 - README's "100% offline" claim conflicts with cdnjs FontAwesome dependency.
 - `db_tests.py` relies on hardcoded default PG credentials when env vars are absent.
-- `AGENTS.md` untracked (add it in the next commit).
 
-## Open Questions
+## Open Decisions for User
 
-1. Execute dashboard redesign first, or begin Phase 2/3 expansion?
-2. Was `01-16` intentionally removed from the catalog?
-3. Scope of mobile support (recommended: review-only, post-SaaS)?
+1. **Next Major Step**: Begin **Phase 2 (Polyglot C++ Runner & Parser)**, or prepare **Cloud Deployment (Render + Supabase)** so you can showcase AlgoDeck on your portfolio/resume immediately?
+2. Clean up orphan key `01-16` in `server/descriptions.json` to keep catalog count perfectly aligned at 75?
 
-## Next Three Recommended Tasks
+## Next Recommended Tasks
 
-1. Dashboard redesign — condense ELO/stats into a 1-row header, merge search + filters into one control bar, tighten cards.
-2. Phase 2 spike — add one foreign runner (e.g. C++) to `sandbox.js` + parser boilerplate extraction, gated behind language availability.
-3. Phase 3 — expand catalog toward 100 problems (NeetCode 150 subset) keeping tracker/descriptions/solution-file sync + content tests green.
+1. **Phase 2 Spike (T-201)**: Implement C++ compilation & execution pipeline (`g++ -O3`) in `server/lib/sandbox.js` and starter boilerplate extractor in `server/lib/parser.js`.
+2. **Cloud Deployment Blueprint**: Provision Render Web Service Docker container + free Supabase PostgreSQL database to get a live portfolio HTTPS link.
+3. **Phase 3 Expansion (T-301)**: Expand catalog from 75 to 100+ problems starting with Arrays & Hashing (Top K Frequent, Product of Array Except Self).
