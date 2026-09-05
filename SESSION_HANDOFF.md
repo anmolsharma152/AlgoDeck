@@ -3,21 +3,25 @@
 ## Current Work Session
 
 Work completed:
-1. **Dashboard Redesign** (`public/dashboard.html`): High-density hero metrics bar (Progress + ELO + 4-tier activity matrix strip) + consolidated search & touch-swipeable chips.
-2. **Platform-Wide Mobile Overhaul**:
+1. **Tablet & Half-Screen Responsive Overhaul (Commit `297c03d`)**:
+   - `public/css/global.css`: Added `@media (max-width: 1024px)` with compact padding (`6px 11px`), `flex-wrap: nowrap`, and adjusted mobile drawer trigger to $\le 820\text{px}$. Eliminates awkward second-line wrapping of `Guest Mode` in tiled/half-screen viewports (~940px).
+   - `public/index.html`: Added `@media (max-width: 1024px)`. Scaled `.hero-title` from 3.5rem to 2.35rem (preventing 4-line wrapping) and converted `.stats-grid` into a balanced 2x2 grid.
+   - `public/dashboard.html`: Added `@media (max-width: 1024px)` to render `.metrics-grid` as a clean 2x2 grid.
+2. **Dashboard Redesign** (`public/dashboard.html`): High-density hero metrics bar (Progress + ELO + 4-tier activity matrix strip) + consolidated search & touch-swipeable chips.
+3. **Platform-Wide Mobile Overhaul**:
    - `index.html`: Centered avatar rotator above full-width bio, vertical clean footer, disabled spotlight shader on touchscreens.
    - `playground.html`: Mobile study & SM-2 review mode with slide-out drawer problem catalog (`[ 📑 Problems ]`).
    - `docs.html`: Horizontal swipeable doc selector chips and fluid mobile text/table layout.
    - `roadmap.html`: Responsive container padding and complexity cheatsheet scrolling.
-3. **Terminal Console Fix** (`public/playground.html`): Removed HTML indentation whitespace in `terminal-body` so initial text is flush left with 16px padding.
-4. **Master Architectural Synthesis**: Created and committed `ARCHITECTURE.md` (authoritative architecture & trade-offs spec) and `TASKS.md` (master roadmap from Phase 1 to Phase 4).
-5. **Docker Rebuild**: Container `algodeck_app` rebuilt and running live on `http://localhost:3095`.
+4. **Terminal Console Fix** (`public/playground.html`): Removed HTML indentation whitespace in `terminal-body` so initial text is flush left with 16px padding.
+5. **Master Architectural Synthesis**: Created and committed `ARCHITECTURE.md` (authoritative architecture & trade-offs spec) and `TASKS.md` (master roadmap from Phase 1 to Phase 4).
+6. **Docker Rebuild**: Container `algodeck_app` rebuilt and running live on `http://localhost:3095`.
 
 ## What Was Completed
 
-- `npm test` 100% green across all 150 twin solutions, security audit, and database test suites.
-- All Phase 1 tasks (T-101→T-114) fully verified and committed to `master`.
-- Clean atomic commits pushed to `origin/master` (latest: `259ff28`).
+- `npm test` & `tests/run_all_tests.py` 100% green across all 150 twin solutions, security audit, and database test suites.
+- All Phase 1 tasks (T-101→T-115) fully verified and committed to `master`.
+- Clean atomic commits pushed to `origin/master` (latest: `297c03d`).
 
 ## What Is In Progress / Awaiting User Decision
 

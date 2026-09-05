@@ -12,12 +12,11 @@ Next documented phases: **Phase 2** (polyglot gVisor/Cgroups sandboxing, C++/Jav
 
 ## Active Milestone
 
-**Platform-Wide Mobile Overhaul & High-Contrast Light Mode is COMPLETE** (Commits `eef4782` & `1af29c0`, 2026-08-26):
-- **Home Page (`index.html`)**: Developer avatar rotator stacked centered above full-width bio on mobile; clean vertical stacked footer; high-contrast light mode typography; disabled spotlight radial shader on touchscreens.
-- **Documentation (`docs.html`)**: Responsive horizontal swipeable chip selector for docs; comfortable mobile text/table rendering.
-- **Roadmap (`roadmap.html`)**: Responsive complexity matrix and curriculum progression on mobile viewports.
-- **Playground (`playground.html`)**: Mobile study & SM-2 review mode with slide-out drawer problem catalog, full-width problem statement, reference solutions, and touch grading.
-- **Dashboard (`dashboard.html`)**: High-density hero metrics + swipeable chips + responsive single-column cards.
+**Tablet, Half-Screen & Mobile Responsive Overhaul is COMPLETE** (Commits `eef4782`, `1af29c0`, `297c03d`):
+- **Navbar Wrapping Fix (`global.css`)**: Added `@media (max-width: 1024px)` with compact padding (`6px 11px`), `flex-wrap: nowrap`, and adjusted mobile drawer trigger to 820px, eliminating the awkward second-line wrap of `Guest Mode` in half-screen tiled windows (~940px).
+- **Hero & Stats Grid (`index.html`)**: Scaled `.hero-title` from 3.5rem to 2.35rem on $\le 1024\text{px}$ to prevent 4-line wrapping; converted `.stats-grid` into a balanced 2x2 grid.
+- **Dashboard Metrics (`dashboard.html`)**: Converted `.metrics-grid` to a clean 2x2 grid on $\le 1024\text{px}$.
+- **Mobile Study Mode**: Mobile drawer navigation, full-width bio, swipeable docs chips, and mobile touch SM-2 grading.
 
 ## Current Status
 
@@ -56,6 +55,7 @@ None. Phase 1 and the UI/mobile responsiveness overhaul are 100% complete. Ready
 
 ## Recently Modified Areas
 
+- Tablet & half-screen responsive layouts (Commit `297c03d`): navbar `flex-wrap: nowrap` on $\le 1024\text{px}$, 820px mobile drawer trigger, 2.35rem hero title, and balanced 2x2 stats/metrics grids (`global.css`, `index.html`, `dashboard.html`).
 - `ARCHITECTURE.md` and `TASKS.md` created and committed to root.
 - Terminal console text alignment fixed (`playground.html`).
 - Platform-wide mobile responsiveness across `index.html`, `dashboard.html`, `playground.html`, `docs.html`, and `roadmap.html`.

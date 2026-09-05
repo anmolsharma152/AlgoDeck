@@ -42,6 +42,7 @@ All foundational hardening, user experience enhancements, and modular backend re
 | **T-112** | UI / Layout | **Dashboard Space Optimization** | High-density unified hero metrics bar (Progress + ELO + 4-tier activity strip) and swipeable chips. | ✅ DONE |
 | **T-113** | Mobile Platform | **Platform-Wide Mobile Overhaul** | Mobile drawer navigation, full-width bio, swipeable docs chips, and mobile SM-2 study mode. | ✅ DONE |
 | **T-114** | Terminal UI | **Console Text Alignment Fix** | Removed HTML source indentation whitespace in `terminal-body` for flush left alignment. | ✅ DONE |
+| **T-115** | UI / Responsive | **Tablet & Half-Screen (≤ 1024px) Layouts** | Compact navbar (`flex-wrap: nowrap`, 6px 11px padding), adjusted mobile menu trigger to 820px, scaled hero title (2.35rem), and balanced 2x2 stats/metrics grids on Home and Dashboard. | ✅ DONE |
 
 ---
 
