@@ -455,6 +455,14 @@
       border-color: #0f172a !important;
     }
 
+    /* Tablet & Half-Screen Responsive Overrides (769px - 1024px) */
+    @media (max-width: 1024px) {
+      .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+    }
+
     /* Mobile Responsive Overrides (< 768px) */
     @media (max-width: 768px) {
       .container {

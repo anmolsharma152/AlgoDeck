@@ -532,6 +532,67 @@
             color: #0f172a !important;
         }
 
+        /* Tablet & Half-Screen Responsive Overrides (769px - 1024px) */
+        @media (max-width: 1024px) {
+            .hero-section {
+                padding: 55px 20px 45px 20px !important;
+            }
+
+            .hero-title {
+                font-size: 2.35rem !important;
+                line-height: 1.22 !important;
+                max-width: 720px !important;
+                margin: 0 auto 16px auto !important;
+            }
+
+            .hero-subtitle {
+                font-size: 1.05rem !important;
+                line-height: 1.55 !important;
+                max-width: 640px !important;
+                margin: 0 auto 28px auto !important;
+            }
+
+            .hero-actions {
+                gap: 12px !important;
+            }
+
+            .btn-primary,
+            .btn-secondary {
+                padding: 12px 22px !important;
+                font-size: 0.88rem !important;
+                gap: 8px !important;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                max-width: 620px !important;
+                gap: 16px !important;
+                margin: 40px auto 0 auto !important;
+            }
+
+            .stat-card {
+                padding: 20px 16px !important;
+            }
+
+            .stat-number {
+                font-size: 1.85rem !important;
+            }
+
+            .stat-label {
+                font-size: 0.8rem !important;
+            }
+
+            .section-container {
+                margin: 70px auto !important;
+                padding: 0 20px !important;
+            }
+
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 18px !important;
+            }
+        }
+
         /* Mobile Responsive Overrides (< 768px) */
         @media (max-width: 768px) {
             .spotlight-bg {

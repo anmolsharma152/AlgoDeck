@@ -250,7 +250,33 @@ body {
     color: var(--primary);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
+    .main-header {
+        padding: 0.75rem 1.25rem !important;
+        gap: 0.5rem !important;
+        flex-wrap: nowrap !important;
+    }
+
+    .header-nav {
+        gap: 0.35rem !important;
+        flex-wrap: nowrap !important;
+    }
+
+    .nav-item {
+        padding: 6px 11px !important;
+        font-size: 0.76rem !important;
+        gap: 6px !important;
+    }
+
+    .btn-auth {
+        padding: 6px 12px !important;
+        font-size: 0.76rem !important;
+        gap: 6px !important;
+        white-space: nowrap !important;
+    }
+}
+
+@media (max-width: 820px) {
     .main-header {
         padding: 0.75rem 1rem !important;
         flex-wrap: wrap !important;
